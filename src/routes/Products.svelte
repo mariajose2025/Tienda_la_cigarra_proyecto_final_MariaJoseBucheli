@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { getAll, create, update, remove } from '../services/firestoreService';
   import { currentUser } from '../stores/auth';
-  import { isAdmin } from '../utils/permissions';
+  import { canCreate, canEdit } from '../utils/permissions';
   import { alertThresholds } from '../stores/app';
   import { calculateStockAlert, calculateExpiryAlert, getDaysUntilExpiry } from '../utils/alerts';
   import { formatCurrency } from '../utils/iva';
@@ -12,7 +12,7 @@
   import Toast from '../components/common/Toast.svelte';
   import { uploadProductImage } from '../services/storageService';
   import { createProduct } from '../services/productService';
-  import JsBarcode from 'jsbarcode';
+  import Barcode from '../components/common/Barcode.svelte';
 
   let products = [];
   let categories = [];
@@ -25,6 +25,11 @@
   };
   let loading = false;
   let toast = { show: false, message: '', type: 'info' };
+
+  let filterCategory = '';
+  let viewMode = 'cards';
+
+  let newProductBarcode = '';
 
   // Variables para la carga de imágenes
   let selectedImageFile = null;
@@ -43,6 +48,10 @@
   ];
 
   $: thresholds = $alertThresholds;
+
+  $: filteredProducts = filterCategory
+    ? products.filter(p => p.categoryId === filterCategory)
+    : products;
 
   onMount(async () => {
     const [p, c, s] = await Promise.all([
@@ -100,13 +109,11 @@
     showIllustrationSelect = false;
 
     if (product) {
-      // Firestore puede devolver la fecha como Timestamp ({toDate()}) o como Date nativo
       let expiryStr = '';
       if (product.expiryDate) {
         const dateObj = product.expiryDate.toDate
           ? product.expiryDate.toDate()
           : new Date(product.expiryDate);
-        // Solo formatear si es una fecha válida
         if (!isNaN(dateObj.getTime())) {
           expiryStr = dateObj.toISOString().split('T')[0];
         }
@@ -124,9 +131,11 @@
         imageUrl: product.imageUrl || ''
       };
       imagePreviewUrl = product.imageUrl || '';
+      newProductBarcode = product.barcode || '';
     } else {
       formData = { name: '', categoryId: '', purchasePrice: 0, salePrice: 0, currentStock: 0, minimumStock: 0, expiryDate: '', supplierId: '', imageUrl: '' };
       imagePreviewUrl = '';
+      newProductBarcode = generateLocalBarcode();
     }
     showModal = true;
   }
@@ -137,6 +146,7 @@
     selectedImageFile = null;
     imagePreviewUrl = '';
     showIllustrationSelect = false;
+    newProductBarcode = '';
   }
 
   function handleImageChange(event) {
@@ -199,6 +209,10 @@
   }
 
   async function saveProduct() {
+    if (!formData.categoryId) {
+      toast = { show: true, message: 'Debes seleccionar una categoría antes de crear el producto', type: 'warning' };
+      return;
+    }
     if (!formData.name.trim()) {
       toast = { show: true, message: 'El nombre es obligatorio', type: 'warning' };
       return;
@@ -232,6 +246,7 @@
       const data = {
         ...formData,
         imageUrl: finalImageUrl,
+        barcode: editingProduct ? editingProduct.barcode : newProductBarcode,
         purchasePrice: Number(formData.purchasePrice),
         salePrice: Number(formData.salePrice),
         currentStock: Number(formData.currentStock),
@@ -284,234 +299,346 @@
     return d.toLocaleDateString('es-CO');
   }
 
-  function renderBarcode(element, code) {
-    if (!element || !code) return;
-    try {
-      JsBarcode(element, code, {
-        format: 'CODE128',
-        width: 1.2,
-        height: 30,
-        displayValue: true,
-        fontSize: 11,
-        margin: 2,
-        background: 'transparent',
-        lineColor: '#1f2937'
-      });
-    } catch (e) {
-      console.warn('Error rendering barcode:', code, e);
-    }
-  }
-
   function generateLocalBarcode() {
     const timestamp = Date.now().toString();
     const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
     return (timestamp.slice(-8) + random).slice(0, 12);
+  }
+
+  function getBarcode(product) {
+    if (product.barcode) return product.barcode;
+    const fallback = (product.id || product.name || '000000000000').replace(/[^a-zA-Z0-9]/g, '').slice(0, 12).padEnd(12, '0');
+    return fallback;
   }
 </script>
 
 <div class="page">
   <div class="page-header">
     <h1>Productos</h1>
-    {#if isAdmin($currentUser)}
+    {#if canCreate($currentUser, 'products')}
       <Button on:click={() => openModal()}>+ Nuevo</Button>
     {/if}
   </div>
 
-  <div class="products-list">
-    {#each products as product}
-      {@const stockAlert = calculateStockAlert(product.currentStock, product.minimumStock)}
-      {@const expiryAlert = product.expiryDate ? calculateExpiryAlert(product.expiryDate, thresholds) : 'green'}
-      {@const daysLeft = product.expiryDate ? getDaysUntilExpiry(product.expiryDate) : null}
-
-      <div class="product-card">
-        <div class="product-card-body">
-          <div class="product-image-container">
-            {#if getProductImage(product)}
-              <img src={getProductImage(product)} alt={product.name} class="product-img" />
-            {:else}
-              <div class="product-img-fallback" style="background-color: {getCategoryColor(product.categoryId)}">
-                <i class="fa-solid {getCategoryIcon(product.categoryId)}"></i>
-              </div>
-            {/if}
-          </div>
-
-          <div class="product-info-container">
-            <div class="product-header">
-              <h3>{product.name}</h3>
-              <div class="alerts">
-                <AlertBadge level={stockAlert} text="Stock: {product.currentStock}" />
-                {#if daysLeft !== null}
-                  <AlertBadge level={expiryAlert} text="{daysLeft}d para vencer" />
-                {/if}
-              </div>
-            </div>
-
-            <div class="product-details">
-              <div class="detail">
-                <span class="detail-label">Categoría</span>
-                <span class="detail-value">{getCategoryName(product.categoryId)}</span>
-              </div>
-              <div class="detail">
-                <span class="detail-label">Proveedor</span>
-                <span class="detail-value">{getSupplierName(product.supplierId)}</span>
-              </div>
-              <div class="detail">
-                <span class="detail-label">P. Compra</span>
-                <span class="detail-value">{formatCurrency(product.purchasePrice)}</span>
-              </div>
-              <div class="detail">
-                <span class="detail-label">P. Venta</span>
-                <span class="detail-value">{formatCurrency(product.salePrice)}</span>
-              </div>
-              <div class="detail">
-                <span class="detail-label">Stock Mín.</span>
-                <span class="detail-value">{product.minimumStock}</span>
-              </div>
-              {#if daysLeft !== null}
-                <div class="detail">
-                  <span class="detail-label">Vence</span>
-                  <span class="detail-value">{formatExpiryDate(product.expiryDate)}</span>
-                </div>
-              {/if}
-            </div>
-
-            {#if product.barcode}
-              <div class="barcode-container">
-                <div class="barcode-wrap" use:renderBarcode={product.barcode}></div>
-              </div>
-            {/if}
-          </div>
-        </div>
-
-        {#if isAdmin($currentUser)}
-          <div class="product-actions">
-            <button class="btn-icon edit" on:click={() => openModal(product)}><i class="fa-solid fa-pen"></i></button>
-            <button class="btn-icon delete" on:click={() => deleteProduct(product.id)}><i class="fa-solid fa-trash"></i></button>
-          </div>
-        {/if}
-      </div>
-    {:else}
-      <p class="empty">No hay productos registrados</p>
-    {/each}
-  </div>
-</div>
-
-<Modal show={showModal} title={editingProduct ? 'Editar Producto' : 'Nuevo Producto'} on:close={closeModal} size="large">
-  <div class="form-row">
-    <div class="form-group">
-      <label for="name">Nombre *</label>
-      <input id="name" type="text" bind:value={formData.name} placeholder="Nombre del producto" />
-    </div>
-    <div class="form-group">
-      <label for="category">Categoría</label>
-      <select id="category" bind:value={formData.categoryId}>
-        <option value="">Seleccionar...</option>
+  <div class="toolbar">
+    <div class="filter-group">
+      <i class="fa-solid fa-filter filter-icon"></i>
+      <select bind:value={filterCategory} class="filter-select">
+        <option value="">Todas las categorías</option>
         {#each categories as cat}
           <option value={cat.id}>{cat.name}</option>
         {/each}
       </select>
+      {#if filterCategory}
+        <button class="btn-clear-filter" on:click={() => filterCategory = ''}>
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      {/if}
+    </div>
+
+    <div class="view-toggle">
+      <button class="view-btn" class:active={viewMode === 'list'} on:click={() => viewMode = 'list'} title="Lista">
+        <i class="fa-solid fa-list"></i>
+      </button>
+      <button class="view-btn" class:active={viewMode === 'cards'} on:click={() => viewMode = 'cards'} title="Tarjetas">
+        <i class="fa-solid fa-grip"></i>
+      </button>
+      <button class="view-btn" class:active={viewMode === 'mosaic'} on:click={() => viewMode = 'mosaic'} title="Mosaico">
+        <i class="fa-solid fa-table-cells"></i>
+      </button>
     </div>
   </div>
 
-  <!-- SECCIÓN DE CARGA DE IMÁGENES -->
-  <div class="form-row image-section-row">
-    <div class="form-group full-width">
-      <span class="form-label">Imagen del Producto</span>
-      <div class="image-field-container">
-        <div class="image-preview-box">
-          {#if imagePreviewUrl}
-            <img src={imagePreviewUrl} alt="Vista Previa" class="preview-img" />
-            <button type="button" class="btn-clear-img" on:click={removeSelectedImage} title="Quitar imagen">
-              <i class="fa-solid fa-xmark"></i>
-            </button>
-          {:else}
-            <div class="preview-placeholder">
-              <i class="fa-solid fa-image"></i>
-              <span>Sin Imagen</span>
+  {#if viewMode === 'list'}
+    <div class="products-list">
+      {#each filteredProducts as product}
+        {@const stockAlert = calculateStockAlert(product.currentStock, product.minimumStock)}
+        {@const expiryAlert = product.expiryDate ? calculateExpiryAlert(product.expiryDate, thresholds) : 'green'}
+        {@const daysLeft = product.expiryDate ? getDaysUntilExpiry(product.expiryDate) : null}
+
+        <div class="product-card product-card-list">
+          <div class="product-card-body">
+            <div class="product-image-container">
+              {#if getProductImage(product)}
+                <img src={getProductImage(product)} alt={product.name} class="product-img" />
+              {:else}
+                <div class="product-img-fallback" style="background-color: {getCategoryColor(product.categoryId)}">
+                  <i class="fa-solid {getCategoryIcon(product.categoryId)}"></i>
+                </div>
+              {/if}
+            </div>
+
+            <div class="product-info-container">
+              <div class="product-header">
+                <h3>{product.name}</h3>
+                <div class="alerts">
+                  <AlertBadge level={stockAlert} text="Stock: {product.currentStock}" />
+                  {#if daysLeft !== null}
+                    <AlertBadge level={expiryAlert} text="{daysLeft}d para vencer" />
+                  {/if}
+                </div>
+              </div>
+
+              <div class="product-details">
+                <div class="detail">
+                  <span class="detail-label">Categoría</span>
+                  <span class="detail-value">{getCategoryName(product.categoryId)}</span>
+                </div>
+                <div class="detail">
+                  <span class="detail-label">Proveedor</span>
+                  <span class="detail-value">{getSupplierName(product.supplierId)}</span>
+                </div>
+                <div class="detail">
+                  <span class="detail-label">P. Compra</span>
+                  <span class="detail-value">{formatCurrency(product.purchasePrice)}</span>
+                </div>
+                <div class="detail">
+                  <span class="detail-label">P. Venta</span>
+                  <span class="detail-value">{formatCurrency(product.salePrice)}</span>
+                </div>
+                <div class="detail">
+                  <span class="detail-label">Stock Mín.</span>
+                  <span class="detail-value">{product.minimumStock}</span>
+                </div>
+                {#if daysLeft !== null}
+                  <div class="detail">
+                    <span class="detail-label">Vence</span>
+                    <span class="detail-value">{formatExpiryDate(product.expiryDate)}</span>
+                  </div>
+                {/if}
+              </div>
+
+              <div class="barcode-container">
+                <Barcode value={getBarcode(product)} />
+              </div>
+            </div>
+          </div>
+
+          {#if canEdit($currentUser, 'products')}
+            <div class="product-actions">
+              <button class="btn-icon edit" on:click={() => openModal(product)}><i class="fa-solid fa-pen"></i></button>
+              <button class="btn-icon delete" on:click={() => deleteProduct(product.id)}><i class="fa-solid fa-trash"></i></button>
             </div>
           {/if}
         </div>
-        <div class="image-actions-box">
-          <p class="image-tip">Sube una foto personalizada o selecciona una de nuestras ilustraciones locales.</p>
-          <div class="image-buttons">
-            <label class="btn-upload-file">
-              <i class="fa-solid fa-cloud-arrow-up"></i> Subir Archivo
-              <input type="file" accept="image/*" on:change={handleImageChange} style="display: none;" />
-            </label>
-            <button type="button" class="btn-select-illustration" on:click={() => showIllustrationSelect = !showIllustrationSelect}>
-              <i class="fa-solid fa-wand-magic-sparkles"></i> Ilustración
-            </button>
+      {:else}
+        <p class="empty">{filterCategory ? 'No hay productos en esta categoría' : 'No hay productos registrados'}</p>
+      {/each}
+    </div>
+
+  {:else if viewMode === 'cards'}
+    <div class="products-grid-cards">
+      {#each filteredProducts as product}
+        {@const stockAlert = calculateStockAlert(product.currentStock, product.minimumStock)}
+        {@const expiryAlert = product.expiryDate ? calculateExpiryAlert(product.expiryDate, thresholds) : 'green'}
+        {@const daysLeft = product.expiryDate ? getDaysUntilExpiry(product.expiryDate) : null}
+
+        <div class="product-tile">
+          <div class="tile-image">
+            {#if getProductImage(product)}
+              <img src={getProductImage(product)} alt={product.name} />
+            {:else}
+              <div class="tile-img-fallback" style="background-color: {getCategoryColor(product.categoryId)}">
+                <i class="fa-solid {getCategoryIcon(product.categoryId)}"></i>
+              </div>
+            {/if}
+            <div class="tile-alerts">
+              <AlertBadge level={stockAlert} text="{product.currentStock}" />
+            </div>
           </div>
+          <div class="tile-body">
+            <h4>{product.name}</h4>
+            <span class="tile-category">{getCategoryName(product.categoryId)}</span>
+            <div class="tile-prices">
+              <span class="tile-price-sale">{formatCurrency(product.salePrice)}</span>
+              <span class="tile-price-buy">{formatCurrency(product.purchasePrice)}</span>
+            </div>
+            <div class="tile-barcode">
+              <Barcode value={getBarcode(product)} width={1} height={25} fontSize={9} />
+            </div>
+          </div>
+          {#if canEdit($currentUser, 'products')}
+            <div class="tile-actions">
+              <button class="btn-icon edit" on:click={() => openModal(product)}><i class="fa-solid fa-pen"></i></button>
+              <button class="btn-icon delete" on:click={() => deleteProduct(product.id)}><i class="fa-solid fa-trash"></i></button>
+            </div>
+          {/if}
         </div>
+      {:else}
+        <p class="empty">{filterCategory ? 'No hay productos en esta categoría' : 'No hay productos registrados'}</p>
+      {/each}
+    </div>
+
+  {:else if viewMode === 'mosaic'}
+    <div class="products-mosaic">
+      {#each filteredProducts as product}
+        {@const stockAlert = calculateStockAlert(product.currentStock, product.minimumStock)}
+
+        <div class="mosaic-tile" class:alert-low={stockAlert === 'red'} class:alert-warn={stockAlert === 'yellow'}>
+          <div class="mosaic-img">
+            {#if getProductImage(product)}
+              <img src={getProductImage(product)} alt={product.name} />
+            {:else}
+              <div class="mosaic-img-fallback" style="background-color: {getCategoryColor(product.categoryId)}">
+                <i class="fa-solid {getCategoryIcon(product.categoryId)}"></i>
+              </div>
+            {/if}
+          </div>
+          <div class="mosaic-info">
+            <span class="mosaic-name">{product.name}</span>
+            <span class="mosaic-price">{formatCurrency(product.salePrice)}</span>
+            <span class="mosaic-stock">Stock: {product.currentStock}</span>
+            <div class="mosaic-barcode">
+              <Barcode value={getBarcode(product)} width={0.8} height={20} fontSize={7} />
+            </div>
+          </div>
+          {#if canEdit($currentUser, 'products')}
+            <div class="mosaic-actions">
+              <button class="btn-icon edit" on:click={() => openModal(product)}><i class="fa-solid fa-pen"></i></button>
+              <button class="btn-icon delete" on:click={() => deleteProduct(product.id)}><i class="fa-solid fa-trash"></i></button>
+            </div>
+          {/if}
+        </div>
+      {:else}
+        <p class="empty">{filterCategory ? 'No hay productos en esta categoría' : 'No hay productos registrados'}</p>
+      {/each}
+    </div>
+  {/if}
+</div>
+
+<Modal show={showModal} title={editingProduct ? 'Editar Producto' : 'Nuevo Producto'} on:close={closeModal} size="large">
+  {#if categories.length === 0}
+    <div class="no-categories-warning">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <p><strong>No hay categorías creadas.</strong></p>
+      <p>Debes crear al menos una categoría antes de agregar productos.</p>
+    </div>
+  {/if}
+
+  {#if categories.length > 0}
+    <div class="form-row">
+      <div class="form-group">
+        <label for="category">Categoría *</label>
+        <select id="category" bind:value={formData.categoryId}>
+          <option value="">Seleccionar categoría...</option>
+          {#each categories as cat}
+            <option value={cat.id}>{cat.name}</option>
+          {/each}
+        </select>
       </div>
+      <div class="form-group">
+        <label for="name">Nombre del Producto *</label>
+        <input id="name" type="text" bind:value={formData.name} placeholder="Nombre del producto" />
+      </div>
+    </div>
 
-      <!-- PANEL DE SELECCIÓN DE ILUSTRACIÓN INLINE -->
-      {#if showIllustrationSelect}
-        <div class="illustrations-selector-panel">
-          <div class="panel-header">
-            <h4>Selecciona una ilustración alusiva:</h4>
-            <button type="button" class="btn-close-panel" on:click={() => showIllustrationSelect = false}>&times;</button>
-          </div>
-          <div class="illustrations-grid">
-            {#each ILLUSTRATIONS as ill}
-              <button type="button" class="illustration-option-card" class:active={formData.imageUrl === ill.path} on:click={() => selectIllustration(ill.path)}>
-                <img src={ill.path} alt={ill.label} class="ill-option-img" />
-                <span class="ill-option-label">{ill.label}</span>
+    <div class="form-row barcode-preview-row">
+        <div class="barcode-preview-box">
+          <span class="barcode-preview-label"><i class="fa-solid fa-barcode"></i> Código de Barras</span>
+          <Barcode value={newProductBarcode} width={2} height={50} fontSize={14} />
+          <span class="barcode-code-text">{newProductBarcode}</span>
+        </div>
+    </div>
+
+    <!-- SECCIÓN DE CARGA DE IMÁGENES -->
+    <div class="form-row image-section-row">
+      <div class="form-group full-width">
+        <span class="form-label">Imagen del Producto</span>
+        <div class="image-field-container">
+          <div class="image-preview-box">
+            {#if imagePreviewUrl}
+              <img src={imagePreviewUrl} alt="Vista Previa" class="preview-img" />
+              <button type="button" class="btn-clear-img" on:click={removeSelectedImage} title="Quitar imagen">
+                <i class="fa-solid fa-xmark"></i>
               </button>
-            {/each}
+            {:else}
+              <div class="preview-placeholder">
+                <i class="fa-solid fa-image"></i>
+                <span>Sin Imagen</span>
+              </div>
+            {/if}
+          </div>
+          <div class="image-actions-box">
+            <p class="image-tip">Sube una foto personalizada o selecciona una de nuestras ilustraciones locales.</p>
+            <div class="image-buttons">
+              <label class="btn-upload-file">
+                <i class="fa-solid fa-cloud-arrow-up"></i> Subir Archivo
+                <input type="file" accept="image/*" on:change={handleImageChange} style="display: none;" />
+              </label>
+              <button type="button" class="btn-select-illustration" on:click={() => showIllustrationSelect = !showIllustrationSelect}>
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Ilustración
+              </button>
+            </div>
           </div>
         </div>
-      {/if}
-    </div>
-  </div>
 
-  <div class="form-row">
-    <div class="form-group">
-      <label for="purchasePrice">Precio Compra *</label>
-      <input id="purchasePrice" type="number" bind:value={formData.purchasePrice} min="0" />
+        {#if showIllustrationSelect}
+          <div class="illustrations-selector-panel">
+            <div class="panel-header">
+              <h4>Selecciona una ilustración alusiva:</h4>
+              <button type="button" class="btn-close-panel" on:click={() => showIllustrationSelect = false}>&times;</button>
+            </div>
+            <div class="illustrations-grid">
+              {#each ILLUSTRATIONS as ill}
+                <button type="button" class="illustration-option-card" class:active={formData.imageUrl === ill.path} on:click={() => selectIllustration(ill.path)}>
+                  <img src={ill.path} alt={ill.label} class="ill-option-img" />
+                  <span class="ill-option-label">{ill.label}</span>
+                </button>
+              {/each}
+            </div>
+          </div>
+        {/if}
+      </div>
     </div>
-    <div class="form-group">
-      <label for="salePrice">Precio Venta *</label>
-      <input id="salePrice" type="number" bind:value={formData.salePrice} min="0" />
-    </div>
-  </div>
 
-  <div class="form-row">
-    <div class="form-group">
-      <label for="stock">Stock Actual</label>
-      <input id="stock" type="number" bind:value={formData.currentStock} min="0" />
+    <div class="form-row">
+      <div class="form-group">
+        <label for="purchasePrice">Precio Compra *</label>
+        <input id="purchasePrice" type="number" bind:value={formData.purchasePrice} min="0" />
+      </div>
+      <div class="form-group">
+        <label for="salePrice">Precio Venta *</label>
+        <input id="salePrice" type="number" bind:value={formData.salePrice} min="0" />
+      </div>
     </div>
-    <div class="form-group">
-      <label for="minStock">Stock Mínimo</label>
-      <input id="minStock" type="number" bind:value={formData.minimumStock} min="0" />
-    </div>
-  </div>
 
-  <div class="form-row">
-    <div class="form-group">
-      <label for="expiry">Fecha de Vencimiento</label>
-      <input id="expiry" type="date" bind:value={formData.expiryDate} />
+    <div class="form-row">
+      <div class="form-group">
+        <label for="stock">Stock Actual</label>
+        <input id="stock" type="number" bind:value={formData.currentStock} min="0" />
+      </div>
+      <div class="form-group">
+        <label for="minStock">Stock Mínimo</label>
+        <input id="minStock" type="number" bind:value={formData.minimumStock} min="0" />
+      </div>
     </div>
-    <div class="form-group">
-      <label for="supplier">Proveedor</label>
-      <select id="supplier" bind:value={formData.supplierId}>
-        <option value="">Seleccionar...</option>
-        {#each suppliers as sup}
-          <option value={sup.id}>{sup.name}</option>
-        {/each}
-      </select>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="expiry">Fecha de Vencimiento</label>
+        <input id="expiry" type="date" bind:value={formData.expiryDate} />
+      </div>
+      <div class="form-group">
+        <label for="supplier">Proveedor</label>
+        <select id="supplier" bind:value={formData.supplierId}>
+          <option value="">Seleccionar...</option>
+          {#each suppliers as sup}
+            <option value={sup.id}>{sup.name}</option>
+          {/each}
+        </select>
+      </div>
     </div>
-  </div>
+  {/if}
 
   <svelte:fragment slot="footer">
-    {#if editingProduct && editingProduct.barcode}
+    {#if editingProduct}
       <div class="modal-barcode">
-        <div class="barcode-wrap-modal" use:renderBarcode={editingProduct.barcode}></div>
-        <span class="barcode-label">Código: {editingProduct.barcode}</span>
+        <Barcode value={editingProduct.barcode || getBarcode(editingProduct)} width={1.5} height={35} fontSize={11} />
+        <span class="barcode-label">Código: {editingProduct.barcode || getBarcode(editingProduct)}</span>
       </div>
     {/if}
     <Button variant="secondary" on:click={closeModal}>Cancelar</Button>
-    <Button on:click={saveProduct} {loading}>{editingProduct ? 'Actualizar' : 'Crear'}</Button>
+    <Button on:click={saveProduct} {loading} disabled={categories.length === 0}>{editingProduct ? 'Actualizar' : 'Crear'}</Button>
   </svelte:fragment>
 </Modal>
 
@@ -621,12 +748,8 @@
     justify-content: center;
   }
 
-  .barcode-wrap {
-    display: inline-block;
-  }
-
-  .barcode-wrap :global(svg) {
-    max-width: 160px;
+  .barcode-container :global(svg) {
+    max-width: 180px;
     height: auto;
   }
 
@@ -642,12 +765,8 @@
     flex: 1;
   }
 
-  .barcode-wrap-modal {
-    display: inline-block;
-  }
-
-  .barcode-wrap-modal :global(svg) {
-    max-width: 200px;
+  .modal-barcode :global(svg) {
+    max-width: 220px;
     height: auto;
   }
 
@@ -852,5 +971,335 @@
   @media (min-width: 768px) {
     .product-details { grid-template-columns: repeat(6, 1fr); }
     .illustrations-grid { grid-template-columns: repeat(7, 1fr); }
+  }
+
+  .no-categories-warning {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 10px;
+    padding: 1.25rem;
+    text-align: center;
+    color: #92400e;
+  }
+  .no-categories-warning i {
+    font-size: 2rem;
+    color: #f59e0b;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+  .no-categories-warning p {
+    margin: 0.25rem 0;
+    font-size: 0.9rem;
+  }
+
+  .barcode-preview-row {
+    grid-column: span 2;
+    justify-content: center;
+  }
+  .barcode-preview-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.75rem 1.5rem;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    width: 100%;
+  }
+  .barcode-preview-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  .barcode-preview-label i {
+    color: #B31A1A;
+  }
+  .barcode-preview-box :global(svg) {
+    max-width: 250px;
+    height: auto;
+  }
+  .barcode-code-text {
+    font-size: 0.75rem;
+    color: #6b7280;
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .filter-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: white;
+    border: 1.5px solid #d1d5db;
+    border-radius: 8px;
+    padding: 0.35rem 0.5rem;
+    flex: 1;
+    min-width: 0;
+  }
+  .filter-icon { color: #9ca3af; font-size: 0.85rem; }
+  .filter-select {
+    border: none;
+    outline: none;
+    font-size: 0.85rem;
+    color: #374151;
+    background: transparent;
+    flex: 1;
+    min-width: 0;
+    cursor: pointer;
+    padding: 0.3rem;
+  }
+  .btn-clear-filter {
+    background: #fee2e2;
+    border: none;
+    color: #B31A1A;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    flex-shrink: 0;
+  }
+
+  .view-toggle {
+    display: flex;
+    gap: 0.25rem;
+    background: white;
+    border: 1.5px solid #d1d5db;
+    border-radius: 8px;
+    padding: 0.2rem;
+    flex-shrink: 0;
+  }
+  .view-btn {
+    background: transparent;
+    border: none;
+    padding: 0.4rem 0.6rem;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #9ca3af;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .view-btn.active {
+    background: #B31A1A;
+    color: white;
+  }
+  .view-btn:hover:not(.active) {
+    background: #f3f4f6;
+    color: #374151;
+  }
+
+  .products-grid-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .product-tile {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .product-tile:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  .tile-image {
+    width: 100%;
+    height: 120px;
+    overflow: hidden;
+    background: #f9fafb;
+    position: relative;
+  }
+  .tile-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .tile-img-fallback {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2rem;
+  }
+  .tile-alerts {
+    position: absolute;
+    top: 0.4rem;
+    right: 0.4rem;
+  }
+
+  .tile-body {
+    padding: 0.65rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .tile-body h4 {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #110F0F;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .tile-category {
+    font-size: 0.7rem;
+    color: #9ca3af;
+    text-transform: uppercase;
+  }
+  .tile-prices {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.2rem;
+  }
+  .tile-price-sale {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #B31A1A;
+  }
+  .tile-price-buy {
+    font-size: 0.7rem;
+    color: #9ca3af;
+  }
+  .tile-barcode {
+    margin-top: 0.35rem;
+    display: flex;
+    justify-content: center;
+    padding-top: 0.35rem;
+    border-top: 1px solid #f3f4f6;
+  }
+  .tile-barcode :global(svg) {
+    max-width: 120px;
+    height: auto;
+  }
+
+  .tile-actions {
+    position: absolute;
+    top: 0.4rem;
+    left: 0.4rem;
+    display: flex;
+    gap: 0.2rem;
+  }
+
+  .products-mosaic {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+  }
+
+  .mosaic-tile {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    position: relative;
+    transition: transform 0.2s;
+  }
+  .mosaic-tile:hover { transform: scale(1.03); }
+  .mosaic-tile.alert-low { border: 2px solid #ef4444; }
+  .mosaic-tile.alert-warn { border: 2px solid #f59e0b; }
+
+  .mosaic-img {
+    width: 100%;
+    height: 80px;
+    overflow: hidden;
+  }
+  .mosaic-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .mosaic-img-fallback {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+  }
+
+  .mosaic-info {
+    padding: 0.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    text-align: center;
+  }
+  .mosaic-name {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #110F0F;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .mosaic-price {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #B31A1A;
+  }
+  .mosaic-stock {
+    font-size: 0.6rem;
+    color: #6b7280;
+  }
+  .mosaic-barcode {
+    margin-top: 0.25rem;
+    display: flex;
+    justify-content: center;
+    padding-top: 0.25rem;
+    border-top: 1px solid #f3f4f6;
+  }
+  .mosaic-barcode :global(svg) {
+    max-width: 80px;
+    height: auto;
+  }
+
+  .mosaic-actions {
+    position: absolute;
+    top: 0.2rem;
+    right: 0.2rem;
+    display: flex;
+    gap: 0.15rem;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .mosaic-tile:hover .mosaic-actions { opacity: 1; }
+
+  @media (min-width: 480px) {
+    .products-grid-cards { grid-template-columns: repeat(2, 1fr); }
+    .products-mosaic { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  @media (min-width: 768px) {
+    .products-grid-cards { grid-template-columns: repeat(3, 1fr); }
+    .products-mosaic { grid-template-columns: repeat(5, 1fr); }
   }
 </style>

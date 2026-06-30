@@ -1,6 +1,8 @@
 <script>
   import { onMount } from 'svelte';
   import { getAllClients, createClient, updateClient, deleteClient } from '../services/clientService';
+  import { currentUser } from '../stores/auth';
+  import { canCreate, canEdit } from '../utils/permissions';
   import Button from '../components/common/Button.svelte';
   import Modal from '../components/common/Modal.svelte';
   import Toast from '../components/common/Toast.svelte';
@@ -97,7 +99,9 @@
 <div class="page">
   <div class="page-header">
     <h1><i class="fa-solid fa-users"></i> Clientes</h1>
-    <Button on:click={() => openModal()}><i class="fa-solid fa-plus"></i> Nuevo</Button>
+    {#if canCreate($currentUser, 'sales')}
+      <Button on:click={() => openModal()}><i class="fa-solid fa-plus"></i> Nuevo</Button>
+    {/if}
   </div>
 
   <div class="search-bar">
@@ -130,8 +134,10 @@
           <span class="days-badge"><i class="fa-solid fa-calendar-days"></i> Plazo: {client.maxDaysToPay} días</span>
         </div>
         <div class="card-actions">
-          <button class="btn-icon edit" on:click={() => openModal(client)}><i class="fa-solid fa-pen"></i></button>
-          <button class="btn-icon delete" on:click={() => deleteClientHandler(client.id)}><i class="fa-solid fa-trash"></i></button>
+          {#if canEdit($currentUser, 'sales')}
+            <button class="btn-icon edit" on:click={() => openModal(client)}><i class="fa-solid fa-pen"></i></button>
+            <button class="btn-icon delete" on:click={() => deleteClientHandler(client.id)}><i class="fa-solid fa-trash"></i></button>
+          {/if}
         </div>
       </div>
     {:else}

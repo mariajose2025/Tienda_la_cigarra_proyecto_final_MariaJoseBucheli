@@ -32,19 +32,7 @@
   let needsSetup = false;
   let currentPath = '';
 
-  $: if (appReady && !$isAuthenticated) {
-    const hash = window.location.hash || '#/';
-    const path = hash.replace('#', '');
-    currentPath = path;
-    if (path.startsWith('/admin') || path === '/perfil') {
-      push('/');
-    }
-  } else {
-    const hash = window.location.hash || '#/';
-    currentPath = hash.replace('#', '');
-  }
-
-  $: showFooter = currentPath !== '/' && currentPath !== '' && (currentPath === '/nosotros' || currentPath === '/login' || currentPath === '/registro' || currentPath === '/perfil' || currentPath.startsWith('/admin'));
+  const ADMIN_EMAIL = 'admin@cinar.com';
 
   const publicOnlyRoutes = {
     '/': Home,
@@ -55,6 +43,7 @@
   };
 
   const authRoutes = {
+    '/': Dashboard,
     '/admin': Dashboard,
     '/admin/productos': Products,
     '/admin/categorias': Categories,
@@ -70,35 +59,22 @@
     '/nosotros': About
   };
 
-  function resolveRoute() {
+  $: canAccessAuth = $isAuthenticated && $currentUser && ($currentUser.emailVerified || $currentUser.email === ADMIN_EMAIL);
+
+  $: {
     const hash = window.location.hash || '#/';
-    const path = hash.replace('#', '');
+    currentPath = hash.replace('#', '');
 
-    if (needsSetup && path !== '/setup') {
-      return { routes: { '/setup': Setup }, component: Setup };
-    }
-
-    if (path === '/' || path === '') {
-      return { routes: publicOnlyRoutes, component: Home };
-    }
-
-    if (path.startsWith('/admin')) {
-      if (!$isAuthenticated) {
-        push('/login');
-        return null;
+    if (appReady && !canAccessAuth) {
+      if (currentPath.startsWith('/admin') || currentPath === '/perfil') {
+        push('/');
       }
-      return { routes: authRoutes, component: authRoutes[path] || Dashboard };
     }
 
-    if (authRoutes[path] && !$isAuthenticated) {
-      push('/login');
-      return null;
+    if (appReady && canAccessAuth && (currentPath === '/' || currentPath === '')) {
+      push('/admin');
     }
-
-    return { routes: { ...publicOnlyRoutes, ...authRoutes }, component: null };
   }
-
-  $: currentRoute = appReady ? resolveRoute() : null;
 
   onMount(async () => {
     try {
@@ -123,15 +99,13 @@
 </script>
 
 <main>
-  {#if $isAuthenticated}
-    <Navbar />
-  {/if}
+  <Navbar />
 
-  <div class="app-container" class:has-navbar={$isAuthenticated}>
+  <div class="app-container has-navbar">
     {#if appReady}
       {#if needsSetup}
         <Router routes={{'/setup': Setup}} />
-      {:else if $isAuthenticated}
+      {:else if canAccessAuth}
         <Router routes={authRoutes} />
       {:else}
         <Router routes={publicOnlyRoutes} />
@@ -144,9 +118,7 @@
     {/if}
   </div>
 
-  {#if showFooter}
-    <Footer />
-  {/if}
+  <Footer />
 </main>
 
 <style>
@@ -175,10 +147,13 @@
 
   main {
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
   }
 
   .app-container.has-navbar {
     padding-top: 3.5rem;
+    flex: 1;
   }
 
   .loading-screen {

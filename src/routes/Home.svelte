@@ -62,11 +62,6 @@
       </div>
     </div>
   </section>
-
-  <footer class="home-footer">
-    <img src="/logo.png" alt="La Cigarra" class="footer-logo" />
-    <p>Tienda La Cigarra &copy; 2026 — Sistema de Gestión</p>
-  </footer>
 </div>
 
 <style>
@@ -171,14 +166,6 @@
 
   .credit-content h3 { margin: 0 0 0.35rem; color: #F2C12E; font-size: 1.1rem; }
   .credit-content p { margin: 0; color: #9ca3af; font-size: 0.85rem; line-height: 1.5; }
-
-  .home-footer {
-    background: #1a1a1a; color: #9ca3af;
-    text-align: center; padding: 2rem 1.5rem; font-size: 0.85rem;
-    display: flex; flex-direction: column; align-items: center; gap: 0.75rem;
-  }
-
-  .footer-logo { height: 50px; border-radius: 8px; opacity: 0.8; }
 
   @media (min-width: 768px) {
     .hero { padding: 5rem 2rem 4rem; }

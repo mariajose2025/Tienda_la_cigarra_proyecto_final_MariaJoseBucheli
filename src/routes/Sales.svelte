@@ -2,6 +2,8 @@
   import { onMount } from 'svelte';
   import { getAll, create } from '../services/firestoreService';
   import { updateProductStock, getProductById } from '../services/productService';
+  import { currentUser } from '../stores/auth';
+  import { canCreate } from '../utils/permissions';
   import { ivaPercentage } from '../stores/app';
   import { calculateTotalWithIVA, formatCurrency, calculateItemSubtotal } from '../utils/iva';
   import Button from '../components/common/Button.svelte';
@@ -116,6 +118,7 @@
   <h1>Registro de Ventas</h1>
 
   <div class="form-card">
+    {#if canCreate($currentUser, 'sales')}
     <div class="items-section">
       <div class="items-header">
         <span>Productos</span>
@@ -169,6 +172,9 @@
     <Button fullWidth={true} variant="success" on:click={saveSale} {loading}>
       Registrar Venta
     </Button>
+    {:else}
+      <p class="readonly-msg"><i class="fa-solid fa-eye"></i> Vista previa — No tienes permiso para registrar ventas</p>
+    {/if}
   </div>
 
   {#if sales.length > 0}
@@ -255,4 +261,10 @@
   .history-name { font-weight: 600; color: #1f2937; font-size: 0.9rem; }
   .history-date { font-size: 0.8rem; color: #9ca3af; display: block; }
   .history-amount { font-weight: 700; color: #16a34a; font-size: 0.9rem; }
+
+  .readonly-msg {
+    text-align: center; color: #6b7280; padding: 1.5rem;
+    font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+  }
+  .readonly-msg i { color: #9ca3af; }
 </style>

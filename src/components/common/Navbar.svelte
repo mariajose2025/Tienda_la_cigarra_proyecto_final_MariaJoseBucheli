@@ -1,12 +1,11 @@
 <script>
   import { link, push } from 'svelte-spa-router';
-  import { currentUser } from '../../stores/auth';
+  import { currentUser, isAuthenticated } from '../../stores/auth';
   import { isAdmin } from '../../utils/permissions';
   import { logout } from '../../services/authService';
 
   let menuOpen = false;
 
-  // Estado para controlar qué secciones están expandidas en el acordeón móvil
   let activeSections = {
     general: true,
     inventario: false,
@@ -21,7 +20,7 @@
 
   function toggleSection(section) {
     activeSections[section] = !activeSections[section];
-    activeSections = { ...activeSections }; // Forzar reactividad en Svelte
+    activeSections = { ...activeSections };
   }
 
   function closeMenu() {
@@ -45,10 +44,9 @@
     </button>
   </div>
 
-  {#if $currentUser}
+  {#if $isAuthenticated && $currentUser}
     <div class="navbar-menu" class:active={menuOpen}>
       
-      <!-- GENERAL -->
       <div class="nav-section">
         <button class="nav-section-title" on:click={() => toggleSection('general')} type="button">
           <span><i class="fa-solid fa-house"></i> General</span>
@@ -60,7 +58,6 @@
         </div>
       </div>
 
-      <!-- INVENTARIO -->
       <div class="nav-section">
         <button class="nav-section-title" on:click={() => toggleSection('inventario')} type="button">
           <span><i class="fa-solid fa-box-open"></i> Inventario</span>
@@ -73,7 +70,6 @@
         </div>
       </div>
 
-      <!-- OPERACIONES -->
       <div class="nav-section">
         <button class="nav-section-title" on:click={() => toggleSection('operaciones')} type="button">
           <span><i class="fa-solid fa-cart-shopping"></i> Operaciones</span>
@@ -87,7 +83,6 @@
         </div>
       </div>
 
-      <!-- ADMINISTRACIÓN -->
       {#if isAdmin($currentUser)}
         <div class="nav-section">
           <button class="nav-section-title" on:click={() => toggleSection('admin')} type="button">
@@ -96,13 +91,12 @@
           </button>
           <div class="nav-links-list" class:expanded={activeSections.admin}>
             <a href="/admin/usuarios" use:link class="nav-link" on:click={closeMenu}>Usuarios</a>
-            <a href="/admin/roles" use:link class="nav-link" on:click={closeMenu}>Roles</a>
+            <a href="/admin/roles" use:link class="nav-link" on:click={closeMenu}>Asignar Roles</a>
             <a href="/admin/configuracion" use:link class="nav-link" on:click={closeMenu}>Configuración</a>
           </div>
         </div>
       {/if}
 
-      <!-- CUENTA -->
       <div class="nav-section">
         <button class="nav-section-title" on:click={() => toggleSection('cuenta')} type="button">
           <span><i class="fa-solid fa-user"></i> Cuenta</span>
@@ -116,6 +110,19 @@
         </div>
       </div>
 
+    </div>
+  {:else}
+    <div class="navbar-menu public-menu" class:active={menuOpen}>
+      <div class="nav-links-public">
+        <a href="/" use:link class="nav-link" on:click={closeMenu}>Inicio</a>
+        <a href="/nosotros" use:link class="nav-link" on:click={closeMenu}>Nosotros</a>
+        <a href="/login" use:link class="btn-login" on:click={closeMenu}>
+          <i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión
+        </a>
+        <a href="/registro" use:link class="btn-register" on:click={closeMenu}>
+          <i class="fa-solid fa-user-plus"></i> Crear Cuenta
+        </a>
+      </div>
     </div>
   {/if}
 </nav>
@@ -288,6 +295,63 @@
     background: rgba(255,255,255,0.2);
   }
 
+  /* Menú público */
+  .nav-links-public {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+  }
+
+  .nav-links-public .nav-link {
+    color: rgba(255,255,255,0.9);
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-size: 1rem;
+  }
+
+  .btn-login {
+    background: transparent;
+    color: white;
+    border: 2px solid rgba(242,193,46,0.5);
+    padding: 0.85rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    text-align: center;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-decoration: none;
+  }
+
+  .btn-login:hover {
+    border-color: #F2C12E;
+    background: rgba(242,193,46,0.1);
+  }
+
+  .btn-register {
+    background: #F2C12E;
+    color: #110F0F;
+    padding: 0.85rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 1rem;
+    text-align: center;
+    transition: transform 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-decoration: none;
+  }
+
+  .btn-register:hover {
+    transform: translateY(-2px);
+  }
+
   /* Vista de Escritorio */
   @media (min-width: 768px) {
     .menu-toggle { display: none; }
@@ -343,7 +407,6 @@
       opacity: 0.7;
     }
 
-    /* Mostrar menú desplegable al hacer hover */
     .nav-section:hover .nav-links-list {
       display: flex !important;
     }
@@ -365,7 +428,6 @@
       border: 1px solid rgba(0,0,0,0.08);
     }
 
-    /* Pequeño triángulo sobre el menú desplegable */
     .nav-links-list::before {
       content: '';
       position: absolute;
@@ -403,6 +465,45 @@
     .btn-logout:hover {
       background: #fee2e2;
       color: #b91c1c;
+    }
+
+    /* Menú público escritorio */
+    .public-menu {
+      display: flex !important;
+      flex-direction: row;
+      align-items: center;
+      padding-top: 0;
+    }
+
+    .nav-links-public {
+      flex-direction: row;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0;
+    }
+
+    .nav-links-public .nav-link {
+      padding: 0.5rem 0.85rem;
+      font-size: 0.9rem;
+      border-radius: 6px;
+      color: rgba(255,255,255,0.9);
+    }
+
+    .nav-links-public .nav-link:hover {
+      background: rgba(255,255,255,0.1);
+      color: white;
+    }
+
+    .btn-login {
+      padding: 0.5rem 1.25rem;
+      font-size: 0.9rem;
+      border-radius: 8px;
+    }
+
+    .btn-register {
+      padding: 0.5rem 1.25rem;
+      font-size: 0.9rem;
+      border-radius: 8px;
     }
   }
 </style>

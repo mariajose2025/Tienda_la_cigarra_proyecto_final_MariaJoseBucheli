@@ -2,6 +2,8 @@
   import { onMount } from 'svelte';
   import { getAll, create } from '../services/firestoreService';
   import { updateProductStock, updateProductPrice, getProductById } from '../services/productService';
+  import { currentUser } from '../stores/auth';
+  import { canCreate } from '../utils/permissions';
   import { ivaPercentage } from '../stores/app';
   import { calculateTotalWithIVA, formatCurrency, calculateItemSubtotal } from '../utils/iva';
   import Button from '../components/common/Button.svelte';
@@ -109,6 +111,7 @@
   <h1>Registro de Compras</h1>
 
   <div class="form-card">
+    {#if canCreate($currentUser, 'purchases')}
     <div class="form-group">
       <label for="supplier">Proveedor *</label>
       <select id="supplier" bind:value={selectedSupplier}>
@@ -160,6 +163,9 @@
     <Button fullWidth={true} on:click={savePurchase} {loading}>
       Registrar Compra
     </Button>
+    {:else}
+      <p class="readonly-msg"><i class="fa-solid fa-eye"></i> Vista previa — No tienes permiso para registrar compras</p>
+    {/if}
   </div>
 
   {#if purchases.length > 0}
@@ -246,4 +252,10 @@
   .history-name { font-weight: 600; color: #1f2937; font-size: 0.9rem; }
   .history-date { font-size: 0.8rem; color: #9ca3af; display: block; }
   .history-amount { font-weight: 700; color: #1e40af; font-size: 0.9rem; }
+
+  .readonly-msg {
+    text-align: center; color: #6b7280; padding: 1.5rem;
+    font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+  }
+  .readonly-msg i { color: #9ca3af; }
 </style>

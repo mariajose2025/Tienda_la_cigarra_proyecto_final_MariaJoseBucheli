@@ -3,6 +3,8 @@
   import { getAllClients } from '../services/clientService';
   import { getAllProducts } from '../services/productService';
   import { getAllCredits, createCredit, updateCredit, deleteCredit } from '../services/creditService';
+  import { currentUser } from '../stores/auth';
+  import { canCreate, canEdit } from '../utils/permissions';
   import { formatCurrency } from '../utils/iva';
   import Button from '../components/common/Button.svelte';
   import Modal from '../components/common/Modal.svelte';
@@ -189,7 +191,9 @@
 <div class="page">
   <div class="page-header">
     <h1><i class="fa-solid fa-file-invoice-dollar"></i> Fiados</h1>
-    <Button on:click={openModal}><i class="fa-solid fa-plus"></i> Nuevo Fiado</Button>
+    {#if canCreate($currentUser, 'sales')}
+      <Button on:click={openModal}><i class="fa-solid fa-plus"></i> Nuevo Fiado</Button>
+    {/if}
   </div>
 
   <div class="stats-row">
@@ -239,7 +243,7 @@
           {:else}
             <span class="status-badge pending"><i class="fa-solid fa-clock"></i> Pendiente</span>
           {/if}
-          {#if credit.status === 'pending'}
+          {#if credit.status === 'pending' && canEdit($currentUser, 'sales')}
             <button class="btn-pay" on:click|stopPropagation={() => markAsPaid(credit)}>
               <i class="fa-solid fa-money-bill-wave"></i> Cobrar
             </button>

@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { getAll, create, update, remove } from '../services/firestoreService';
   import { currentUser } from '../stores/auth';
-  import { isAdmin } from '../utils/permissions';
+  import { canCreate, canEdit } from '../utils/permissions';
   import Button from '../components/common/Button.svelte';
   import Modal from '../components/common/Modal.svelte';
   import Toast from '../components/common/Toast.svelte';
@@ -78,7 +78,7 @@
 <div class="page">
   <div class="page-header">
     <h1>Proveedores</h1>
-    {#if isAdmin($currentUser)}
+    {#if canCreate($currentUser, 'suppliers')}
       <Button on:click={() => openModal()}>+ Nuevo</Button>
     {/if}
   </div>
@@ -99,7 +99,7 @@
             <p>Dir: {supplier.address}</p>
           {/if}
         </div>
-        {#if isAdmin($currentUser)}
+        {#if canEdit($currentUser, 'suppliers')}
           <div class="card-actions">
             <button class="btn-icon edit" on:click={() => openModal(supplier)}>✏️</button>
             <button class="btn-icon delete" on:click={() => deleteSupplier(supplier.id)}>🗑️</button>

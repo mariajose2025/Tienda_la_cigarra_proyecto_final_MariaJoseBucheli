@@ -20,14 +20,31 @@ function getCurrentUid() {
 
 export async function getAll(collectionName) {
   const uid = getCurrentUid();
-  let q;
-  if (uid) {
-    q = query(collection(db, collectionName), where('ownerId', '==', uid), orderBy('createdAt', 'desc'));
-  } else {
-    q = query(collection(db, collectionName), orderBy('createdAt', 'desc'));
+  let snapshot;
+
+  try {
+    if (uid) {
+      const q = query(collection(db, collectionName), where('ownerId', '==', uid));
+      snapshot = await getDocs(q);
+    } else {
+      const q = query(collection(db, collectionName));
+      snapshot = await getDocs(q);
+    }
+  } catch (e) {
+    console.warn('Consulta con owner falló, cargando todos los documentos:', e.message);
+    const q = query(collection(db, collectionName));
+    snapshot = await getDocs(q);
   }
-  const snapshot = await getDocs(q);
-  return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  const docs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+
+  docs.sort((a, b) => {
+    const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : (a.createdAt ? new Date(a.createdAt) : new Date(0));
+    const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : (b.createdAt ? new Date(b.createdAt) : new Date(0));
+    return dateB - dateA;
+  });
+
+  return docs;
 }
 
 export async function getById(collectionName, id) {
@@ -41,8 +58,8 @@ export async function create(collectionName, data) {
   const uid = getCurrentUid();
   const docRef = await addDoc(collection(db, collectionName), {
     ...data,
-    ownerId: uid,
-    createdAt: serverTimestamp()
+    ownerId: uid || '',
+    createdAt: new Date()
   });
   return docRef.id;
 }
@@ -51,7 +68,7 @@ export async function update(collectionName, id, data) {
   const docRef = doc(db, collectionName, id);
   await updateDoc(docRef, {
     ...data,
-    updatedAt: serverTimestamp()
+    updatedAt: new Date()
   });
   return true;
 }
@@ -63,18 +80,29 @@ export async function remove(collectionName, id) {
 }
 
 export async function getByField(collectionName, fieldName, value) {
-  const uid = getCurrentUid();
-  let q;
-  if (uid) {
-    q = query(collection(db, collectionName), where(fieldName, '==', value), where('ownerId', '==', uid));
-  } else {
-    q = query(collection(db, collectionName), where(fieldName, '==', value));
+  try {
+    const q = query(collection(db, collectionName), where(fieldName, '==', value));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch (e) {
+    console.warn('getByField falló:', e.message);
+    return [];
   }
-  const snapshot = await getDocs(q);
-  return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
 }
 
 export async function getSingleByField(collectionName, fieldName, value) {
   const results = await getByField(collectionName, fieldName, value);
   return results.length > 0 ? results[0] : null;
+}
+
+export async function getAllUnfiltered(collectionName) {
+  const q = query(collection(db, collectionName));
+  const snapshot = await getDocs(q);
+  const docs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+  docs.sort((a, b) => {
+    const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : (a.createdAt ? new Date(a.createdAt) : new Date(0));
+    const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : (b.createdAt ? new Date(b.createdAt) : new Date(0));
+    return dateB - dateA;
+  });
+  return docs;
 }

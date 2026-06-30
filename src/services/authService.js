@@ -2,100 +2,104 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
-  updatePassword,
   onAuthStateChanged,
   sendEmailVerification,
-  GoogleAuthProvider,
-  signInWithPopup
+  updatePassword
 } from 'firebase/auth';
 import { auth, db } from './firebase';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { auth as authStore } from '../stores/auth';
 
-const googleProvider = new GoogleAuthProvider();
+const ADMIN_EMAIL = 'admin@cinar.com';
 
 export function initAuthListener() {
   onAuthStateChanged(auth, async (firebaseUser) => {
-    if (firebaseUser) {
-      const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
-        authStore.setUser({
-          uid: firebaseUser.uid,
-          email: firebaseUser.email,
-          emailVerified: firebaseUser.emailVerified,
-          ...userData
-        });
-      } else {
-        authStore.setUser({
-          uid: firebaseUser.uid,
-          email: firebaseUser.email,
-          emailVerified: firebaseUser.emailVerified,
-          name: firebaseUser.email,
-          roleName: 'Vendedor'
-        });
-      }
-    } else {
+    if (!firebaseUser) {
       authStore.clear();
+      return;
     }
-  });
-}
 
-export async function loginWithGoogle() {
-  try {
-    authStore.setLoading(true);
-    const result = await signInWithPopup(auth, googleProvider);
-    const userDoc = await getDoc(doc(db, 'users', result.user.uid));
-    if (!userDoc.exists()) {
-      await setDoc(doc(db, 'users', result.user.uid), {
-        name: result.user.displayName || '',
-        email: result.user.email,
-        phone: '',
-        cedula: '',
-        birthDate: '',
-        sex: '',
-        age: 0,
-        photoURL: result.user.photoURL || '',
-        roleId: '',
-        roleName: 'Vendedor',
-        createdAt: new Date()
+    const isAdminUser = firebaseUser.email === ADMIN_EMAIL;
+
+    if (!firebaseUser.emailVerified && !isAdminUser) {
+      authStore.setUser(null);
+      authStore.setLoading(false);
+      return;
+    }
+
+    try {
+      const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+      const userData = userDoc.exists() ? userDoc.data() : {};
+      authStore.setUser({
+        uid: firebaseUser.uid,
+        email: firebaseUser.email,
+        emailVerified: firebaseUser.emailVerified,
+        ...userData
+      });
+    } catch (e) {
+      authStore.setUser({
+        uid: firebaseUser.uid,
+        email: firebaseUser.email,
+        emailVerified: firebaseUser.emailVerified,
+        name: firebaseUser.email,
+        roleName: isAdminUser ? 'Administrador' : 'Vendedor'
       });
     }
-    return { success: true, user: result.user };
-  } catch (error) {
-    console.error('Google sign-in error:', error);
-    const msg = getErrorMessage(error.code);
-    authStore.setError(msg);
-    return { success: false, error: msg };
-  }
+  });
 }
 
 export async function login(email, password) {
   try {
     authStore.setLoading(true);
     const result = await signInWithEmailAndPassword(auth, email, password);
+    const isAdminUser = email === ADMIN_EMAIL;
 
-    if (!result.user.emailVerified) {
-      try {
-        await sendEmailVerification(result.user);
-      } catch (e) {
-        console.warn('No se pudo enviar verificación:', e);
-      }
-      return { success: true, user: result.user, emailNotVerified: true };
+    if (!result.user.emailVerified && !isAdminUser) {
+      const emailAddr = result.user.email;
+      authStore.setUser(null);
+      authStore.setLoading(false);
+      signOut(auth).catch(() => {});
+      return { success: true, emailNotVerified: true, email: emailAddr };
     }
 
-    return { success: true, user: result.user };
+    authStore.setLoading(false);
+    return { success: true };
   } catch (error) {
-    authStore.setError(getErrorMessage(error.code));
+    authStore.setLoading(false);
     return { success: false, error: getErrorMessage(error.code) };
   }
 }
 
+async function checkCedulaExists(cedula) {
+  if (!cedula) return false;
+  const q = query(collection(db, 'users'), where('cedula', '==', cedula));
+  const snapshot = await getDocs(q);
+  return !snapshot.empty;
+}
+
 export async function register(email, password, userData) {
+  if (userData.cedula) {
+    const exists = await checkCedulaExists(userData.cedula);
+    if (exists) {
+      return { success: false, error: 'Esta cédula ya está registrada con otro usuario' };
+    }
+  }
+
+  let user = null;
+
   try {
-    authStore.setLoading(true);
     const result = await createUserWithEmailAndPassword(auth, email, password);
-    await setDoc(doc(db, 'users', result.user.uid), {
+    user = result.user;
+  } catch (error) {
+    authStore.clear();
+    return { success: false, error: getErrorMessage(error.code) };
+  }
+
+  authStore.clear();
+  signOut(auth).catch(() => {});
+
+  try {
+    await setDoc(doc(db, 'users', user.uid), {
       name: userData.name || '',
       cedula: userData.cedula || '',
       email: email,
@@ -108,33 +112,33 @@ export async function register(email, password, userData) {
       roleName: 'Vendedor',
       createdAt: new Date()
     });
-    try {
-      await sendEmailVerification(result.user);
-    } catch (e) {
-      console.warn('Error enviando verificación:', e);
-    }
-    return { success: true, user: result.user };
-  } catch (error) {
-    authStore.setError(getErrorMessage(error.code));
-    return { success: false, error: getErrorMessage(error.code) };
+  } catch (e) {
+    console.error('Error guardando datos del usuario:', e);
   }
+
+  sendEmailVerification(user).catch(() => {});
+
+  return { success: true, emailSent: true, emailError: null };
 }
 
-export async function resendVerificationEmail() {
+export async function resendVerificationEmail(email, password) {
   try {
-    const user = auth.currentUser;
-    if (!user) throw new Error('No hay usuario autenticado');
-    await sendEmailVerification(user);
+    const cred = await signInWithEmailAndPassword(auth, email, password);
+    await sendEmailVerification(cred.user);
+    authStore.clear();
+    signOut(auth).catch(() => {});
     return { success: true };
   } catch (error) {
+    authStore.clear();
+    signOut(auth).catch(() => {});
     return { success: false, error: getErrorMessage(error.code) };
   }
 }
 
 export async function logout() {
   try {
-    await signOut(auth);
     authStore.clear();
+    await signOut(auth);
     return { success: true };
   } catch (error) {
     return { success: false, error: error.message };
@@ -144,7 +148,7 @@ export async function logout() {
 export async function changeUserPassword(newPassword) {
   try {
     const user = auth.currentUser;
-    if (!user) throw new Error('No hay usuario autenticado');
+    if (!user) return { success: false, error: 'No hay sesión activa' };
     await updatePassword(user, newPassword);
     return { success: true };
   } catch (error) {
@@ -161,11 +165,7 @@ function getErrorMessage(code) {
     'auth/invalid-email': 'Correo electrónico inválido',
     'auth/too-many-requests': 'Demasiados intentos. Intenta más tarde',
     'auth/invalid-credential': 'Credenciales inválidas',
-    'auth/popup-closed-by-user': 'Se cerró la ventana de Google',
-    'auth/popup-blocked': 'El navegador bloqueó la ventana emergente. Permite popups para este sitio.',
-    'auth/account-exists-with-different-credential': 'Ya existe una cuenta con este correo usando otro método de inicio de sesión',
-    'auth/operation-not-allowed': 'El inicio de sesión con Google no está habilitado. Actívalo en la consola de Firebase.',
-    'auth/unauthorized-domain': 'Este dominio no está autorizado. Agrégalo en Firebase Console > Authentication > Settings'
+    'auth/network-request-failed': 'Error de red',
   };
-  return messages[code] || `Error de autenticación (${code})`;
+  return messages[code] || `Error: ${code}`;
 }
