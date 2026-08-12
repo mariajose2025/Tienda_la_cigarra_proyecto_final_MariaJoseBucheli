@@ -3,6 +3,7 @@
   import { getAllClients } from '../services/clientService';
   import { getAllProducts } from '../services/productService';
   import { getAllCredits, createCredit, updateCredit, deleteCredit } from '../services/creditService';
+  import { getOpenSession, addAutomaticMovement } from '../services/cashService';
   import { currentUser } from '../stores/auth';
   import { canCreate, canEdit } from '../utils/permissions';
   import { formatCurrency } from '../utils/iva';
@@ -145,6 +146,12 @@
     loading = true;
     try {
       await updateCredit(credit.id, { status: 'paid', paidAt: new Date() });
+
+      const openSession = await getOpenSession();
+      if (openSession) {
+        await addAutomaticMovement(openSession.id, 'ingreso', 'fiado', credit.total, credit.id, 'credit', `Cobro de fiado de ${credit.clientName || 'cliente'}`);
+      }
+
       toast = { show: true, message: 'Fiado marcado como pagado', type: 'success' };
       credits = await getAllCredits();
     } catch (e) {

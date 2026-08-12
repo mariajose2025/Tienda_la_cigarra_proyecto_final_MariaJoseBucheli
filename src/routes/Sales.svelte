@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { getAll, create } from '../services/firestoreService';
   import { updateProductStock, getProductById } from '../services/productService';
+  import { getOpenSession, addAutomaticMovement } from '../services/cashService';
   import { currentUser } from '../stores/auth';
   import { canCreate } from '../utils/permissions';
   import { ivaPercentage } from '../stores/app';
@@ -80,7 +81,14 @@
         saleDate: new Date()
       };
 
-      await create('sales', saleData);
+      const saleId = await create('sales', saleData);
+
+      if (paymentMethod === 'efectivo') {
+        const openSession = await getOpenSession();
+        if (openSession) {
+          await addAutomaticMovement(openSession.id, 'ingreso', 'venta', totals.total, saleId || '', 'sale', `Venta en efectivo: ${validItems.length} producto(s)`);
+        }
+      }
 
       for (const item of validItems) {
         const product = await getProductById(item.productId);

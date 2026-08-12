@@ -147,6 +147,10 @@
           <i class="fa-solid fa-users"></i>
           <span>Clientes</span>
         </a>
+        <a href="/admin/caja" use:link class="access-card">
+          <i class="fa-solid fa-cash-register"></i>
+          <span>Caja</span>
+        </a>
         {#if isAdmin($currentUser)}
           <a href="/admin/usuarios" use:link class="access-card">
             <i class="fa-solid fa-user-gear"></i>

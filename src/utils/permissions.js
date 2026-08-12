@@ -1,7 +1,7 @@
 const ADMIN_EMAIL = 'admin@cinar.com';
 
 const ROLE_PERMISSIONS = {
-  'Administrador': ['products', 'categories', 'suppliers', 'purchases', 'sales', 'users', 'roles', 'settings'],
+  'Administrador': ['products', 'categories', 'suppliers', 'purchases', 'sales', 'cash', 'users', 'roles', 'settings'],
   'Vendedor': ['products', 'categories', 'suppliers', 'purchases', 'sales'],
   'Inspector': []
 };

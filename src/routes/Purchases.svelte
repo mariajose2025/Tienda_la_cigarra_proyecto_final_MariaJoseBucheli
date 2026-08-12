@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { getAll, create } from '../services/firestoreService';
   import { updateProductStock, updateProductPrice, getProductById } from '../services/productService';
+  import { getOpenSession, addAutomaticMovement } from '../services/cashService';
   import { currentUser } from '../stores/auth';
   import { canCreate } from '../utils/permissions';
   import { ivaPercentage } from '../stores/app';
@@ -81,6 +82,11 @@
       };
 
       const purchaseId = await create('purchases', purchaseData);
+
+      const openSession = await getOpenSession();
+      if (openSession) {
+        await addAutomaticMovement(openSession.id, 'egreso', 'compra', totals.total, purchaseId, 'purchase', `Compra a ${supplier?.name || 'proveedor'}`);
+      }
 
       for (const item of validItems) {
         const product = await getProductById(item.productId);

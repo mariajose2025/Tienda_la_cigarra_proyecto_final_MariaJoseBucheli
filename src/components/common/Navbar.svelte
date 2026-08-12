@@ -80,6 +80,8 @@
           <a href="/admin/ventas" use:link class="nav-link" on:click={closeMenu}>Ventas</a>
           <a href="/admin/clientes" use:link class="nav-link" on:click={closeMenu}>Clientes</a>
           <a href="/admin/fiados" use:link class="nav-link" on:click={closeMenu}>Fiados</a>
+          <a href="/admin/caja" use:link class="nav-link" on:click={closeMenu}>Caja</a>
+          <a href="/admin/movimientos" use:link class="nav-link" on:click={closeMenu}>Movimientos</a>
         </div>
       </div>
 

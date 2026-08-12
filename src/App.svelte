@@ -22,6 +22,8 @@
   import Sales from './routes/Sales.svelte';
   import Clients from './routes/Clients.svelte';
   import Credits from './routes/Credits.svelte';
+  import Cash from './routes/Cash.svelte';
+  import Movements from './routes/Movements.svelte';
   import Users from './routes/Users.svelte';
   import Roles from './routes/Roles.svelte';
   import Settings from './routes/Settings.svelte';
@@ -52,6 +54,8 @@
     '/admin/ventas': Sales,
     '/admin/clientes': Clients,
     '/admin/fiados': Credits,
+    '/admin/caja': Cash,
+    '/admin/movimientos': Movements,
     '/admin/usuarios': Users,
     '/admin/roles': Roles,
     '/admin/configuracion': Settings,
