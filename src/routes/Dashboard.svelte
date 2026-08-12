@@ -177,11 +177,11 @@
   .dashboard { padding: 1.25rem; padding-top: 5rem; }
 
   .welcome-section { margin-bottom: 1.5rem; }
-  .welcome-section h1 { font-size: 1.4rem; color: #110F0F; margin: 0; }
+  .welcome-section h1 { font-size: 1.4rem; color: #0A241D; margin: 0; }
   .welcome-section p { color: #6b7280; font-size: 0.9rem; margin-top: 0.25rem; }
 
   .loading { text-align: center; padding: 3rem; color: #6b7280; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
-  .loading i { color: #B31A1A; }
+  .loading i { color: #064F3C; }
 
   .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-bottom: 1.5rem; }
 
@@ -192,8 +192,8 @@
   }
   .stat-card i { font-size: 1.2rem; margin-bottom: 0.25rem; }
 
-  .stat-card.red { border-left-color: #B31A1A; }
-  .stat-card.red i { color: #B31A1A; }
+  .stat-card.red { border-left-color: #064F3C; }
+  .stat-card.red i { color: #064F3C; }
   .stat-card.gold { border-left-color: #F2C12E; }
   .stat-card.gold i { color: #C49A45; }
   .stat-card.olive { border-left-color: #A3A856; }
@@ -202,32 +202,32 @@
   .stat-card.brown i { color: #C49A45; }
   .stat-card.green { border-left-color: #22c55e; }
   .stat-card.green i { color: #22c55e; }
-  .stat-card.dark { border-left-color: #110F0F; }
-  .stat-card.dark i { color: #110F0F; }
+  .stat-card.dark { border-left-color: #0A241D; }
+  .stat-card.dark i { color: #0A241D; }
   .stat-card.warning { border-left-color: #F2C12E; }
   .stat-card.warning i { color: #F2C12E; }
-  .stat-card.alert { border-left-color: #B31A1A; }
-  .stat-card.alert i { color: #B31A1A; }
+  .stat-card.alert { border-left-color: #064F3C; }
+  .stat-card.alert i { color: #064F3C; }
 
-  .stat-number { display: block; font-size: 1.5rem; font-weight: 700; color: #110F0F; }
+  .stat-number { display: block; font-size: 1.5rem; font-weight: 700; color: #0A241D; }
   .stat-label { font-size: 0.75rem; color: #6b7280; }
 
   .quick-access h2, .recent-section h2 {
-    font-size: 1.1rem; color: #110F0F; margin-bottom: 0.75rem;
+    font-size: 1.1rem; color: #0A241D; margin-bottom: 0.75rem;
     display: flex; align-items: center; gap: 0.5rem;
   }
-  .quick-access h2 i, .recent-section h2 i { color: #B31A1A; }
+  .quick-access h2 i, .recent-section h2 i { color: #064F3C; }
 
   .access-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-bottom: 1.5rem; }
 
   .access-card {
     background: white; border-radius: 12px; padding: 1.25rem;
-    text-align: center; text-decoration: none; color: #110F0F;
+    text-align: center; text-decoration: none; color: #0A241D;
     box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: transform 0.2s, box-shadow 0.2s;
     display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
   }
-  .access-card i { font-size: 1.5rem; color: #B31A1A; }
-  .access-card.gold { background: #110F0F; color: #F2C12E; }
+  .access-card i { font-size: 1.5rem; color: #064F3C; }
+  .access-card.gold { background: #0A241D; color: #F2C12E; }
   .access-card.gold i { color: #F2C12E; }
   .access-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
 
@@ -241,9 +241,9 @@
     padding: 0.85rem 1rem; border-bottom: 1px solid #f3f4f6;
   }
   .recent-item:last-child { border-bottom: none; }
-  .recent-name { font-weight: 600; color: #110F0F; font-size: 0.9rem; }
+  .recent-name { font-weight: 600; color: #0A241D; font-size: 0.9rem; }
   .recent-date { color: #9ca3af; font-size: 0.8rem; }
-  .recent-amount { font-weight: 700; color: #B31A1A; font-size: 0.9rem; }
+  .recent-amount { font-weight: 700; color: #064F3C; font-size: 0.9rem; }
 
   @media (min-width: 768px) {
     .dashboard { padding: 1.5rem 2rem; padding-top: 5rem; }

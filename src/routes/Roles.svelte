@@ -193,8 +193,8 @@
 <style>
   .page { padding: 1.25rem; padding-top: 5rem; max-width: 700px; }
   .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
-  .page-header h1 { font-size: 1.3rem; color: #110F0F; margin: 0; display: flex; align-items: center; gap: 0.5rem; }
-  .page-header h1 i { color: #B31A1A; }
+  .page-header h1 { font-size: 1.3rem; color: #0A241D; margin: 0; display: flex; align-items: center; gap: 0.5rem; }
+  .page-header h1 i { color: #064F3C; }
   .subtitle { font-size: 0.82rem; color: #6b7280; margin-bottom: 1.25rem; line-height: 1.5; }
 
   .assign-card {
@@ -202,19 +202,19 @@
     box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 1.5rem;
   }
   .assign-card h2 {
-    font-size: 1rem; color: #110F0F; margin: 0 0 1rem;
+    font-size: 1rem; color: #0A241D; margin: 0 0 1rem;
     display: flex; align-items: center; gap: 0.4rem;
   }
   .assign-card h2 i { color: #C49A45; }
 
   .form-group { margin-bottom: 1rem; }
-  label { display: block; margin-bottom: 0.3rem; font-size: 0.85rem; font-weight: 600; color: #110F0F; }
+  label { display: block; margin-bottom: 0.3rem; font-size: 0.85rem; font-weight: 600; color: #0A241D; }
   select {
     width: 100%; padding: 0.75rem; border: 1.5px solid #d1d5db;
     border-radius: 8px; font-size: 0.9rem; box-sizing: border-box; background: white;
     cursor: pointer;
   }
-  select:focus { outline: none; border-color: #B31A1A; }
+  select:focus { outline: none; border-color: #064F3C; }
 
   .user-preview {
     display: flex; align-items: center; gap: 0.75rem;
@@ -223,16 +223,16 @@
   }
   .preview-avatar {
     width: 40px; height: 40px; border-radius: 50%;
-    background: #B31A1A; color: white; display: flex;
+    background: #064F3C; color: white; display: flex;
     align-items: center; justify-content: center;
     font-size: 1rem; font-weight: 700; flex-shrink: 0;
   }
   .preview-info { display: flex; flex-direction: column; gap: 0.1rem; }
-  .preview-name { font-weight: 600; font-size: 0.9rem; color: #110F0F; }
+  .preview-name { font-weight: 600; font-size: 0.9rem; color: #0A241D; }
   .preview-email { font-size: 0.78rem; color: #6b7280; }
   .preview-cedula { font-size: 0.78rem; color: #C49A45; font-weight: 600; }
   .preview-current { font-size: 0.78rem; color: #6b7280; margin-top: 0.2rem; }
-  .preview-current strong { color: #110F0F; }
+  .preview-current strong { color: #0A241D; }
 
   .role-options { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; }
   .role-option {
@@ -242,20 +242,20 @@
     transition: all 0.2s; text-align: left;
   }
   .role-option:hover:not(:disabled) { border-color: #d1d5db; background: #f9fafb; }
-  .role-option.selected { border-color: #B31A1A; background: #fef2f2; }
+  .role-option.selected { border-color: #064F3C; background: #FFF7ED; }
   .role-option:disabled { opacity: 0.5; cursor: not-allowed; }
 
   .role-icon { font-size: 1.3rem; width: 36px; text-align: center; flex-shrink: 0; }
   .role-details { flex: 1; }
-  .role-label { display: block; font-weight: 700; font-size: 0.9rem; color: #110F0F; }
+  .role-label { display: block; font-weight: 700; font-size: 0.9rem; color: #0A241D; }
   .role-desc { display: block; font-size: 0.75rem; color: #6b7280; margin-top: 0.15rem; }
-  .role-check { font-size: 1.2rem; color: #B31A1A; flex-shrink: 0; }
+  .role-check { font-size: 1.2rem; color: #064F3C; flex-shrink: 0; }
   .role-check i { color: #d1d5db; }
-  .role-option.selected .role-check i { color: #B31A1A; }
+  .role-option.selected .role-check i { color: #064F3C; }
 
   .assigned-section { margin-top: 1rem; }
   .assigned-section h2 {
-    font-size: 1rem; color: #110F0F; margin: 0 0 0.75rem;
+    font-size: 1rem; color: #0A241D; margin: 0 0 0.75rem;
     display: flex; align-items: center; gap: 0.4rem;
   }
   .assigned-section h2 i { color: #C49A45; }
@@ -273,7 +273,7 @@
     font-size: 0.85rem; font-weight: 700; flex-shrink: 0;
   }
   .assigned-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.05rem; }
-  .assigned-name { font-weight: 600; font-size: 0.85rem; color: #110F0F; }
+  .assigned-name { font-weight: 600; font-size: 0.85rem; color: #0A241D; }
   .assigned-email { font-size: 0.75rem; color: #6b7280; }
   .assigned-cedula { font-size: 0.75rem; color: #C49A45; font-weight: 600; }
   .assigned-role {
@@ -288,5 +288,5 @@
     color: #9ca3af; font-size: 1rem; padding: 0.3rem;
     border-radius: 6px; flex-shrink: 0;
   }
-  .btn-remove-role:hover { background: #FEE2E2; color: #B31A1A; }
+  .btn-remove-role:hover { background: #FEE2E2; color: #064F3C; }
 </style>

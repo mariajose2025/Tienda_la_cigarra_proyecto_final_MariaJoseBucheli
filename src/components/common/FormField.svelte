@@ -72,7 +72,7 @@
   }
 
   .required {
-    color: #dc2626;
+    color: #C2410C;
     margin-left: 2px;
   }
 
@@ -95,7 +95,7 @@
   }
 
   .form-input.error {
-    border-color: #dc2626;
+    border-color: #C2410C;
   }
 
   .form-input:disabled {
@@ -112,6 +112,6 @@
     display: block;
     margin-top: 0.25rem;
     font-size: 0.8rem;
-    color: #dc2626;
+    color: #C2410C;
   }
 </style>

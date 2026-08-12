@@ -232,7 +232,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    background: linear-gradient(135deg, #064F3C 0%, #0A241D 100%);
     padding: 1.5rem;
   }
 
@@ -259,7 +259,7 @@
 
   .setup-header h1 {
     font-size: 2rem;
-    color: #1e40af;
+    color: #064F3C;
     margin: 0;
     letter-spacing: 2px;
   }
@@ -274,7 +274,7 @@
     text-align: center;
     margin-bottom: 1.5rem;
     padding: 1.5rem;
-    background: #eff6ff;
+    background: #E9F5F0;
     border-radius: 12px;
   }
 
@@ -282,7 +282,7 @@
 
   .setup-info h2 {
     font-size: 1.2rem;
-    color: #1e40af;
+    color: #064F3C;
     margin: 0 0 0.5rem;
   }
 
@@ -317,7 +317,7 @@
 
   input:focus {
     outline: none;
-    border-color: #1e40af;
+    border-color: #064F3C;
     box-shadow: 0 0 0 3px rgba(30,64,175,0.1);
   }
 

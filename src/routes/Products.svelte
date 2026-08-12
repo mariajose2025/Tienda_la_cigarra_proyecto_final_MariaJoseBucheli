@@ -647,7 +647,7 @@
 <style>
   .page { padding: 1.25rem; padding-top: 5rem; }
   .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-  .page-header h1 { font-size: 1.3rem; color: #110F0F; margin: 0; display: flex; align-items: center; gap: 0.5rem; }
+  .page-header h1 { font-size: 1.3rem; color: #0A241D; margin: 0; display: flex; align-items: center; gap: 0.5rem; }
 
   .products-list { display: flex; flex-direction: column; gap: 0.75rem; }
 
@@ -710,7 +710,7 @@
     gap: 0.5rem;
     padding-right: 4rem;
   }
-  .product-header h3 { margin: 0; font-size: 1rem; color: #110F0F; }
+  .product-header h3 { margin: 0; font-size: 1rem; color: #0A241D; }
 
   .alerts { display: flex; gap: 0.35rem; flex-wrap: wrap; }
 
@@ -735,7 +735,7 @@
   }
   .btn-icon.edit { color: #C49A45; }
   .btn-icon.edit:hover { background: #FEF3C7; }
-  .btn-icon.delete { color: #B31A1A; }
+  .btn-icon.delete { color: #064F3C; }
   .btn-icon.delete:hover { background: #FEE2E2; }
 
   .empty { text-align: center; color: #9ca3af; padding: 2rem; }
@@ -780,12 +780,12 @@
   .form-group { margin-bottom: 0.85rem; }
   .form-group.full-width { grid-column: span 2; margin-bottom: 0.5rem; }
   
-  label, .form-label { display: block; margin-bottom: 0.25rem; font-size: 0.85rem; font-weight: 600; color: #110F0F; }
+  label, .form-label { display: block; margin-bottom: 0.25rem; font-size: 0.85rem; font-weight: 600; color: #0A241D; }
   input, select {
     width: 100%; padding: 0.7rem; border: 1.5px solid #d1d5db;
     border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; background: white;
   }
-  input:focus, select:focus { outline: none; border-color: #B31A1A; }
+  input:focus, select:focus { outline: none; border-color: #064F3C; }
 
   /* ESTILOS DE CARGA DE IMAGEN EN MODAL */
   .image-section-row {
@@ -876,9 +876,9 @@
     border-color: #9ca3af;
   }
   .btn-select-illustration {
-    background: #fef2f2;
-    border: 1px solid #fee2e2;
-    color: #B31A1A;
+    background: #FFF7ED;
+    border: 1px solid #FFEDD5;
+    color: #064F3C;
     padding: 0.45rem 0.75rem;
     border-radius: 6px;
     cursor: pointer;
@@ -890,7 +890,7 @@
     transition: all 0.2s;
   }
   .btn-select-illustration:hover {
-    background: #fee2e2;
+    background: #FFEDD5;
   }
 
   /* PANEL DE SELECCIÓN DE ILUSTRACIÓN */
@@ -939,13 +939,13 @@
     transition: all 0.2s;
   }
   .illustration-option-card:hover {
-    border-color: #B31A1A;
-    background: #fef2f2;
+    border-color: #064F3C;
+    background: #FFF7ED;
   }
   .illustration-option-card.active {
-    border-color: #B31A1A;
-    background: #fef2f2;
-    box-shadow: 0 0 0 2px rgba(179,26,26,0.15);
+    border-color: #064F3C;
+    background: #FFF7ED;
+    box-shadow: 0 0 0 2px rgba(6,79,60,0.2);
   }
   .ill-option-img {
     width: 45px;
@@ -1016,7 +1016,7 @@
     gap: 0.35rem;
   }
   .barcode-preview-label i {
-    color: #B31A1A;
+    color: #064F3C;
   }
   .barcode-preview-box :global(svg) {
     max-width: 250px;
@@ -1063,9 +1063,9 @@
     padding: 0.3rem;
   }
   .btn-clear-filter {
-    background: #fee2e2;
+    background: #FFEDD5;
     border: none;
-    color: #B31A1A;
+    color: #064F3C;
     border-radius: 50%;
     width: 22px;
     height: 22px;
@@ -1100,7 +1100,7 @@
     justify-content: center;
   }
   .view-btn.active {
-    background: #B31A1A;
+    background: #064F3C;
     color: white;
   }
   .view-btn:hover:not(.active) {
@@ -1163,7 +1163,7 @@
   .tile-body h4 {
     margin: 0;
     font-size: 0.85rem;
-    color: #110F0F;
+    color: #0A241D;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1182,7 +1182,7 @@
   .tile-price-sale {
     font-size: 0.9rem;
     font-weight: 700;
-    color: #B31A1A;
+    color: #064F3C;
   }
   .tile-price-buy {
     font-size: 0.7rem;
@@ -1223,7 +1223,7 @@
     transition: transform 0.2s;
   }
   .mosaic-tile:hover { transform: scale(1.03); }
-  .mosaic-tile.alert-low { border: 2px solid #ef4444; }
+  .mosaic-tile.alert-low { border: 2px solid #EA580C; }
   .mosaic-tile.alert-warn { border: 2px solid #f59e0b; }
 
   .mosaic-img {
@@ -1256,7 +1256,7 @@
   .mosaic-name {
     font-size: 0.7rem;
     font-weight: 600;
-    color: #110F0F;
+    color: #0A241D;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1264,7 +1264,7 @@
   .mosaic-price {
     font-size: 0.8rem;
     font-weight: 700;
-    color: #B31A1A;
+    color: #064F3C;
   }
   .mosaic-stock {
     font-size: 0.6rem;

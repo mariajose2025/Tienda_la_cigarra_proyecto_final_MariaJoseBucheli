@@ -27,7 +27,7 @@ export function getAlertColor(level) {
   const colors = {
     green: '#22c55e',
     yellow: '#eab308',
-    red: '#ef4444'
+    red: '#EA580C'
   };
   return colors[level] || colors.green;
 }

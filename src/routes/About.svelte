@@ -93,7 +93,7 @@
 
   .about-header h1 {
     font-size: 2rem;
-    color: #B31A1A;
+    color: #064F3C;
     margin: 0;
     letter-spacing: 2px;
   }
@@ -108,7 +108,7 @@
 
   .about-section h2 {
     font-size: 1.1rem;
-    color: #B31A1A;
+    color: #064F3C;
     margin-bottom: 0.5rem;
     padding-bottom: 0.35rem;
     border-bottom: 2px solid #FEE2E2;

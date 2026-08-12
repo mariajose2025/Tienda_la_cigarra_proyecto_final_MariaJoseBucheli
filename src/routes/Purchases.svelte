@@ -222,7 +222,7 @@
   input:focus, select:focus { outline: none; border-color: #1e40af; }
 
   .btn-remove {
-    background: #fef2f2; border: none; color: #dc2626;
+    background: #FFF7ED; border: none; color: #C2410C;
     width: 32px; height: 32px; border-radius: 6px;
     cursor: pointer; font-size: 0.9rem; flex-shrink: 0;
   }

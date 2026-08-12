@@ -68,7 +68,7 @@
   .home-container { min-height: 100vh; }
 
   .hero {
-    background: linear-gradient(135deg, #B31A1A 0%, #8B1A1A 50%, #110F0F 100%);
+    background: linear-gradient(135deg, #064F3C 0%, #043B2F 50%, #0A241D 100%);
     color: white;
     text-align: center;
     padding: 4rem 1.5rem 3rem;
@@ -95,7 +95,7 @@
   }
 
   .btn-primary {
-    background: #F2C12E; color: #110F0F;
+    background: #F2C12E; color: #0A241D;
     padding: 0.9rem 2rem; border-radius: 10px; font-weight: 700;
     font-size: 1rem; text-align: center; transition: transform 0.2s;
     display: flex; align-items: center; justify-content: center; gap: 0.5rem;
@@ -112,7 +112,7 @@
   .btn-secondary:hover { border-color: #F2C12E; background: rgba(242,193,46,0.1); }
 
   .features { padding: 3rem 1.5rem; text-align: center; }
-  .features h2 { font-size: 1.4rem; color: #110F0F; margin-bottom: 1.5rem; }
+  .features h2 { font-size: 1.4rem; color: #0A241D; margin-bottom: 1.5rem; }
 
   .features-grid {
     display: grid; grid-template-columns: repeat(2, 1fr);
@@ -131,11 +131,11 @@
     font-size: 1.2rem; margin: 0 auto 0.75rem;
   }
 
-  .feature-card h3 { font-size: 0.9rem; color: #110F0F; margin: 0 0 0.35rem; }
+  .feature-card h3 { font-size: 0.9rem; color: #0A241D; margin: 0 0 0.35rem; }
   .feature-card p { font-size: 0.8rem; color: #6b7280; margin: 0; line-height: 1.4; }
 
   .categories-section { background: #F8F5F0; padding: 2.5rem 1.5rem; text-align: center; }
-  .categories-section h2 { font-size: 1.3rem; color: #110F0F; margin-bottom: 1.25rem; }
+  .categories-section h2 { font-size: 1.3rem; color: #0A241D; margin-bottom: 1.25rem; }
 
   .categories-grid {
     display: grid; grid-template-columns: repeat(3, 1fr);
@@ -144,15 +144,15 @@
 
   .cat-item {
     background: white; padding: 1rem 0.5rem; border-radius: 10px;
-    font-size: 0.8rem; font-weight: 600; color: #110F0F;
+    font-size: 0.8rem; font-weight: 600; color: #0A241D;
     box-shadow: 0 1px 4px rgba(0,0,0,0.06);
     display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
   }
 
-  .cat-item i { font-size: 1.3rem; color: #B31A1A; }
+  .cat-item i { font-size: 1.3rem; color: #064F3C; }
 
   .credit-section {
-    padding: 2rem 1.5rem; background: #110F0F;
+    padding: 2rem 1.5rem; background: #0A241D;
   }
 
   .credit-content {

@@ -181,14 +181,14 @@
 
   .danger-zone {
     margin-top: 2rem;
-    background: #fef2f2;
-    border: 2px solid #fecaca;
+    background: #FFF7ED;
+    border: 2px solid #FED7AA;
     border-radius: 12px;
     padding: 1.25rem;
   }
 
   .danger-zone h2 {
-    color: #991b1b;
+    color: #B45309;
     font-size: 1rem;
     margin: 0 0 0.25rem;
   }

@@ -170,7 +170,7 @@
     width: 40px;
     height: 40px;
     border: 3px solid #e5e7eb;
-    border-top-color: #B31A1A;
+    border-top-color: #064F3C;
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
   }

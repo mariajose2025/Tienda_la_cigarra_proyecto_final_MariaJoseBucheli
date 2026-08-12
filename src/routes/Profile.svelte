@@ -215,14 +215,14 @@
     height: 80px;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid #B31A1A;
+    border: 3px solid #064F3C;
   }
 
   .avatar-letter {
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    background: #B31A1A;
+    background: #064F3C;
     color: white;
     display: flex;
     align-items: center;
@@ -239,7 +239,7 @@
     height: 28px;
     border-radius: 50%;
     background: #F2C12E;
-    color: #110F0F;
+    color: #0A241D;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -295,7 +295,7 @@
   }
 
   .section h3 i {
-    color: #B31A1A;
+    color: #064F3C;
   }
 
   .form-group {
@@ -329,7 +329,7 @@
 
   input:focus, select:focus {
     outline: none;
-    border-color: #B31A1A;
+    border-color: #064F3C;
   }
 
   .age-display {
@@ -345,6 +345,6 @@
   }
 
   .age-display i {
-    color: #B31A1A;
+    color: #064F3C;
   }
 </style>

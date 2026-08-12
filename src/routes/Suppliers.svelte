@@ -165,7 +165,7 @@
     padding: 0.35rem; border-radius: 6px;
   }
   .btn-icon.edit:hover { background: #dbeafe; }
-  .btn-icon.delete:hover { background: #fef2f2; }
+  .btn-icon.delete:hover { background: #FFF7ED; }
 
   .empty { text-align: center; color: #9ca3af; padding: 2rem; }
 

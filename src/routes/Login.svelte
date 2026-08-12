@@ -115,29 +115,29 @@
 <Toast show={toast.show} message={toast.message} type={toast.type} on:close={() => toast.show = false} />
 
 <style>
-  .login-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #B31A1A 0%, #110F0F 100%); padding: 1.5rem; }
+  .login-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #064F3C 0%, #0A241D 100%); padding: 1.5rem; }
   .login-card { background: white; border-radius: 16px; padding: 2.5rem 2rem; width: 100%; max-width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
   .login-header { text-align: center; margin-bottom: 2rem; }
   .login-logo { max-width: 180px; height: auto; margin-bottom: 1rem; border-radius: 12px; }
-  .logo { font-size: 2rem; font-weight: 800; color: #B31A1A; margin: 0; letter-spacing: 2px; }
+  .logo { font-size: 2rem; font-weight: 800; color: #064F3C; margin: 0; letter-spacing: 2px; }
   .subtitle { color: #6b7280; font-size: 0.9rem; margin-top: 0.5rem; }
   .form-group { margin-bottom: 1.25rem; }
   label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 600; color: #374151; }
   input { width: 100%; padding: 0.75rem; border: 1.5px solid #d1d5db; border-radius: 8px; font-size: 1rem; box-sizing: border-box; min-height: 44px; }
-  input:focus { outline: none; border-color: #B31A1A; box-shadow: 0 0 0 3px rgba(179,26,26,0.1); }
+  input:focus { outline: none; border-color: #064F3C; box-shadow: 0 0 0 3px rgba(6,79,60,0.12); }
   .divider { display: flex; align-items: center; margin: 1.25rem 0; gap: 0.75rem; }
   .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #e5e7eb; }
   .divider span { color: #9ca3af; font-size: 0.85rem; font-weight: 500; }
-  .btn-create { width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.6rem; padding: 0.85rem; border: 2px solid #B31A1A; border-radius: 8px; background: transparent; font-size: 0.95rem; font-weight: 600; color: #B31A1A; cursor: pointer; transition: all 0.2s; min-height: 44px; }
-  .btn-create:hover { background: #B31A1A; color: white; }
+  .btn-create { width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.6rem; padding: 0.85rem; border: 2px solid #064F3C; border-radius: 8px; background: transparent; font-size: 0.95rem; font-weight: 600; color: #064F3C; cursor: pointer; transition: all 0.2s; min-height: 44px; }
+  .btn-create:hover { background: #064F3C; color: white; }
   .register-link { text-align: center; margin-top: 1.25rem; font-size: 0.9rem; color: #6b7280; }
-  .register-link a { color: #B31A1A; font-weight: 600; text-decoration: underline; }
+  .register-link a { color: #064F3C; font-weight: 600; text-decoration: underline; }
 
   .verify-container { text-align: center; }
   .verify-icon { font-size: 3.5rem; color: #F2C12E; margin-bottom: 1rem; }
-  .verify-container h2 { font-size: 1.3rem; color: #110F0F; margin: 0 0 0.5rem; }
+  .verify-container h2 { font-size: 1.3rem; color: #0A241D; margin: 0 0 0.5rem; }
   .verify-email { color: #6b7280; font-size: 0.9rem; margin: 0 0 1.25rem; }
-  .verify-email strong { color: #B31A1A; }
+  .verify-email strong { color: #064F3C; }
   .verify-instructions { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 0.85rem; margin-bottom: 1.5rem; text-align: left; }
   .verify-instructions p { display: flex; align-items: center; gap: 0.5rem; margin: 0.4rem 0; font-size: 0.85rem; color: #166534; }
   .verify-instructions p:first-child { margin-top: 0; }

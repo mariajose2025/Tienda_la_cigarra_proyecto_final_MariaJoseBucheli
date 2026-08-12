@@ -133,7 +133,7 @@
     top: 0;
     left: 0;
     right: 0;
-    background: #B31A1A;
+    background: #064F3C;
     color: white;
     padding: 0.75rem 1rem;
     z-index: 1000;
@@ -334,7 +334,7 @@
 
   .btn-register {
     background: #F2C12E;
-    color: #110F0F;
+    color: #0A241D;
     padding: 0.85rem 1.5rem;
     border-radius: 10px;
     font-weight: 700;
@@ -449,22 +449,22 @@
 
     .nav-link:hover {
       background: #f3f4f6;
-      color: #B31A1A;
+      color: #064F3C;
     }
 
     .btn-logout {
       margin: 0;
-      color: #b91c1c;
-      border: 1px solid #fee2e2;
-      background: #fef2f2;
+      color: #C2410C;
+      border: 1px solid #FFEDD5;
+      background: #FFF7ED;
       padding: 0.45rem 0.75rem;
       font-size: 0.85rem;
       width: 100%;
     }
 
     .btn-logout:hover {
-      background: #fee2e2;
-      color: #b91c1c;
+      background: #FFEDD5;
+      color: #C2410C;
     }
 
     /* Menú público escritorio */

@@ -6,9 +6,9 @@
   import { createEventDispatcher, onMount } from 'svelte';
   const dispatch = createEventDispatcher();
 
-  $: bgColor = type === 'success' ? '#dcfce7' : type === 'error' ? '#fef2f2' : type === 'warning' ? '#fef9c3' : '#dbeafe';
-  $: textColor = type === 'success' ? '#166534' : type === 'error' ? '#991b1b' : type === 'warning' ? '#854d0e' : '#1e40af';
-  $: borderColor = type === 'success' ? '#86efac' : type === 'error' ? '#fca5a5' : type === 'warning' ? '#fde047' : '#93c5fd';
+  $: bgColor = type === 'success' ? '#dcfce7' : type === 'error' ? '#FFF7ED' : type === 'warning' ? '#fef9c3' : '#dbeafe';
+  $: textColor = type === 'success' ? '#166534' : type === 'error' ? '#B45309' : type === 'warning' ? '#854d0e' : '#1e40af';
+  $: borderColor = type === 'success' ? '#86efac' : type === 'error' ? '#FDBA74' : type === 'warning' ? '#fde047' : '#93c5fd';
 
   onMount(() => {
     if (show && type !== 'error') {

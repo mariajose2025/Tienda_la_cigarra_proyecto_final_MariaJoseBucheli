@@ -200,8 +200,8 @@
 <style>
   .page { padding: 1.25rem; padding-top: 5rem; }
   .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-  .page-header h1 { font-size: 1.3rem; color: #110F0F; margin: 0; display: flex; align-items: center; gap: 0.5rem; }
-  .page-header h1 i { color: #B31A1A; }
+  .page-header h1 { font-size: 1.3rem; color: #0A241D; margin: 0; display: flex; align-items: center; gap: 0.5rem; }
+  .page-header h1 i { color: #064F3C; }
   .user-count { font-size: 0.8rem; color: #6b7280; background: #f3f4f6; padding: 0.3rem 0.75rem; border-radius: 12px; }
 
   .search-bar {
@@ -222,14 +222,14 @@
 
   .user-avatar {
     width: 48px; height: 48px; border-radius: 50%;
-    background: #B31A1A; color: white; display: flex;
+    background: #064F3C; color: white; display: flex;
     align-items: center; justify-content: center;
     font-size: 1.2rem; font-weight: 700; flex-shrink: 0;
   }
-  .user-avatar.admin-avatar { background: #F2C12E; color: #110F0F; }
+  .user-avatar.admin-avatar { background: #F2C12E; color: #0A241D; }
 
   .user-info { flex: 1; min-width: 0; }
-  .user-info h3 { margin: 0; font-size: 0.95rem; color: #110F0F; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .user-info h3 { margin: 0; font-size: 0.95rem; color: #0A241D; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .user-info p { margin: 0.1rem 0 0; font-size: 0.78rem; color: #6b7280; display: flex; align-items: center; gap: 0.35rem; }
   .user-info p i { color: #C49A45; width: 13px; text-align: center; }
 
@@ -250,18 +250,18 @@
   }
   .btn-icon.edit { color: #C49A45; }
   .btn-icon.edit:hover { background: #FEF3C7; }
-  .btn-icon.delete { color: #B31A1A; }
+  .btn-icon.delete { color: #064F3C; }
   .btn-icon.delete:hover { background: #FEE2E2; }
 
   .empty { text-align: center; color: #9ca3af; padding: 2rem; }
   .empty i { font-size: 2rem; margin-bottom: 0.5rem; display: block; }
 
   .form-group { margin-bottom: 0.85rem; }
-  label { display: block; margin-bottom: 0.25rem; font-size: 0.85rem; font-weight: 600; color: #110F0F; }
+  label { display: block; margin-bottom: 0.25rem; font-size: 0.85rem; font-weight: 600; color: #0A241D; }
   input, select {
     width: 100%; padding: 0.7rem; border: 1.5px solid #d1d5db;
     border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; background: white;
   }
-  input:focus, select:focus { outline: none; border-color: #B31A1A; }
+  input:focus, select:focus { outline: none; border-color: #064F3C; }
   input:disabled { background: #f3f4f6; color: #6b7280; }
 </style>

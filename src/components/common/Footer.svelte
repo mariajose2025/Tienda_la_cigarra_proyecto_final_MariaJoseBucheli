@@ -58,7 +58,7 @@
 
 <style>
   .footer {
-    background: #110F0F;
+    background: #0A241D;
     color: #d1d5db;
     padding: 1.5rem 1rem 0;
     margin-top: auto;

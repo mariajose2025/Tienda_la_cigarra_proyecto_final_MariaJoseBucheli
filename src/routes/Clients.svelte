@@ -185,8 +185,8 @@
 <style>
   .page { padding: 1.25rem; padding-top: 5rem; }
   .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-  .page-header h1 { font-size: 1.3rem; color: #110F0F; margin: 0; display: flex; align-items: center; gap: 0.5rem; }
-  .page-header h1 i { color: #B31A1A; }
+  .page-header h1 { font-size: 1.3rem; color: #0A241D; margin: 0; display: flex; align-items: center; gap: 0.5rem; }
+  .page-header h1 i { color: #064F3C; }
 
   .search-bar {
     display: flex; align-items: center; gap: 0.5rem;
@@ -202,9 +202,9 @@
   .stat-item {
     background: white; border-radius: 10px; padding: 0.75rem 1rem;
     flex: 1; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-    border-left: 3px solid #B31A1A;
+    border-left: 3px solid #064F3C;
   }
-  .stat-num { display: block; font-size: 1.5rem; font-weight: 700; color: #B31A1A; }
+  .stat-num { display: block; font-size: 1.5rem; font-weight: 700; color: #064F3C; }
   .stat-text { font-size: 0.75rem; color: #6b7280; }
 
   .list { display: flex; flex-direction: column; gap: 0.75rem; }
@@ -217,16 +217,16 @@
 
   .card-avatar {
     width: 48px; height: 48px; border-radius: 50%;
-    background: #F2C12E; color: #110F0F; display: flex;
+    background: #F2C12E; color: #0A241D; display: flex;
     align-items: center; justify-content: center;
     font-size: 1.2rem; flex-shrink: 0;
   }
 
   .card-info { flex: 1; min-width: 0; }
-  .card-info h3 { margin: 0; font-size: 0.95rem; color: #110F0F; }
+  .card-info h3 { margin: 0; font-size: 0.95rem; color: #0A241D; }
   .card-info p { margin: 0.15rem 0 0; font-size: 0.8rem; color: #6b7280; display: flex; align-items: center; gap: 0.35rem; }
   .card-info p i { color: #C49A45; width: 14px; text-align: center; }
-  .cedula { font-weight: 600; color: #B31A1A !important; }
+  .cedula { font-weight: 600; color: #064F3C !important; }
 
   .days-badge {
     display: inline-block; margin-top: 0.35rem; padding: 0.15rem 0.5rem;
@@ -242,17 +242,17 @@
   }
   .btn-icon.edit { color: #C49A45; }
   .btn-icon.edit:hover { background: #FEF3C7; }
-  .btn-icon.delete { color: #B31A1A; }
+  .btn-icon.delete { color: #064F3C; }
   .btn-icon.delete:hover { background: #FEE2E2; }
 
   .empty { text-align: center; color: #9ca3af; padding: 2rem; }
 
   .form-group { margin-bottom: 0.85rem; }
   .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-  label { display: block; margin-bottom: 0.25rem; font-size: 0.85rem; font-weight: 600; color: #110F0F; }
+  label { display: block; margin-bottom: 0.25rem; font-size: 0.85rem; font-weight: 600; color: #0A241D; }
   input {
     width: 100%; padding: 0.7rem; border: 1.5px solid #d1d5db;
     border-radius: 8px; font-size: 0.95rem; box-sizing: border-box;
   }
-  input:focus { outline: none; border-color: #B31A1A; }
+  input:focus { outline: none; border-color: #064F3C; }
 </style>

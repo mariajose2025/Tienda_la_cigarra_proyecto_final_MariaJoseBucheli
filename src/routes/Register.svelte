@@ -178,34 +178,34 @@
 <Toast show={toast.show} message={toast.message} type={toast.type} on:close={() => toast.show = false} />
 
 <style>
-  .register-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #B31A1A 0%, #110F0F 100%); padding: 1.5rem; }
+  .register-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #064F3C 0%, #0A241D 100%); padding: 1.5rem; }
   .register-card { background: white; border-radius: 16px; padding: 2rem; width: 100%; max-width: 450px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
   .register-header { text-align: center; margin-bottom: 1.5rem; }
   .register-logo { max-width: 140px; height: auto; margin-bottom: 0.75rem; border-radius: 12px; }
-  .logo { font-size: 1.8rem; font-weight: 800; color: #B31A1A; margin: 0; letter-spacing: 2px; }
+  .logo { font-size: 1.8rem; font-weight: 800; color: #064F3C; margin: 0; letter-spacing: 2px; }
   .subtitle { color: #6b7280; font-size: 0.9rem; margin-top: 0.35rem; }
   .form-group { margin-bottom: 1rem; }
   label { display: block; margin-bottom: 0.3rem; font-size: 0.85rem; font-weight: 600; color: #374151; }
   input, select { width: 100%; padding: 0.7rem; border: 1.5px solid #d1d5db; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; min-height: 42px; background: white; }
-  input:focus, select:focus { outline: none; border-color: #B31A1A; box-shadow: 0 0 0 3px rgba(179,26,26,0.1); }
+  input:focus, select:focus { outline: none; border-color: #064F3C; box-shadow: 0 0 0 3px rgba(6,79,60,0.12); }
   .field-hint { display: block; font-size: 0.75rem; color: #6b7280; margin-top: 0.25rem; }
   .age-info { display: flex; align-items: center; gap: 0.5rem; padding: 0.6rem 0.85rem; border-radius: 8px; font-size: 0.85rem; margin-bottom: 1rem; background: #f3f4f6; color: #374151; flex-wrap: wrap; }
   .age-info.adult { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
-  .age-info.not-adult { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+  .age-info.not-adult { background: #FFF7ED; color: #B45309; border: 1px solid #FED7AA; }
   .age-warning { width: 100%; font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; gap: 0.3rem; }
   .step-actions { display: flex; gap: 0.75rem; margin-top: 0.5rem; }
   .step-actions :global(.btn) { flex: 1; }
   .login-link { text-align: center; margin-top: 1.25rem; font-size: 0.9rem; color: #6b7280; }
-  .login-link a { color: #B31A1A; font-weight: 600; text-decoration: underline; }
+  .login-link a { color: #064F3C; font-weight: 600; text-decoration: underline; }
 
   .verify-screen { text-align: center; padding: 0.5rem 0; }
   .verify-icon { font-size: 4rem; margin-bottom: 1rem; }
   .verify-icon.success { color: #22c55e; }
-  .verify-icon.error { color: #ef4444; }
-  .verify-screen h2 { font-size: 1.5rem; color: #110F0F; margin: 0 0 1rem; }
+  .verify-icon.error { color: #EA580C; }
+  .verify-screen h2 { font-size: 1.5rem; color: #0A241D; margin: 0 0 1rem; }
   .verify-text { color: #374151; font-size: 0.95rem; line-height: 1.6; margin: 0 0 1rem; }
-  .verify-text strong { color: #B31A1A; }
-  .verify-error-text { color: #991b1b; font-size: 0.85rem; margin: 0 0 0.75rem; background: #fef2f2; padding: 0.5rem; border-radius: 6px; }
+  .verify-text strong { color: #064F3C; }
+  .verify-error-text { color: #B45309; font-size: 0.85rem; margin: 0 0 0.75rem; background: #FFF7ED; padding: 0.5rem; border-radius: 6px; }
   .verify-help-text { color: #92400e; font-size: 0.8rem; margin: 0 0 1rem; background: #fffbeb; padding: 0.5rem; border-radius: 6px; }
   .verify-instructions { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 0.85rem; margin-bottom: 1.5rem; text-align: left; }
   .verify-instructions p { display: flex; align-items: center; gap: 0.5rem; margin: 0.4rem 0; font-size: 0.85rem; color: #166534; }
