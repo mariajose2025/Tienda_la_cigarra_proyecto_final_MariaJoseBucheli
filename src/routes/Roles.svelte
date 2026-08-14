@@ -3,7 +3,9 @@
   import { getAllUnfiltered, update } from '../services/firestoreService';
   import { currentUser } from '../stores/auth';
   import { isAdmin } from '../utils/permissions';
+  import { normalizeRows } from '../utils/exportUtils';
   import Button from '../components/common/Button.svelte';
+  import ExportButton from '../components/common/ExportButton.svelte';
   import Toast from '../components/common/Toast.svelte';
 
   let users = [];
@@ -87,6 +89,7 @@
 <div class="page">
   <div class="page-header">
     <h1><i class="fa-solid fa-user-shield"></i> Asignación de Roles</h1>
+    <ExportButton rows={normalizeRows('users', usersWithRole)} filename="usuarios-roles.xlsx" sheetName="Usuarios" label="Exportar" />
   </div>
 
   <p class="subtitle">Selecciona un usuario registrado y asígnale un rol. Solo existen dos roles: <strong>Cajero</strong> (punto de venta y caja) e <strong>Inspector</strong> (solo lectura). El <strong>Administrador</strong> tiene todos los privilegios.</p>

@@ -4,6 +4,8 @@
   import { formatCurrency } from '../utils/iva';
   import { currentUser } from '../stores/auth';
   import { canView } from '../utils/permissions';
+  import { normalizeRows } from '../utils/exportUtils';
+  import ExportButton from '../components/common/ExportButton.svelte';
 
   let movements = [];
   let sessions = [];
@@ -96,8 +98,9 @@
       <p>El Flujo de Caja es parte de Contabilidad y solo está disponible para administradores.</p>
     </div>
   {:else}
-    <div class="page-header">
-      <h1><i class="fa-solid fa-water"></i> Flujo de Caja</h1>
+<div class="page-header">
+      <h1><i class="fa-solid fa-arrow-trend-up"></i> Flujo de Caja</h1>
+      <ExportButton rows={normalizeRows('cashMovements', filtered)} filename="flujo-caja.xlsx" sheetName="Movimientos" label="Exportar" />
     </div>
 
     <div class="filter-bar">

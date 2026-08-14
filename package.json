@@ -16,6 +16,7 @@
   "dependencies": {
     "firebase": "^10.12.2",
     "jsbarcode": "^3.12.3",
-    "svelte-spa-router": "^4.0.1"
+    "svelte-spa-router": "^4.0.1",
+    "xlsx": "^0.18.5"
   }
 }

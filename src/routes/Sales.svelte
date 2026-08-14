@@ -4,10 +4,12 @@
   import { updateProductStock, getProductById } from '../services/productService';
   import { getOpenSession, addAutomaticMovement } from '../services/cashService';
   import { currentUser } from '../stores/auth';
-  import { canCreate } from '../utils/permissions';
+  import { canCreate, canView } from '../utils/permissions';
   import { ivaPercentage } from '../stores/app';
   import { calculateTotalWithIVA, formatCurrency, calculateItemSubtotal } from '../utils/iva';
+  import { normalizeRows } from '../utils/exportUtils';
   import Button from '../components/common/Button.svelte';
+  import ExportButton from '../components/common/ExportButton.svelte';
   import Toast from '../components/common/Toast.svelte';
 
   let sales = [];
@@ -123,7 +125,12 @@
 </script>
 
 <div class="page">
-  <h1>Registro de Ventas</h1>
+  <div class="page-head">
+    <h1>Registro de Ventas</h1>
+    {#if canView($currentUser, 'sales')}
+      <ExportButton rows={normalizeRows('sales', sales)} filename="ventas.xlsx" sheetName="Ventas" label="Exportar" />
+    {/if}
+  </div>
 
   <div class="form-card">
     {#if canCreate($currentUser, 'sales')}
@@ -205,7 +212,9 @@
 
 <style>
   .page { padding: 1.25rem; padding-top: 5rem; }
-  h1 { font-size: 1.3rem; color: #1f2937; margin-bottom: 1.25rem; }
+  .page-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; gap: 0.5rem; }
+  .page-head h1 { margin: 0; }
+  h1 { font-size: 1.3rem; color: #1f2937; }
 
   .form-card {
     background: white; border-radius: 12px; padding: 1.25rem;

@@ -31,6 +31,7 @@
   import CashFlow from './routes/CashFlow.svelte';
   import SalesReport from './routes/SalesReport.svelte';
   import Users from './routes/Users.svelte';
+  import Backup from './routes/Backup.svelte';
   import Roles from './routes/Roles.svelte';
   import Settings from './routes/Settings.svelte';
   import Profile from './routes/Profile.svelte';
@@ -69,6 +70,7 @@
     '/admin/flujo-caja': CashFlow,
     '/admin/ventas-reporte': SalesReport,
     '/admin/usuarios': Users,
+    '/admin/backup': Backup,
     '/admin/roles': Roles,
     '/admin/configuracion': Settings,
     '/perfil': Profile,

@@ -4,6 +4,8 @@
   import { formatCurrency } from '../utils/iva';
   import { currentUser } from '../stores/auth';
   import { canView } from '../utils/permissions';
+  import { normalizeRows } from '../utils/exportUtils';
+  import ExportButton from '../components/common/ExportButton.svelte';
 
   let products = [];
   let categories = [];
@@ -53,6 +55,7 @@
   {:else}
     <div class="page-header">
       <h1><i class="fa-solid fa-boxes-stacked"></i> Valor del Inventario</h1>
+      <ExportButton rows={normalizeRows('products', filteredProducts)} filename="valor-inventario.xlsx" sheetName="Inventario" label="Exportar" />
     </div>
 
     {#if loading}

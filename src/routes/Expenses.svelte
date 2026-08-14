@@ -4,7 +4,9 @@
   import { formatCurrency } from '../utils/iva';
   import { currentUser } from '../stores/auth';
   import { canView, canCreate, canEdit } from '../utils/permissions';
+  import { normalizeRows } from '../utils/exportUtils';
   import Button from '../components/common/Button.svelte';
+  import ExportButton from '../components/common/ExportButton.svelte';
   import Modal from '../components/common/Modal.svelte';
   import Toast from '../components/common/Toast.svelte';
 
@@ -128,9 +130,12 @@
   {:else}
     <div class="page-header">
       <h1><i class="fa-solid fa-receipt"></i> Gastos</h1>
-      {#if canCreate($currentUser, 'cash')}
-        <Button on:click={() => openModal()}>+ Nuevo Gasto</Button>
-      {/if}
+      <div class="header-actions">
+        <ExportButton rows={normalizeRows('expenses', filteredExpenses)} filename="gastos.xlsx" sheetName="Gastos" label="Exportar" />
+        {#if canCreate($currentUser, 'cash')}
+          <Button on:click={() => openModal()}>+ Nuevo Gasto</Button>
+        {/if}
+      </div>
     </div>
 
     <div class="kpi-grid">
@@ -242,6 +247,7 @@
 
   .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
   .page-header h1 { font-size: 1.3rem; color: #0A241D; margin: 0; display: flex; align-items: center; gap: 0.5rem; }
+  .header-actions { display: flex; align-items: center; gap: 0.5rem; }
   .page-header h1 i { color: #064F3C; }
 
   .loading { text-align: center; padding: 3rem; color: #6b7280; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }

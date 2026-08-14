@@ -4,6 +4,8 @@
   import { currentUser } from '../stores/auth';
   import { canCreate, canView } from '../utils/permissions';
   import { formatCurrency } from '../utils/iva';
+  import { normalizeRows } from '../utils/exportUtils';
+  import ExportButton from '../components/common/ExportButton.svelte';
   import Button from '../components/common/Button.svelte';
   import Toast from '../components/common/Toast.svelte';
   import Modal from '../components/common/Modal.svelte';
@@ -138,9 +140,12 @@
   {:else}
   <div class="page-header">
     <h1><i class="fa-solid fa-cash-register"></i> Caja</h1>
-    {#if session && canCreate($currentUser, 'cash')}
-      <Button on:click={openMovementModal}><i class="fa-solid fa-plus"></i> Movimiento</Button>
-    {/if}
+    <div class="header-actions">
+      <ExportButton rows={normalizeRows('cashSessions', session ? [session] : [])} filename="caja.xlsx" sheetName="Caja" label="Exportar" />
+      {#if session && canCreate($currentUser, 'cash')}
+        <Button on:click={openMovementModal}><i class="fa-solid fa-plus"></i> Movimiento</Button>
+      {/if}
+    </div>
   </div>
 
   {#if loading}
@@ -311,6 +316,7 @@
   .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
   .page-header h1 { font-size: 1.3rem; color: #0A241D; margin: 0; display: flex; align-items: center; gap: 0.5rem; }
   .page-header h1 i { color: #064F3C; }
+  .header-actions { display: flex; align-items: center; gap: 0.5rem; }
 
   .loading { text-align: center; padding: 3rem; color: #6b7280; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
 

@@ -2,12 +2,14 @@
   import { onMount } from 'svelte';
   import { getAll, create, update, remove } from '../services/firestoreService';
   import { currentUser } from '../stores/auth';
-  import { canCreate, canEdit } from '../utils/permissions';
+  import { canCreate, canEdit, canView } from '../utils/permissions';
   import { alertThresholds } from '../stores/app';
   import { calculateStockAlert, calculateExpiryAlert, getDaysUntilExpiry } from '../utils/alerts';
   import { formatCurrency } from '../utils/iva';
+  import { normalizeRows } from '../utils/exportUtils';
   import AlertBadge from '../components/common/AlertBadge.svelte';
   import Button from '../components/common/Button.svelte';
+  import ExportButton from '../components/common/ExportButton.svelte';
   import Modal from '../components/common/Modal.svelte';
   import Toast from '../components/common/Toast.svelte';
   import { uploadProductImage } from '../services/storageService';
@@ -315,9 +317,14 @@
 <div class="page">
   <div class="page-header">
     <h1>Productos</h1>
-    {#if canCreate($currentUser, 'products')}
-      <Button on:click={() => openModal()}>+ Nuevo</Button>
-    {/if}
+    <div class="header-actions">
+      {#if canView($currentUser, 'products')}
+        <ExportButton rows={normalizeRows('products', filteredProducts)} filename="inventario.xlsx" sheetName="Inventario" label="Exportar" />
+      {/if}
+      {#if canCreate($currentUser, 'products')}
+        <Button on:click={() => openModal()}>+ Nuevo</Button>
+      {/if}
+    </div>
   </div>
 
   <div class="toolbar">
@@ -648,6 +655,7 @@
   .page { padding: 1.25rem; padding-top: 5rem; }
   .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
   .page-header h1 { font-size: 1.3rem; color: #0A241D; margin: 0; display: flex; align-items: center; gap: 0.5rem; }
+  .header-actions { display: flex; align-items: center; gap: 0.5rem; }
 
   .products-list { display: flex; flex-direction: column; gap: 0.75rem; }
 

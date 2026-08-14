@@ -4,7 +4,9 @@
   import { formatCurrency } from '../utils/iva';
   import { currentUser } from '../stores/auth';
   import { canView } from '../utils/permissions';
+  import { normalizeRows } from '../utils/exportUtils';
   import Toast from '../components/common/Toast.svelte';
+  import ExportButton from '../components/common/ExportButton.svelte';
 
   let sessions = [];
   let sessionsMapped = [];
@@ -76,6 +78,7 @@
   {:else}
   <div class="page-header">
     <h1><i class="fa-solid fa-clock-rotate-left"></i> Movimientos de Caja</h1>
+    <ExportButton rows={normalizeRows('cashSessions', filteredSessions)} filename="movimientos-caja.xlsx" sheetName="Sesiones" label="Exportar" />
   </div>
 
   {#if loading}

@@ -6,6 +6,8 @@
   import { formatCurrency } from '../utils/iva';
   import { currentUser } from '../stores/auth';
   import { canView } from '../utils/permissions';
+  import { normalizeRows } from '../utils/exportUtils';
+  import ExportButton from '../components/common/ExportButton.svelte';
 
   let clients = [];
   let credits = [];
@@ -75,6 +77,7 @@
   {:else}
     <div class="page-header">
       <h1><i class="fa-solid fa-file-invoice-dollar"></i> Cuentas por Cobrar</h1>
+      <ExportButton rows={normalizeRows('credits', pendingCredits)} filename="cuentas-cobrar.xlsx" sheetName="Fiados" label="Exportar" />
     </div>
 
     {#if loading}

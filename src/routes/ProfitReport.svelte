@@ -5,6 +5,8 @@
   import { formatCurrency } from '../utils/iva';
   import { currentUser } from '../stores/auth';
   import { canView } from '../utils/permissions';
+  import { normalizeRows } from '../utils/exportUtils';
+  import ExportButton from '../components/common/ExportButton.svelte';
 
   let products = [];
   let sales = [];
@@ -134,6 +136,7 @@
   {:else}
     <div class="page-header">
       <h1><i class="fa-solid fa-chart-line"></i> Reporte de Ganancias</h1>
+      <ExportButton rows={normalizeRows('sales', filteredSales)} filename="ganancias.xlsx" sheetName="Ventas" label="Exportar" />
     </div>
 
     <div class="filter-bar">

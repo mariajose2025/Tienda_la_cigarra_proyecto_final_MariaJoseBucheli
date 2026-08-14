@@ -4,7 +4,9 @@
   import { getAll, getAllUnfiltered, create, update, remove, getByField } from '../services/firestoreService';
   import { currentUser } from '../stores/auth';
   import { isAdmin } from '../utils/permissions';
+  import { normalizeRows } from '../utils/exportUtils';
   import Button from '../components/common/Button.svelte';
+  import ExportButton from '../components/common/ExportButton.svelte';
   import Modal from '../components/common/Modal.svelte';
   import Toast from '../components/common/Toast.svelte';
 
@@ -114,7 +116,10 @@
 <div class="page">
   <div class="page-header">
     <h1><i class="fa-solid fa-users-gear"></i> Gestión de Usuarios</h1>
-    <span class="user-count">{users.length} registrados</span>
+    <div class="header-actions">
+      <ExportButton rows={normalizeRows('users', filteredUsers)} filename="usuarios.xlsx" sheetName="Usuarios" label="Exportar" />
+      <span class="user-count">{users.length} registrados</span>
+    </div>
   </div>
 
   <div class="search-bar">
@@ -202,6 +207,7 @@
   .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
   .page-header h1 { font-size: 1.3rem; color: #0A241D; margin: 0; display: flex; align-items: center; gap: 0.5rem; }
   .page-header h1 i { color: #064F3C; }
+  .header-actions { display: flex; align-items: center; gap: 0.5rem; }
   .user-count { font-size: 0.8rem; color: #6b7280; background: #f3f4f6; padding: 0.3rem 0.75rem; border-radius: 12px; }
 
   .search-bar {

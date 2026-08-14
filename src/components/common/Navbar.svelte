@@ -113,6 +113,7 @@
             <a href="/admin/usuarios" use:link class="nav-link" on:click={closeMenu}>Usuarios</a>
             <a href="/admin/roles" use:link class="nav-link" on:click={closeMenu}>Asignar Roles</a>
             <a href="/admin/configuracion" use:link class="nav-link" on:click={closeMenu}>Configuración</a>
+            <a href="/admin/backup" use:link class="nav-link" on:click={closeMenu}>Copia de Seguridad</a>
           </div>
         </div>
       {/if}

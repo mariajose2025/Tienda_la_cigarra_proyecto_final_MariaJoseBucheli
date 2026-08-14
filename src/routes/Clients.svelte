@@ -2,8 +2,10 @@
   import { onMount } from 'svelte';
   import { getAllClients, createClient, updateClient, deleteClient } from '../services/clientService';
   import { currentUser } from '../stores/auth';
-  import { canCreate, canEdit } from '../utils/permissions';
+  import { canCreate, canEdit, canView } from '../utils/permissions';
+  import { normalizeRows } from '../utils/exportUtils';
   import Button from '../components/common/Button.svelte';
+  import ExportButton from '../components/common/ExportButton.svelte';
   import Modal from '../components/common/Modal.svelte';
   import Toast from '../components/common/Toast.svelte';
 
@@ -99,9 +101,14 @@
 <div class="page">
   <div class="page-header">
     <h1><i class="fa-solid fa-users"></i> Clientes</h1>
-    {#if canCreate($currentUser, 'clients')}
-      <Button on:click={() => openModal()}><i class="fa-solid fa-plus"></i> Nuevo</Button>
-    {/if}
+    <div class="header-actions">
+      {#if canView($currentUser, 'clients')}
+        <ExportButton rows={normalizeRows('clients', filteredClients)} filename="clientes.xlsx" sheetName="Clientes" label="Exportar" />
+      {/if}
+      {#if canCreate($currentUser, 'clients')}
+        <Button on:click={() => openModal()}><i class="fa-solid fa-plus"></i> Nuevo</Button>
+      {/if}
+    </div>
   </div>
 
   <div class="search-bar">
@@ -187,6 +194,7 @@
   .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
   .page-header h1 { font-size: 1.3rem; color: #0A241D; margin: 0; display: flex; align-items: center; gap: 0.5rem; }
   .page-header h1 i { color: #064F3C; }
+  .header-actions { display: flex; align-items: center; gap: 0.5rem; }
 
   .search-bar {
     display: flex; align-items: center; gap: 0.5rem;

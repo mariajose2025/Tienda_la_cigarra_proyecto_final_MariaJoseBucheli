@@ -2,8 +2,10 @@
   import { onMount } from 'svelte';
   import { getAll, create, update, remove } from '../services/firestoreService';
   import { currentUser } from '../stores/auth';
-  import { canCreate, canEdit } from '../utils/permissions';
+  import { canCreate, canEdit, canView } from '../utils/permissions';
+  import { normalizeRows } from '../utils/exportUtils';
   import Button from '../components/common/Button.svelte';
+  import ExportButton from '../components/common/ExportButton.svelte';
   import Modal from '../components/common/Modal.svelte';
   import Toast from '../components/common/Toast.svelte';
 
@@ -76,9 +78,14 @@
 <div class="page">
   <div class="page-header">
     <h1>Clasificación de Productos</h1>
-    {#if canCreate($currentUser, 'categories')}
-      <Button on:click={() => openModal()}>+ Nueva</Button>
-    {/if}
+    <div class="header-actions">
+      {#if canView($currentUser, 'categories')}
+        <ExportButton rows={normalizeRows('categories', categories)} filename="categorias.xlsx" sheetName="Categorías" label="Exportar" />
+      {/if}
+      {#if canCreate($currentUser, 'categories')}
+        <Button on:click={() => openModal()}>+ Nueva</Button>
+      {/if}
+    </div>
   </div>
 
   <div class="grid">
@@ -123,6 +130,7 @@
   .page { padding: 1.25rem; padding-top: 5rem; }
   .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
   .page-header h1 { font-size: 1.3rem; color: #1f2937; margin: 0; }
+  .header-actions { display: flex; align-items: center; gap: 0.5rem; }
 
   .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
 
