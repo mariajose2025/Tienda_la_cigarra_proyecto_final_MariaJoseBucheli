@@ -24,6 +24,12 @@
   import Credits from './routes/Credits.svelte';
   import Cash from './routes/Cash.svelte';
   import Movements from './routes/Movements.svelte';
+  import ProfitReport from './routes/ProfitReport.svelte';
+  import Receivables from './routes/Receivables.svelte';
+  import Expenses from './routes/Expenses.svelte';
+  import InventoryValue from './routes/InventoryValue.svelte';
+  import CashFlow from './routes/CashFlow.svelte';
+  import SalesReport from './routes/SalesReport.svelte';
   import Users from './routes/Users.svelte';
   import Roles from './routes/Roles.svelte';
   import Settings from './routes/Settings.svelte';
@@ -56,6 +62,12 @@
     '/admin/fiados': Credits,
     '/admin/caja': Cash,
     '/admin/movimientos': Movements,
+    '/admin/ganancias': ProfitReport,
+    '/admin/cuentas-cobrar': Receivables,
+    '/admin/gastos': Expenses,
+    '/admin/valor-inventario': InventoryValue,
+    '/admin/flujo-caja': CashFlow,
+    '/admin/ventas-reporte': SalesReport,
     '/admin/usuarios': Users,
     '/admin/roles': Roles,
     '/admin/configuracion': Settings,

@@ -42,7 +42,7 @@ export function initAuthListener() {
         email: firebaseUser.email,
         emailVerified: firebaseUser.emailVerified,
         name: firebaseUser.email,
-        roleName: isAdminUser ? 'Administrador' : 'Vendedor'
+        roleName: isAdminUser ? 'Administrador' : 'Cajero'
       });
     }
   });
@@ -109,7 +109,7 @@ export async function register(email, password, userData) {
       age: userData.age || 0,
       photoURL: '',
       roleId: '',
-      roleName: 'Vendedor',
+      roleName: 'Cajero',
       createdAt: new Date()
     });
   } catch (e) {

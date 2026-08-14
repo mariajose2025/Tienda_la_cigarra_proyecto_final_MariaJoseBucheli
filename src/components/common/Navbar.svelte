@@ -1,7 +1,7 @@
 <script>
   import { link, push } from 'svelte-spa-router';
   import { currentUser, isAuthenticated } from '../../stores/auth';
-  import { isAdmin } from '../../utils/permissions';
+  import { isAdmin, canView } from '../../utils/permissions';
   import { logout } from '../../services/authService';
 
   let menuOpen = false;
@@ -10,6 +10,7 @@
     general: true,
     inventario: false,
     operaciones: false,
+    contabilidad: false,
     admin: false,
     cuenta: false
   };
@@ -80,10 +81,27 @@
           <a href="/admin/ventas" use:link class="nav-link" on:click={closeMenu}>Ventas</a>
           <a href="/admin/clientes" use:link class="nav-link" on:click={closeMenu}>Clientes</a>
           <a href="/admin/fiados" use:link class="nav-link" on:click={closeMenu}>Fiados</a>
-          <a href="/admin/caja" use:link class="nav-link" on:click={closeMenu}>Caja</a>
-          <a href="/admin/movimientos" use:link class="nav-link" on:click={closeMenu}>Movimientos</a>
         </div>
       </div>
+
+      {#if canView($currentUser, 'cash')}
+        <div class="nav-section">
+          <button class="nav-section-title" on:click={() => toggleSection('contabilidad')} type="button">
+            <span><i class="fa-solid fa-scale-balanced"></i> Contabilidad</span>
+            <i class="fa-solid fa-chevron-down caret" class:rotated={activeSections.contabilidad}></i>
+          </button>
+          <div class="nav-links-list" class:expanded={activeSections.contabilidad}>
+            <a href="/admin/ganancias" use:link class="nav-link" on:click={closeMenu}>Reporte de Ganancias</a>
+            <a href="/admin/cuentas-cobrar" use:link class="nav-link" on:click={closeMenu}>Cuentas por Cobrar</a>
+            <a href="/admin/gastos" use:link class="nav-link" on:click={closeMenu}>Gastos</a>
+            <a href="/admin/valor-inventario" use:link class="nav-link" on:click={closeMenu}>Valor del Inventario</a>
+            <a href="/admin/flujo-caja" use:link class="nav-link" on:click={closeMenu}>Flujo de Caja</a>
+            <a href="/admin/ventas-reporte" use:link class="nav-link" on:click={closeMenu}>Ventas por Período</a>
+            <a href="/admin/movimientos" use:link class="nav-link" on:click={closeMenu}>Movimientos de Caja</a>
+            <a href="/admin/caja" use:link class="nav-link" on:click={closeMenu}>Caja (Abrir/Cerrar)</a>
+          </div>
+        </div>
+      {/if}
 
       {#if isAdmin($currentUser)}
         <div class="nav-section">

@@ -42,7 +42,7 @@
         <li><i class="fa-solid fa-check"></i> Gestión de proveedores y clasificación de productos</li>
         <li><i class="fa-solid fa-check"></i> Sistema de fiados y crédito para clientes</li>
         <li><i class="fa-solid fa-check"></i> Reportes en tiempo real desde cualquier dispositivo móvil</li>
-        <li><i class="fa-solid fa-check"></i> Control de acceso por roles para administradores y vendedores</li>
+        <li><i class="fa-solid fa-check"></i> Control de acceso por roles para administradores, cajeros e inspectores</li>
       </ul>
     </section>
 

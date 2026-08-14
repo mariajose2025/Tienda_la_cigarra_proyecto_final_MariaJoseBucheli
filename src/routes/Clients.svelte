@@ -99,7 +99,7 @@
 <div class="page">
   <div class="page-header">
     <h1><i class="fa-solid fa-users"></i> Clientes</h1>
-    {#if canCreate($currentUser, 'sales')}
+    {#if canCreate($currentUser, 'clients')}
       <Button on:click={() => openModal()}><i class="fa-solid fa-plus"></i> Nuevo</Button>
     {/if}
   </div>
@@ -134,7 +134,7 @@
           <span class="days-badge"><i class="fa-solid fa-calendar-days"></i> Plazo: {client.maxDaysToPay} días</span>
         </div>
         <div class="card-actions">
-          {#if canEdit($currentUser, 'sales')}
+          {#if canEdit($currentUser, 'clients')}
             <button class="btn-icon edit" on:click={() => openModal(client)}><i class="fa-solid fa-pen"></i></button>
             <button class="btn-icon delete" on:click={() => deleteClientHandler(client.id)}><i class="fa-solid fa-trash"></i></button>
           {/if}

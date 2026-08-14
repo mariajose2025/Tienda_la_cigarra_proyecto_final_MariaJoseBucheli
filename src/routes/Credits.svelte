@@ -198,7 +198,7 @@
 <div class="page">
   <div class="page-header">
     <h1><i class="fa-solid fa-file-invoice-dollar"></i> Fiados</h1>
-    {#if canCreate($currentUser, 'sales')}
+    {#if canCreate($currentUser, 'credits')}
       <Button on:click={openModal}><i class="fa-solid fa-plus"></i> Nuevo Fiado</Button>
     {/if}
   </div>
@@ -250,7 +250,7 @@
           {:else}
             <span class="status-badge pending"><i class="fa-solid fa-clock"></i> Pendiente</span>
           {/if}
-          {#if credit.status === 'pending' && canEdit($currentUser, 'sales')}
+          {#if credit.status === 'pending' && canEdit($currentUser, 'credits')}
             <button class="btn-pay" on:click|stopPropagation={() => markAsPaid(credit)}>
               <i class="fa-solid fa-money-bill-wave"></i> Cobrar
             </button>

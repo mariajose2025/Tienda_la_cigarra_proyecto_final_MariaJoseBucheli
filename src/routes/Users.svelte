@@ -105,7 +105,7 @@
 
   function getRoleColor(roleName) {
     if (roleName === 'Administrador') return 'admin';
-    if (roleName === 'Vendedor') return 'seller';
+    if (roleName === 'Cajero') return 'cashier';
     if (roleName === 'Inspector') return 'inspector';
     return 'none';
   }
@@ -239,7 +239,7 @@
     border-radius: 10px; font-size: 0.7rem; font-weight: 600;
   }
   .role-tag.admin { background: #FEF3C7; color: #92400e; }
-  .role-tag.seller { background: #DCFCE7; color: #166534; }
+  .role-tag.cashier { background: #DCFCE7; color: #166534; }
   .role-tag.inspector { background: #E0E7FF; color: #3730A3; }
   .role-tag.none { background: #F3F4F6; color: #6b7280; }
 

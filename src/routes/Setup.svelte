@@ -70,10 +70,18 @@
           createdAt: new Date()
         });
         await setDoc(doc(db, 'roles', 'seller_role'), {
-          name: 'Vendedor',
+          name: 'Cajero',
           permissions: {
-            users: false, roles: false, products: true, categories: true,
-            suppliers: true, purchases: true, sales: true, settings: false
+            users: false, roles: false, products: false, categories: false,
+            suppliers: false, purchases: false, sales: true, credits: true, clients: true, cash: false, settings: false
+          },
+          createdAt: new Date()
+        });
+        await setDoc(doc(db, 'roles', 'inspector_role'), {
+          name: 'Inspector',
+          permissions: {
+            users: false, roles: false, products: false, categories: false,
+            suppliers: false, purchases: false, sales: false, credits: false, clients: false, cash: false, settings: false
           },
           createdAt: new Date()
         });

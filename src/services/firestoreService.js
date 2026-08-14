@@ -19,21 +19,14 @@ function getCurrentUid() {
 }
 
 export async function getAll(collectionName) {
-  const uid = getCurrentUid();
+  const q = query(collection(db, collectionName));
   let snapshot;
 
   try {
-    if (uid) {
-      const q = query(collection(db, collectionName), where('ownerId', '==', uid));
-      snapshot = await getDocs(q);
-    } else {
-      const q = query(collection(db, collectionName));
-      snapshot = await getDocs(q);
-    }
-  } catch (e) {
-    console.warn('Consulta con owner falló, cargando todos los documentos:', e.message);
-    const q = query(collection(db, collectionName));
     snapshot = await getDocs(q);
+  } catch (e) {
+    console.warn('Consulta falló al cargar documentos:', e.message);
+    return [];
   }
 
   const docs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));

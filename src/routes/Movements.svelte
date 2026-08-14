@@ -3,6 +3,7 @@
   import { getAllSessions, getAllMovements, getMovementsBySession } from '../services/cashService';
   import { formatCurrency } from '../utils/iva';
   import { currentUser } from '../stores/auth';
+  import { canView } from '../utils/permissions';
   import Toast from '../components/common/Toast.svelte';
 
   let sessions = [];
@@ -66,6 +67,13 @@
 </script>
 
 <div class="page">
+  {#if !canView($currentUser, 'cash')}
+    <div class="no-access">
+      <i class="fa-solid fa-lock"></i>
+      <h2>Acceso restringido</h2>
+      <p>El módulo de Movimientos de Caja es parte de Contabilidad y solo está disponible para administradores.</p>
+    </div>
+  {:else}
   <div class="page-header">
     <h1><i class="fa-solid fa-clock-rotate-left"></i> Movimientos de Caja</h1>
   </div>
@@ -86,7 +94,7 @@
         <div class="session-card">
           <div class="session-header">
             <div class="session-info">
-              <span class="session-user"><i class="fa-solid fa-user"></i> {$currentUser?.name || session.userName || 'Vendedor'}</span>
+              <span class="session-user"><i class="fa-solid fa-user"></i> {$currentUser?.name || session.userName || 'Cajero'}</span>
               <span class="session-status {session.status}">
                 {session.status === 'open' ? 'Abierta' : 'Cerrada'}
               </span>
@@ -132,12 +140,19 @@
       {/each}
     {/if}
   {/if}
+{/if}
 </div>
 
 <Toast show={toast.show} message={toast.message} type={toast.type} on:close={() => toast.show = false} />
 
 <style>
   .page { padding: 1.25rem; padding-top: 5rem; }
+  .no-access {
+    text-align: center; color: #6b7280; padding: 3rem 1rem;
+  }
+  .no-access i { font-size: 2.5rem; color: #9ca3af; margin-bottom: 1rem; }
+  .no-access h2 { font-size: 1.2rem; color: #0A241D; margin: 0 0 0.5rem; }
+  .no-access p { font-size: 0.9rem; margin: 0; }
   .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
   .page-header h1 { font-size: 1.3rem; color: #0A241D; margin: 0; display: flex; align-items: center; gap: 0.5rem; }
   .page-header h1 i { color: #064F3C; }

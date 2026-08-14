@@ -13,12 +13,12 @@
   let toast = { show: false, message: '', type: 'info' };
 
   const ROLES = [
-    { value: 'Vendedor', label: 'Vendedor', desc: 'Puede crear, editar y eliminar productos, categorías, proveedores, ventas, compras, clientes y fiados', icon: 'fa-user-tag', color: '#16a34a' },
+    { value: 'Cajero', label: 'Cajero', desc: 'Atiende el punto de venta: registra ventas, fiados y clientes. Puede ver el inventario y proveedores pero no modificarlos ni acceder a contabilidad', icon: 'fa-cash-register', color: '#16a34a' },
     { value: 'Inspector', label: 'Inspector', desc: 'Solo puede ver la información sin poder modificar nada (solo lectura)', icon: 'fa-eye', color: '#6366f1' }
   ];
 
   $: usersWithRole = users.filter(u => u.roleName && u.roleName !== 'Administrador');
-  $: usersWithoutRole = users.filter(u => !u.roleName || u.roleName === 'Vendedor' || u.roleName === 'Inspector');
+  $: usersWithoutRole = users.filter(u => !u.roleName || u.roleName === 'Cajero' || u.roleName === 'Inspector');
   $: selectedUser = users.find(u => u.id === selectedUserId);
 
   onMount(async () => {
@@ -89,7 +89,7 @@
     <h1><i class="fa-solid fa-user-shield"></i> Asignación de Roles</h1>
   </div>
 
-  <p class="subtitle">Selecciona un usuario registrado y asígnale un rol. Solo existen dos roles: <strong>Vendedor</strong> (acceso completo) e <strong>Inspector</strong> (solo lectura).</p>
+  <p class="subtitle">Selecciona un usuario registrado y asígnale un rol. Solo existen dos roles: <strong>Cajero</strong> (punto de venta y caja) e <strong>Inspector</strong> (solo lectura). El <strong>Administrador</strong> tiene todos los privilegios.</p>
 
   <div class="assign-card">
     <h2><i class="fa-solid fa-hand-pointer"></i> Asignar Rol</h2>
