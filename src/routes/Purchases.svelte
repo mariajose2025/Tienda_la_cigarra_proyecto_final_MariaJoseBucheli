@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { getAll, create } from '../services/firestoreService';
+  import { notify } from '../stores/toast';
   import { updateProductStock, updateProductPrice, getProductById } from '../services/productService';
   import { getOpenSession, addAutomaticMovement } from '../services/cashService';
   import { currentUser } from '../stores/auth';
@@ -10,7 +11,6 @@
   import { normalizeRows } from '../utils/exportUtils';
   import Button from '../components/common/Button.svelte';
   import ExportButton from '../components/common/ExportButton.svelte';
-  import Toast from '../components/common/Toast.svelte';
 
   let purchases = [];
   let products = [];
@@ -19,7 +19,6 @@
   let selectedSupplier = '';
   let items = [{ productId: '', quantity: 1, unitPrice: 0 }];
   let loading = false;
-  let toast = { show: false, message: '', type: 'info' };
 
   $: iva = $ivaPercentage;
   $: subtotal = items.reduce((sum, item) => sum + calculateItemSubtotal(item.quantity, item.unitPrice), 0);
@@ -51,13 +50,13 @@
 
   async function savePurchase() {
     if (!selectedSupplier) {
-      toast = { show: true, message: 'Selecciona un proveedor', type: 'warning' };
+      notify('warning', 'Selecciona un proveedor');
       return;
     }
 
     const validItems = items.filter(i => i.productId && i.quantity > 0);
     if (validItems.length === 0) {
-      toast = { show: true, message: 'Agrega al menos un producto', type: 'warning' };
+      notify('warning', 'Agrega al menos un producto');
       return;
     }
 
@@ -98,12 +97,12 @@
         }
       }
 
-      toast = { show: true, message: 'Compra registrada exitosamente', type: 'success' };
+      notify('success', 'Compra registrada exitosamente');
       selectedSupplier = '';
       items = [{ productId: '', quantity: 1, unitPrice: 0 }];
       purchases = await getAll('purchases');
     } catch (e) {
-      toast = { show: true, message: 'Error al registrar compra', type: 'error' };
+      notify('error', 'Error al registrar compra');
     }
     loading = false;
   }
@@ -197,7 +196,7 @@
   {/if}
 </div>
 
-<Toast show={toast.show} message={toast.message} type={toast.type} on:close={() => toast.show = false} />
+
 
 <style>
   .page { padding: 1.25rem; padding-top: 5rem; }

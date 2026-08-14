@@ -16,7 +16,7 @@
 </script>
 
 {#if show}
-  <div class="modal-overlay" on:click={handleBackdrop} on:keydown={handleBackdrop} role="dialog" aria-modal="true">
+  <div class="modal-overlay" on:click={handleBackdrop} role="dialog" aria-modal="true" aria-label={title}>
     <div class="modal-content" class:small={size === 'small'} class:large={size === 'large'}>
       <div class="modal-header">
         <h3>{title}</h3>

@@ -7,14 +7,13 @@
   import Button from '../components/common/Button.svelte';
   import ExportButton from '../components/common/ExportButton.svelte';
   import Modal from '../components/common/Modal.svelte';
-  import Toast from '../components/common/Toast.svelte';
+  import { success, warning, error } from '../stores/toast';
 
   let categories = [];
   let showModal = false;
   let editingCategory = null;
   let formData = { name: '', description: '' };
   let loading = false;
-  let toast = { show: false, message: '', type: 'info' };
 
   onMount(loadCategories);
 
@@ -22,7 +21,7 @@
     try {
       categories = await getAll('categories');
     } catch (e) {
-      toast = { show: true, message: 'Error al cargar categorías', type: 'error' };
+      error('Error al cargar categorías');
     }
   }
 
@@ -40,7 +39,7 @@
 
   async function saveCategory() {
     if (!formData.name.trim()) {
-      toast = { show: true, message: 'El nombre es obligatorio', type: 'warning' };
+      warning('El nombre es obligatorio');
       return;
     }
 
@@ -48,15 +47,15 @@
     try {
       if (editingCategory) {
         await update('categories', editingCategory.id, formData);
-        toast = { show: true, message: 'Categoría actualizada', type: 'success' };
+        success('Categoría actualizada');
       } else {
         await create('categories', formData);
-        toast = { show: true, message: 'Categoría creada', type: 'success' };
+        success('Categoría creada');
       }
       closeModal();
       await loadCategories();
     } catch (e) {
-      toast = { show: true, message: 'Error al guardar', type: 'error' };
+      error('Error al guardar');
     }
     loading = false;
   }
@@ -66,10 +65,10 @@
     loading = true;
     try {
       await remove('categories', id);
-      toast = { show: true, message: 'Categoría eliminada', type: 'success' };
+      success('Categoría eliminada');
       await loadCategories();
     } catch (e) {
-      toast = { show: true, message: 'Error al eliminar', type: 'error' };
+      error('Error al eliminar');
     }
     loading = false;
   }
@@ -123,8 +122,6 @@
     <Button on:click={saveCategory} {loading}>{editingCategory ? 'Actualizar' : 'Crear'}</Button>
   </svelte:fragment>
 </Modal>
-
-<Toast show={toast.show} message={toast.message} type={toast.type} on:close={() => toast.show = false} />
 
 <style>
   .page { padding: 1.25rem; padding-top: 5rem; }

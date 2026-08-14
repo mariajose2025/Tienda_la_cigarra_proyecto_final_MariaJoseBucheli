@@ -75,7 +75,7 @@
 
   {#if $isAuthenticated && $currentUser}
     <div class="navbar-menu" class:active={menuOpen}>
-      <div class="nav-section" on:mouseenter={() => enterSection('general')} on:mouseleave={() => leaveSection('general')}>
+      <div class="nav-section" role="group" on:mouseenter={() => enterSection('general')} on:mouseleave={() => leaveSection('general')}>
         <button class="nav-section-title" class:active={isSectionActive('general')} on:click={() => toggleSection('general')} type="button">
           <span><i class="fa-solid fa-house"></i> General</span>
           <i class="fa-solid fa-chevron-down caret" class:rotated={shouldShow('general')}></i>
@@ -86,7 +86,7 @@
         </div>
       </div>
 
-      <div class="nav-section" on:mouseenter={() => enterSection('inventario')} on:mouseleave={() => leaveSection('inventario')}>
+      <div class="nav-section" role="group" on:mouseenter={() => enterSection('inventario')} on:mouseleave={() => leaveSection('inventario')}>
         <button class="nav-section-title" class:active={isSectionActive('inventario')} on:click={() => toggleSection('inventario')} type="button">
           <span><i class="fa-solid fa-box-open"></i> Inventario</span>
           <i class="fa-solid fa-chevron-down caret" class:rotated={shouldShow('inventario')}></i>
@@ -98,7 +98,7 @@
         </div>
       </div>
 
-      <div class="nav-section" on:mouseenter={() => enterSection('operaciones')} on:mouseleave={() => leaveSection('operaciones')}>
+      <div class="nav-section" role="group" on:mouseenter={() => enterSection('operaciones')} on:mouseleave={() => leaveSection('operaciones')}>
         <button class="nav-section-title" class:active={isSectionActive('operaciones')} on:click={() => toggleSection('operaciones')} type="button">
           <span><i class="fa-solid fa-cart-shopping"></i> Operaciones</span>
           <i class="fa-solid fa-chevron-down caret" class:rotated={shouldShow('operaciones')}></i>
@@ -112,7 +112,7 @@
       </div>
 
       {#if canView($currentUser, 'cash')}
-        <div class="nav-section" on:mouseenter={() => enterSection('contabilidad')} on:mouseleave={() => leaveSection('contabilidad')}>
+        <div class="nav-section" role="group" on:mouseenter={() => enterSection('contabilidad')} on:mouseleave={() => leaveSection('contabilidad')}>
           <button class="nav-section-title" class:active={isSectionActive('contabilidad')} on:click={() => toggleSection('contabilidad')} type="button">
             <span><i class="fa-solid fa-scale-balanced"></i> Contabilidad</span>
             <i class="fa-solid fa-chevron-down caret" class:rotated={shouldShow('contabilidad')}></i>
@@ -131,7 +131,7 @@
       {/if}
 
       {#if isAdmin($currentUser)}
-        <div class="nav-section" on:mouseenter={() => enterSection('admin')} on:mouseleave={() => leaveSection('admin')}>
+        <div class="nav-section" role="group" on:mouseenter={() => enterSection('admin')} on:mouseleave={() => leaveSection('admin')}>
           <button class="nav-section-title" class:active={isSectionActive('admin')} on:click={() => toggleSection('admin')} type="button">
             <span><i class="fa-solid fa-gear"></i> Administración</span>
             <i class="fa-solid fa-chevron-down caret" class:rotated={shouldShow('admin')}></i>
@@ -145,7 +145,7 @@
         </div>
       {/if}
 
-      <div class="nav-section" on:mouseenter={() => enterSection('cuenta')} on:mouseleave={() => leaveSection('cuenta')}>
+      <div class="nav-section" role="group" on:mouseenter={() => enterSection('cuenta')} on:mouseleave={() => leaveSection('cuenta')}>
         <button class="nav-section-title" class:active={isSectionActive('cuenta')} on:click={() => toggleSection('cuenta')} type="button">
           <span><i class="fa-solid fa-user"></i> Cuenta</span>
           <i class="fa-solid fa-chevron-down caret" class:rotated={shouldShow('cuenta')}></i>

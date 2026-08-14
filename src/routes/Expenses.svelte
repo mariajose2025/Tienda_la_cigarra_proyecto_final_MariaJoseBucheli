@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { getAllExpenses, createExpense, updateExpense, deleteExpense, EXPENSE_CATEGORIES } from '../services/expenseService';
+  import { notify } from '../stores/toast';
   import { formatCurrency } from '../utils/iva';
   import { currentUser } from '../stores/auth';
   import { canView, canCreate, canEdit } from '../utils/permissions';
@@ -8,14 +9,12 @@
   import Button from '../components/common/Button.svelte';
   import ExportButton from '../components/common/ExportButton.svelte';
   import Modal from '../components/common/Modal.svelte';
-  import Toast from '../components/common/Toast.svelte';
 
   let expenses = [];
   let showModal = false;
   let editingExpense = null;
   let formData = { name: '', category: 'arriendo', type: 'fijo', amount: 0, expenseDate: '', notes: '' };
   let loading = false;
-  let toast = { show: false, message: '', type: 'info' };
 
   let filterType = 'all';
 
@@ -25,7 +24,7 @@
     try {
       expenses = await getAllExpenses();
     } catch (e) {
-      toast = { show: true, message: 'Error al cargar gastos', type: 'error' };
+      notify('error', 'Error al cargar gastos');
     }
   }
 
@@ -54,11 +53,11 @@
 
   async function saveExpense() {
     if (!formData.name.trim()) {
-      toast = { show: true, message: 'El nombre del gasto es obligatorio', type: 'warning' };
+      notify('warning', 'El nombre del gasto es obligatorio');
       return;
     }
     if (formData.amount <= 0) {
-      toast = { show: true, message: 'Ingresa un monto válido', type: 'warning' };
+      notify('warning', 'Ingresa un monto válido');
       return;
     }
 
@@ -75,15 +74,15 @@
     try {
       if (editingExpense) {
         await updateExpense(editingExpense.id, payload);
-        toast = { show: true, message: 'Gasto actualizado', type: 'success' };
+        notify('success', 'Gasto actualizado');
       } else {
         await createExpense(payload);
-        toast = { show: true, message: 'Gasto registrado', type: 'success' };
+        notify('success', 'Gasto registrado');
       }
       closeModal();
       await loadExpenses();
     } catch (e) {
-      toast = { show: true, message: 'Error al guardar gasto', type: 'error' };
+      notify('error', 'Error al guardar gasto');
     }
     loading = false;
   }
@@ -93,10 +92,10 @@
     loading = true;
     try {
       await deleteExpense(id);
-      toast = { show: true, message: 'Gasto eliminado', type: 'success' };
+      notify('success', 'Gasto eliminado');
       await loadExpenses();
     } catch (e) {
-      toast = { show: true, message: 'Error al eliminar gasto', type: 'error' };
+      notify('error', 'Error al eliminar gasto');
     }
     loading = false;
   }
@@ -236,7 +235,7 @@
   </svelte:fragment>
 </Modal>
 
-<Toast show={toast.show} message={toast.message} type={toast.type} on:close={() => toast.show = false} />
+
 
 <style>
   .page { padding: 1.25rem; padding-top: 5rem; }

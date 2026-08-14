@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { getAll, create } from '../services/firestoreService';
+  import { notify } from '../stores/toast';
   import { updateProductStock, getProductById } from '../services/productService';
   import { getOpenSession, addAutomaticMovement } from '../services/cashService';
   import { currentUser } from '../stores/auth';
@@ -10,7 +11,6 @@
   import { normalizeRows } from '../utils/exportUtils';
   import Button from '../components/common/Button.svelte';
   import ExportButton from '../components/common/ExportButton.svelte';
-  import Toast from '../components/common/Toast.svelte';
 
   let sales = [];
   let products = [];
@@ -18,7 +18,6 @@
   let items = [{ productId: '', quantity: 1, unitPrice: 0 }];
   let paymentMethod = 'efectivo';
   let loading = false;
-  let toast = { show: false, message: '', type: 'info' };
 
   $: iva = $ivaPercentage;
   $: subtotal = items.reduce((sum, item) => sum + calculateItemSubtotal(item.quantity, item.unitPrice), 0);
@@ -51,14 +50,14 @@
   async function saveSale() {
     const validItems = items.filter(i => i.productId && i.quantity > 0);
     if (validItems.length === 0) {
-      toast = { show: true, message: 'Agrega al menos un producto', type: 'warning' };
+      notify('warning', 'Agrega al menos un producto');
       return;
     }
 
     for (const item of validItems) {
       const product = products.find(p => p.id === item.productId);
       if (product && product.currentStock < item.quantity) {
-        toast = { show: true, message: `Stock insuficiente para ${product.name}`, type: 'error' };
+        notify('error', `Stock insuficiente para ${product.name}`);
         return;
       }
     }
@@ -99,13 +98,13 @@
         }
       }
 
-      toast = { show: true, message: 'Venta registrada exitosamente', type: 'success' };
+      notify('success', 'Venta registrada exitosamente');
       items = [{ productId: '', quantity: 1, unitPrice: 0 }];
       paymentMethod = 'efectivo';
       products = await getAll('products');
       sales = await getAll('sales');
     } catch (e) {
-      toast = { show: true, message: 'Error al registrar venta', type: 'error' };
+      notify('error', 'Error al registrar venta');
     }
     loading = false;
   }
@@ -208,7 +207,7 @@
   {/if}
 </div>
 
-<Toast show={toast.show} message={toast.message} type={toast.type} on:close={() => toast.show = false} />
+
 
 <style>
   .page { padding: 1.25rem; padding-top: 5rem; }

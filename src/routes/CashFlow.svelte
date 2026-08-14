@@ -109,10 +109,10 @@
       {/each}
     </div>
     <div class="date-range">
-      <label>Desde</label>
-      <input type="date" bind:value={fromDate} on:change={() => activePreset = ''} />
-      <label>Hasta</label>
-      <input type="date" bind:value={toDate} on:change={() => activePreset = ''} />
+      <label for="cf-from">Desde</label>
+      <input id="cf-from" type="date" bind:value={fromDate} on:change={() => activePreset = ''} />
+      <label for="cf-to">Hasta</label>
+      <input id="cf-to" type="date" bind:value={toDate} on:change={() => activePreset = ''} />
     </div>
 
     {#if loading}

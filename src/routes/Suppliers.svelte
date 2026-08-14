@@ -1,20 +1,19 @@
 <script>
   import { onMount } from 'svelte';
   import { getAll, create, update, remove } from '../services/firestoreService';
+  import { notify } from '../stores/toast';
   import { currentUser } from '../stores/auth';
   import { canCreate, canEdit, canView } from '../utils/permissions';
   import { normalizeRows } from '../utils/exportUtils';
   import Button from '../components/common/Button.svelte';
   import ExportButton from '../components/common/ExportButton.svelte';
   import Modal from '../components/common/Modal.svelte';
-  import Toast from '../components/common/Toast.svelte';
 
   let suppliers = [];
   let showModal = false;
   let editingSupplier = null;
   let formData = { nit: '', name: '', contact: '', phone: '', address: '' };
   let loading = false;
-  let toast = { show: false, message: '', type: 'info' };
 
   onMount(loadSuppliers);
 
@@ -22,7 +21,7 @@
     try {
       suppliers = await getAll('suppliers');
     } catch (e) {
-      toast = { show: true, message: 'Error al cargar proveedores', type: 'error' };
+      notify('error', 'Error al cargar proveedores');
     }
   }
 
@@ -42,7 +41,7 @@
 
   async function saveSupplier() {
     if (!formData.nit.trim() || !formData.name.trim()) {
-      toast = { show: true, message: 'NIT y nombre son obligatorios', type: 'warning' };
+      notify('warning', 'NIT y nombre son obligatorios');
       return;
     }
 
@@ -50,15 +49,15 @@
     try {
       if (editingSupplier) {
         await update('suppliers', editingSupplier.id, formData);
-        toast = { show: true, message: 'Proveedor actualizado', type: 'success' };
+        notify('success', 'Proveedor actualizado');
       } else {
         await create('suppliers', formData);
-        toast = { show: true, message: 'Proveedor registrado', type: 'success' };
+        notify('success', 'Proveedor registrado');
       }
       closeModal();
       await loadSuppliers();
     } catch (e) {
-      toast = { show: true, message: 'Error al guardar', type: 'error' };
+      notify('error', 'Error al guardar');
     }
     loading = false;
   }
@@ -68,10 +67,10 @@
     loading = true;
     try {
       await remove('suppliers', id);
-      toast = { show: true, message: 'Proveedor eliminado', type: 'success' };
+      notify('success', 'Proveedor eliminado');
       await loadSuppliers();
     } catch (e) {
-      toast = { show: true, message: 'Error al eliminar', type: 'error' };
+      notify('error', 'Error al eliminar');
     }
     loading = false;
   }
@@ -147,7 +146,7 @@
   </svelte:fragment>
 </Modal>
 
-<Toast show={toast.show} message={toast.message} type={toast.type} on:close={() => toast.show = false} />
+
 
 <style>
   .page { padding: 1.25rem; padding-top: 5rem; }

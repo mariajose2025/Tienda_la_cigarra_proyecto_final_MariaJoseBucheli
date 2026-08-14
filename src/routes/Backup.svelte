@@ -4,13 +4,12 @@
   import { exportAllCollections, importAllCollections, ALL_COLLECTIONS, COLLECTION_LABELS } from '../services/backupService';
   import { normalizeRows, exportSheetsToExcel, exportDataToJson, todayStamp } from '../utils/exportUtils';
   import Button from '../components/common/Button.svelte';
-  import Toast from '../components/common/Toast.svelte';
+  import { notify } from '../stores/toast';
 
   let loading = false;
-  let toast = { show: false, message: '', type: 'info' };
 
   function showToast(message, type = 'info') {
-    toast = { show: true, message, type };
+    notify(type, message);
   }
 
   async function handleExportExcel() {
@@ -122,7 +121,7 @@
   {/if}
 </div>
 
-<Toast show={toast.show} message={toast.message} type={toast.type} on:close={() => toast.show = false} />
+
 
 <style>
   .page { padding: 1.25rem; padding-top: 5rem; }

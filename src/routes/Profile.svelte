@@ -1,10 +1,10 @@
 <script>
   import { currentUser } from '../stores/auth';
+  import { notify } from '../stores/toast';
   import { changeUserPassword } from '../services/authService';
   import { update } from '../services/firestoreService';
   import { uploadProductImage } from '../services/storageService';
   import Button from '../components/common/Button.svelte';
-  import Toast from '../components/common/Toast.svelte';
 
   let name = $currentUser?.name || '';
   let phone = $currentUser?.phone || '';
@@ -15,7 +15,6 @@
   let newPassword = '';
   let confirmPassword = '';
   let loading = false;
-  let toast = { show: false, message: '', type: 'info' };
   let selectedPhotoFile = null;
 
   function handlePhotoChange(event) {
@@ -42,7 +41,7 @@
 
   async function updateProfile() {
     if (!name) {
-      toast = { show: true, message: 'El nombre es obligatorio', type: 'warning' };
+      notify('warning', 'El nombre es obligatorio');
       return;
     }
 
@@ -52,7 +51,7 @@
 
       if (selectedPhotoFile) {
         try {
-          toast = { show: true, message: 'Subiendo foto...', type: 'info' };
+          notify('info', 'Subiendo foto...');
           finalPhotoURL = await uploadProductImage(selectedPhotoFile, $currentUser.uid);
         } catch (e) {
           console.warn('Storage no disponible, usando preview local');
@@ -64,24 +63,24 @@
       await update('users', $currentUser.uid, {
         name, phone, cedula, birthDate, sex, age, photoURL: finalPhotoURL
       });
-      toast = { show: true, message: 'Perfil actualizado exitosamente', type: 'success' };
+      notify('success', 'Perfil actualizado exitosamente');
     } catch (e) {
-      toast = { show: true, message: 'Error al actualizar perfil', type: 'error' };
+      notify('error', 'Error al actualizar perfil');
     }
     loading = false;
   }
 
   async function changePassword() {
     if (!newPassword) {
-      toast = { show: true, message: 'Ingresa la nueva contraseña', type: 'warning' };
+      notify('warning', 'Ingresa la nueva contraseña');
       return;
     }
     if (newPassword !== confirmPassword) {
-      toast = { show: true, message: 'Las contraseñas no coinciden', type: 'error' };
+      notify('error', 'Las contraseñas no coinciden');
       return;
     }
     if (newPassword.length < 6) {
-      toast = { show: true, message: 'Mínimo 6 caracteres', type: 'warning' };
+      notify('warning', 'Mínimo 6 caracteres');
       return;
     }
 
@@ -90,11 +89,11 @@
     loading = false;
 
     if (result.success) {
-      toast = { show: true, message: 'Contraseña actualizada', type: 'success' };
+      notify('success', 'Contraseña actualizada');
       newPassword = '';
       confirmPassword = '';
     } else {
-      toast = { show: true, message: result.error, type: 'error' };
+      notify('error', result.error);
     }
   }
 </script>
@@ -172,12 +171,7 @@
   </div>
 </div>
 
-<Toast
-  show={toast.show}
-  message={toast.message}
-  type={toast.type}
-  on:close={() => toast.show = false}
-/>
+
 
 <style>
   .profile-container {

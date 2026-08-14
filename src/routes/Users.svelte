@@ -2,13 +2,13 @@
   import { onMount } from 'svelte';
   import { link, push } from 'svelte-spa-router';
   import { getAll, getAllUnfiltered, create, update, remove, getByField } from '../services/firestoreService';
+  import { notify } from '../stores/toast';
   import { currentUser } from '../stores/auth';
   import { isAdmin } from '../utils/permissions';
   import { normalizeRows } from '../utils/exportUtils';
   import Button from '../components/common/Button.svelte';
   import ExportButton from '../components/common/ExportButton.svelte';
   import Modal from '../components/common/Modal.svelte';
-  import Toast from '../components/common/Toast.svelte';
 
   let users = [];
   let roles = [];
@@ -16,7 +16,6 @@
   let editingUser = null;
   let formData = { name: '', email: '', cedula: '', phone: '', roleId: '' };
   let loading = false;
-  let toast = { show: false, message: '', type: 'info' };
   let searchQuery = '';
 
   $: filteredUsers = users.filter(u =>
@@ -33,7 +32,7 @@
     try {
       users = await getAllUnfiltered('users');
     } catch (e) {
-      toast = { show: true, message: 'Error al cargar usuarios', type: 'error' };
+      notify('error', 'Error al cargar usuarios');
     }
   }
 
@@ -65,7 +64,7 @@
 
   async function saveUser() {
     if (!formData.name.trim()) {
-      toast = { show: true, message: 'El nombre es obligatorio', type: 'warning' };
+      notify('warning', 'El nombre es obligatorio');
       return;
     }
 
@@ -78,11 +77,11 @@
         roleId: formData.roleId,
         roleName: selectedRole ? selectedRole.name : ''
       });
-      toast = { show: true, message: 'Usuario actualizado correctamente', type: 'success' };
+      notify('success', 'Usuario actualizado correctamente');
       closeModal();
       await loadUsers();
     } catch (e) {
-      toast = { show: true, message: 'Error al actualizar usuario', type: 'error' };
+      notify('error', 'Error al actualizar usuario');
     }
     loading = false;
   }
@@ -92,10 +91,10 @@
     loading = true;
     try {
       await remove('users', id);
-      toast = { show: true, message: 'Usuario eliminado', type: 'success' };
+      notify('success', 'Usuario eliminado');
       await loadUsers();
     } catch (e) {
-      toast = { show: true, message: 'Error al eliminar', type: 'error' };
+      notify('error', 'Error al eliminar');
     }
     loading = false;
   }
@@ -200,7 +199,7 @@
   </svelte:fragment>
 </Modal>
 
-<Toast show={toast.show} message={toast.message} type={toast.type} on:close={() => toast.show = false} />
+
 
 <style>
   .page { padding: 1.25rem; padding-top: 5rem; }

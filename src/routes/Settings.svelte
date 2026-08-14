@@ -2,13 +2,13 @@
   import { onMount } from 'svelte';
   import { push } from 'svelte-spa-router';
   import { getSettings, updateSettings } from '../services/settingsService';
+  import { notify } from '../stores/toast';
   import { clearAllData } from '../services/clearDatabase';
   import { logout } from '../services/authService';
   import { app } from '../stores/app';
   import { currentUser } from '../stores/auth';
   import { isAdmin } from '../utils/permissions';
   import Button from '../components/common/Button.svelte';
-  import Toast from '../components/common/Toast.svelte';
 
   let stockYellow = 10;
   let stockRed = 5;
@@ -17,7 +17,6 @@
   let ivaPercentage = 19;
   let loading = false;
   let clearing = false;
-  let toast = { show: false, message: '', type: 'info' };
 
   onMount(async () => {
     try {
@@ -34,11 +33,11 @@
 
   async function saveSettings() {
     if (stockRed >= stockYellow) {
-      toast = { show: true, message: 'El umbral rojo debe ser menor al amarillo', type: 'warning' };
+      notify('warning', 'El umbral rojo debe ser menor al amarillo');
       return;
     }
     if (expiryRed >= expiryYellow) {
-      toast = { show: true, message: 'El umbral rojo debe ser menor al amarillo (vencimiento)', type: 'warning' };
+      notify('warning', 'El umbral rojo debe ser menor al amarillo (vencimiento)');
       return;
     }
 
@@ -50,9 +49,9 @@
       };
       await updateSettings(settings);
       app.setSettings(settings);
-      toast = { show: true, message: 'Configuración guardada', type: 'success' };
+      notify('success', 'Configuración guardada');
     } catch (e) {
-      toast = { show: true, message: 'Error al guardar', type: 'error' };
+      notify('error', 'Error al guardar');
     }
     loading = false;
   }
@@ -62,7 +61,7 @@
     if (!confirm('ÚLTIMA ADVERTENCIA: Se eliminarán todos los usuarios, productos, categorías, proveedores, compras, ventas, clientes y fiados. ¿Continuar?')) return;
 
     clearing = true;
-    toast = { show: true, message: 'Limpiando base de datos...', type: 'info' };
+    notify('info', 'Limpiando base de datos...');
 
     try {
       const results = await clearAllData();
@@ -70,14 +69,14 @@
         .map(([name, r]) => `${name}: ${r.deleted} eliminados`)
         .join('\n');
 
-      toast = { show: true, message: `Base de datos limpiada. ${summary}`, type: 'success' };
+      notify('success', `Base de datos limpiada. ${summary}`);
 
       setTimeout(async () => {
         await logout();
         push('/setup');
       }, 2000);
     } catch (e) {
-      toast = { show: true, message: 'Error al limpiar: ' + e.message, type: 'error' };
+      notify('error', 'Error al limpiar: ' + e.message);
     }
     clearing = false;
   }
@@ -149,7 +148,7 @@
   {/if}
 </div>
 
-<Toast show={toast.show} message={toast.message} type={toast.type} on:close={() => toast.show = false} />
+
 
 <style>
   .page { padding: 1.25rem; padding-top: 5rem; max-width: 600px; }

@@ -1,11 +1,11 @@
 <script>
   import { onMount } from 'svelte';
   import { getAllSessions, getAllMovements, getMovementsBySession } from '../services/cashService';
+  import { notify } from '../stores/toast';
   import { formatCurrency } from '../utils/iva';
   import { currentUser } from '../stores/auth';
   import { canView } from '../utils/permissions';
   import { normalizeRows } from '../utils/exportUtils';
-  import Toast from '../components/common/Toast.svelte';
   import ExportButton from '../components/common/ExportButton.svelte';
 
   let sessions = [];
@@ -13,7 +13,6 @@
   let filterType = 'all';
   let filterCategory = 'all';
   let loading = true;
-  let toast = { show: false, message: '', type: 'info' };
 
   const CATEGORY_LABELS = {
     venta: 'Venta',
@@ -43,7 +42,7 @@
         return { ...s, movements, income, expense, expected: (s.openingAmount || 0) + income - expense };
       }));
     } catch (e) {
-      toast = { show: true, message: 'Error al cargar movimientos', type: 'error' };
+      notify('error', 'Error al cargar movimientos');
     }
     loading = false;
   });
@@ -146,7 +145,7 @@
 {/if}
 </div>
 
-<Toast show={toast.show} message={toast.message} type={toast.type} on:close={() => toast.show = false} />
+
 
 <style>
   .page { padding: 1.25rem; padding-top: 5rem; }

@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { getAllClients } from '../services/clientService';
+  import { notify } from '../stores/toast';
   import { getAllProducts } from '../services/productService';
   import { getAllCredits, createCredit, updateCredit, deleteCredit } from '../services/creditService';
   import { getOpenSession, addAutomaticMovement } from '../services/cashService';
@@ -11,7 +12,6 @@
   import Button from '../components/common/Button.svelte';
   import ExportButton from '../components/common/ExportButton.svelte';
   import Modal from '../components/common/Modal.svelte';
-  import Toast from '../components/common/Toast.svelte';
 
   let credits = [];
   let clients = [];
@@ -21,7 +21,6 @@
   let editingCredit = null;
   let selectedCredit = null;
   let loading = false;
-  let toast = { show: false, message: '', type: 'info' };
   let filterStatus = 'all';
 
   let formData = {
@@ -55,7 +54,7 @@
 
   function openModal() {
     if (clients.length === 0) {
-      toast = { show: true, message: 'Primero registra al menos un cliente', type: 'warning' };
+      notify('warning', 'Primero registra al menos un cliente');
       return;
     }
     editingCredit = null;
@@ -100,13 +99,13 @@
 
   async function saveCredit() {
     if (!formData.clientId) {
-      toast = { show: true, message: 'Selecciona un cliente', type: 'warning' };
+      notify('warning', 'Selecciona un cliente');
       return;
     }
 
     const validItems = formData.items.filter(i => i.productId && i.quantity > 0);
     if (validItems.length === 0) {
-      toast = { show: true, message: 'Agrega al menos un producto', type: 'warning' };
+      notify('warning', 'Agrega al menos un producto');
       return;
     }
 
@@ -134,11 +133,11 @@
       };
 
       await createCredit(creditData);
-      toast = { show: true, message: 'Fiado registrado exitosamente', type: 'success' };
+      notify('success', 'Fiado registrado exitosamente');
       closeModal();
       credits = await getAllCredits();
     } catch (e) {
-      toast = { show: true, message: 'Error al registrar fiado', type: 'error' };
+      notify('error', 'Error al registrar fiado');
     }
     loading = false;
   }
@@ -154,10 +153,10 @@
         await addAutomaticMovement(openSession.id, 'ingreso', 'fiado', credit.total, credit.id, 'credit', `Cobro de fiado de ${credit.clientName || 'cliente'}`);
       }
 
-      toast = { show: true, message: 'Fiado marcado como pagado', type: 'success' };
+      notify('success', 'Fiado marcado como pagado');
       credits = await getAllCredits();
     } catch (e) {
-      toast = { show: true, message: 'Error al actualizar', type: 'error' };
+      notify('error', 'Error al actualizar');
     }
     loading = false;
   }
@@ -167,10 +166,10 @@
     loading = true;
     try {
       await deleteCredit(id);
-      toast = { show: true, message: 'Fiado eliminado', type: 'success' };
+      notify('success', 'Fiado eliminado');
       credits = await getAllCredits();
     } catch (e) {
-      toast = { show: true, message: 'Error al eliminar', type: 'error' };
+      notify('error', 'Error al eliminar');
     }
     loading = false;
   }
@@ -237,7 +236,7 @@
   <div class="list">
     {#each filteredCredits as credit}
       {@const statusColor = getStatusColor(credit)}
-      <div class="credit-card" on:click={() => openDetail(credit)}>
+      <div class="credit-card" role="button" tabindex="0" on:click={() => openDetail(credit)} on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDetail(credit); } }}>
         <div class="credit-left">
           <div class="client-avatar" class:paid={credit.status === 'paid'}>
             <i class="fa-solid {credit.status === 'paid' ? 'fa-check' : 'fa-user'}"></i>
@@ -361,7 +360,7 @@
   {/if}
 </Modal>
 
-<Toast show={toast.show} message={toast.message} type={toast.type} on:close={() => toast.show = false} />
+
 
 <style>
   .page { padding: 1.25rem; padding-top: 5rem; }

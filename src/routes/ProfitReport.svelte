@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { getAll } from '../services/firestoreService';
+  import { notify } from '../stores/toast';
   import { getAllExpenses } from '../services/expenseService';
   import { formatCurrency } from '../utils/iva';
   import { currentUser } from '../stores/auth';
@@ -13,7 +14,6 @@
   let purchases = [];
   let expenses = [];
   let loading = true;
-  let toast = { show: false, message: '', type: 'info' };
 
   let presets = [
     { id: 'hoy', label: 'Hoy' },
@@ -68,7 +68,7 @@
       purchases = pu;
       expenses = e;
     } catch (err) {
-      toast = { show: true, message: 'Error al cargar datos para el reporte', type: 'error' };
+      notify('error', 'Error al cargar datos para el reporte');
     }
     loading = false;
   });
@@ -145,10 +145,10 @@
       {/each}
     </div>
     <div class="date-range">
-      <label>Desde</label>
-      <input type="date" bind:value={fromDate} on:change={() => activePreset = ''} />
-      <label>Hasta</label>
-      <input type="date" bind:value={toDate} on:change={() => activePreset = ''} />
+      <label for="pr-from">Desde</label>
+      <input id="pr-from" type="date" bind:value={fromDate} on:change={() => activePreset = ''} />
+      <label for="pr-to">Hasta</label>
+      <input id="pr-to" type="date" bind:value={toDate} on:change={() => activePreset = ''} />
     </div>
 
     {#if loading}

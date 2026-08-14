@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { getAll, create, update, remove } from '../services/firestoreService';
+  import { notify } from '../stores/toast';
   import { currentUser } from '../stores/auth';
   import { canCreate, canEdit, canView } from '../utils/permissions';
   import { alertThresholds } from '../stores/app';
@@ -11,7 +12,6 @@
   import Button from '../components/common/Button.svelte';
   import ExportButton from '../components/common/ExportButton.svelte';
   import Modal from '../components/common/Modal.svelte';
-  import Toast from '../components/common/Toast.svelte';
   import { uploadProductImage } from '../services/storageService';
   import { createProduct } from '../services/productService';
   import Barcode from '../components/common/Barcode.svelte';
@@ -26,7 +26,6 @@
     currentStock: 0, minimumStock: 0, expiryDate: '', supplierId: '', imageUrl: ''
   };
   let loading = false;
-  let toast = { show: false, message: '', type: 'info' };
 
   let filterCategory = '';
   let viewMode = 'cards';
@@ -212,11 +211,11 @@
 
   async function saveProduct() {
     if (!formData.categoryId) {
-      toast = { show: true, message: 'Debes seleccionar una categoría antes de crear el producto', type: 'warning' };
+      notify('warning', 'Debes seleccionar una categoría antes de crear el producto');
       return;
     }
     if (!formData.name.trim()) {
-      toast = { show: true, message: 'El nombre es obligatorio', type: 'warning' };
+      notify('warning', 'El nombre es obligatorio');
       return;
     }
 
@@ -228,12 +227,12 @@
       // Si hay un archivo seleccionado, intentar subirlo a Firebase Storage
       if (selectedImageFile) {
         try {
-          toast = { show: true, message: 'Subiendo imagen a Firebase...', type: 'info' };
+          notify('info', 'Subiendo imagen a Firebase...');
           const tempId = editingProduct ? editingProduct.id : 'new';
           finalImageUrl = await uploadProductImage(selectedImageFile, tempId);
         } catch (storageError) {
           console.warn('Firebase Storage no disponible. Guardando en Firestore como Base64...', storageError);
-          toast = { show: true, message: 'Storage inaccesible. Guardando imagen comprimida localmente...', type: 'info' };
+          notify('info', 'Storage inaccesible. Guardando imagen comprimida localmente...');
           
           try {
             // Comprimir la imagen seleccionada local a un base64 liviano (<30KB)
@@ -258,16 +257,16 @@
 
       if (editingProduct) {
         await update('products', editingProduct.id, data);
-        toast = { show: true, message: 'Producto actualizado con éxito', type: 'success' };
+        notify('success', 'Producto actualizado con éxito');
       } else {
         await createProduct(data);
-        toast = { show: true, message: 'Producto registrado con éxito', type: 'success' };
+        notify('success', 'Producto registrado con éxito');
       }
       closeModal();
       products = await getAll('products');
     } catch (e) {
       console.error(e);
-      toast = { show: true, message: e.message || 'Error al guardar el producto', type: 'error' };
+      notify('error', e.message || 'Error al guardar el producto');
     }
     loading = false;
   }
@@ -277,10 +276,10 @@
     loading = true;
     try {
       await remove('products', id);
-      toast = { show: true, message: 'Producto eliminado', type: 'success' };
+      notify('success', 'Producto eliminado');
       products = await getAll('products');
     } catch (e) {
-      toast = { show: true, message: 'Error al eliminar', type: 'error' };
+      notify('error', 'Error al eliminar');
     }
     loading = false;
   }
@@ -649,7 +648,7 @@
   </svelte:fragment>
 </Modal>
 
-<Toast show={toast.show} message={toast.message} type={toast.type} on:close={() => toast.show = false} />
+
 
 <style>
   .page { padding: 1.25rem; padding-top: 5rem; }

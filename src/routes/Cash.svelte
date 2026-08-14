@@ -1,13 +1,13 @@
 <script>
   import { onMount } from 'svelte';
   import { getOpenSession, openCashSession, closeCashSession, getMovementsBySession, createMovement } from '../services/cashService';
+  import { notify } from '../stores/toast';
   import { currentUser } from '../stores/auth';
   import { canCreate, canView } from '../utils/permissions';
   import { formatCurrency } from '../utils/iva';
   import { normalizeRows } from '../utils/exportUtils';
   import ExportButton from '../components/common/ExportButton.svelte';
   import Button from '../components/common/Button.svelte';
-  import Toast from '../components/common/Toast.svelte';
   import Modal from '../components/common/Modal.svelte';
 
   let session = null;
@@ -16,7 +16,6 @@
   let openingAmount = 0;
   let closingAmount = 0;
   let closeResult = null;
-  let toast = { show: false, message: '', type: 'info' };
 
   let showMovementModal = false;
   let showCloseModal = false;
@@ -55,23 +54,23 @@
 
   async function handleOpen() {
     if (openingAmount < 0) {
-      toast = { show: true, message: 'El monto de apertura no puede ser negativo', type: 'warning' };
+      notify('warning', 'El monto de apertura no puede ser negativo');
       return;
     }
     loading = true;
     try {
       await openCashSession(openingAmount);
       await loadData();
-      toast = { show: true, message: 'Caja abierta', type: 'success' };
+      notify('success', 'Caja abierta');
     } catch (e) {
-      toast = { show: true, message: 'Error al abrir caja', type: 'error' };
+      notify('error', 'Error al abrir caja');
     }
     loading = false;
   }
 
   async function handleClose() {
     if (closingAmount < 0) {
-      toast = { show: true, message: 'El conteo no puede ser negativo', type: 'warning' };
+      notify('warning', 'El conteo no puede ser negativo');
       return;
     }
     if (!confirm('¿Cerrar la caja? Verifica que el conteo de dinero sea correcto.')) return;
@@ -81,9 +80,9 @@
       showCloseModal = false;
       session = null;
       movements = [];
-      toast = { show: true, message: 'Caja cerrada correctamente', type: 'success' };
+      notify('success', 'Caja cerrada correctamente');
     } catch (e) {
-      toast = { show: true, message: 'Error al cerrar caja', type: 'error' };
+      notify('error', 'Error al cerrar caja');
     }
     loading = false;
   }
@@ -95,11 +94,11 @@
 
   async function saveMovement() {
     if (moveForm.amount <= 0) {
-      toast = { show: true, message: 'Ingresa un monto válido', type: 'warning' };
+      notify('warning', 'Ingresa un monto válido');
       return;
     }
     if (!moveForm.description.trim()) {
-      toast = { show: true, message: 'Describe el movimiento', type: 'warning' };
+      notify('warning', 'Describe el movimiento');
       return;
     }
     const category = moveForm.type === 'ingreso' ? 'otro' : (moveForm.category || 'gasto');
@@ -116,9 +115,9 @@
       });
       showMovementModal = false;
       movements = await getMovementsBySession(session.id);
-      toast = { show: true, message: 'Movimiento registrado', type: 'success' };
+      notify('success', 'Movimiento registrado');
     } catch (e) {
-      toast = { show: true, message: 'Error al registrar movimiento', type: 'error' };
+      notify('error', 'Error al registrar movimiento');
     }
     loading = false;
   }
@@ -301,7 +300,7 @@
     </svelte:fragment>
   </Modal>
 
-  <Toast show={toast.show} message={toast.message} type={toast.type} on:close={() => toast.show = false} />
+  
   {/if}
 </div>
 

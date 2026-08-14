@@ -1,18 +1,17 @@
 <script>
   import { onMount } from 'svelte';
   import { getAllUnfiltered, update } from '../services/firestoreService';
+  import { notify } from '../stores/toast';
   import { currentUser } from '../stores/auth';
   import { isAdmin } from '../utils/permissions';
   import { normalizeRows } from '../utils/exportUtils';
   import Button from '../components/common/Button.svelte';
   import ExportButton from '../components/common/ExportButton.svelte';
-  import Toast from '../components/common/Toast.svelte';
 
   let users = [];
   let selectedUserId = '';
   let selectedRole = '';
   let loading = false;
-  let toast = { show: false, message: '', type: 'info' };
 
   const ROLES = [
     { value: 'Cajero', label: 'Cajero', desc: 'Atiende el punto de venta: registra ventas, fiados y clientes. Puede ver el inventario y proveedores pero no modificarlos ni acceder a contabilidad', icon: 'fa-cash-register', color: '#16a34a' },
@@ -27,23 +26,23 @@
     try {
       users = await getAllUnfiltered('users');
     } catch (e) {
-      toast = { show: true, message: 'Error al cargar usuarios', type: 'error' };
+      notify('error', 'Error al cargar usuarios');
     }
   });
 
   async function assignRole() {
     if (!selectedUserId) {
-      toast = { show: true, message: 'Selecciona un usuario', type: 'warning' };
+      notify('warning', 'Selecciona un usuario');
       return;
     }
     if (!selectedRole) {
-      toast = { show: true, message: 'Selecciona un rol', type: 'warning' };
+      notify('warning', 'Selecciona un rol');
       return;
     }
 
     const user = users.find(u => u.id === selectedUserId);
     if (user?.email === 'admin@cinar.com') {
-      toast = { show: true, message: 'No se puede cambiar el rol del administrador', type: 'warning' };
+      notify('warning', 'No se puede cambiar el rol del administrador');
       return;
     }
 
@@ -53,12 +52,12 @@
         roleName: selectedRole,
         roleId: selectedRole
       });
-      toast = { show: true, message: `${user?.name || user?.email} ahora es ${selectedRole}`, type: 'success' };
+      notify('success', `${user?.name || user?.email} ahora es ${selectedRole}`);
       selectedUserId = '';
       selectedRole = '';
       users = await getAllUnfiltered('users');
     } catch (e) {
-      toast = { show: true, message: 'Error al asignar rol', type: 'error' };
+      notify('error', 'Error al asignar rol');
     }
     loading = false;
   }
@@ -73,10 +72,10 @@
         roleName: '',
         roleId: ''
       });
-      toast = { show: true, message: `Rol quitado de ${user?.name || user?.email}`, type: 'success' };
+      notify('success', `Rol quitado de ${user?.name || user?.email}`);
       users = await getAllUnfiltered('users');
     } catch (e) {
-      toast = { show: true, message: 'Error al quitar rol', type: 'error' };
+      notify('error', 'Error al quitar rol');
     }
     loading = false;
   }
@@ -191,7 +190,7 @@
   {/if}
 </div>
 
-<Toast show={toast.show} message={toast.message} type={toast.type} on:close={() => toast.show = false} />
+
 
 <style>
   .page { padding: 1.25rem; padding-top: 5rem; max-width: 700px; }

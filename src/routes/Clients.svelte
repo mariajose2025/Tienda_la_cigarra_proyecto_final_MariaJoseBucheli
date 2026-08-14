@@ -1,13 +1,13 @@
 <script>
   import { onMount } from 'svelte';
   import { getAllClients, createClient, updateClient, deleteClient } from '../services/clientService';
+  import { notify } from '../stores/toast';
   import { currentUser } from '../stores/auth';
   import { canCreate, canEdit, canView } from '../utils/permissions';
   import { normalizeRows } from '../utils/exportUtils';
   import Button from '../components/common/Button.svelte';
   import ExportButton from '../components/common/ExportButton.svelte';
   import Modal from '../components/common/Modal.svelte';
-  import Toast from '../components/common/Toast.svelte';
 
   let clients = [];
   let showModal = false;
@@ -16,7 +16,6 @@
     cedula: '', name: '', birthDate: '', address: '', phone: '', maxDaysToPay: 30
   };
   let loading = false;
-  let toast = { show: false, message: '', type: 'info' };
   let searchQuery = '';
 
   $: filteredClients = clients.filter(c =>
@@ -31,7 +30,7 @@
     try {
       clients = await getAllClients();
     } catch (e) {
-      toast = { show: true, message: 'Error al cargar clientes', type: 'error' };
+      notify('error', 'Error al cargar clientes');
     }
   }
 
@@ -57,7 +56,7 @@
 
   async function saveClient() {
     if (!formData.cedula.trim() || !formData.name.trim()) {
-      toast = { show: true, message: 'Cédula y nombre son obligatorios', type: 'warning' };
+      notify('warning', 'Cédula y nombre son obligatorios');
       return;
     }
 
@@ -71,15 +70,15 @@
     try {
       if (editingClient) {
         await updateClient(editingClient.id, data);
-        toast = { show: true, message: 'Cliente actualizado', type: 'success' };
+        notify('success', 'Cliente actualizado');
       } else {
         await createClient(data);
-        toast = { show: true, message: 'Cliente registrado', type: 'success' };
+        notify('success', 'Cliente registrado');
       }
       closeModal();
       await loadClients();
     } catch (e) {
-      toast = { show: true, message: 'Error al guardar', type: 'error' };
+      notify('error', 'Error al guardar');
     }
     loading = false;
   }
@@ -89,10 +88,10 @@
     loading = true;
     try {
       await deleteClient(id);
-      toast = { show: true, message: 'Cliente eliminado', type: 'success' };
+      notify('success', 'Cliente eliminado');
       await loadClients();
     } catch (e) {
-      toast = { show: true, message: 'Error al eliminar', type: 'error' };
+      notify('error', 'Error al eliminar');
     }
     loading = false;
   }
@@ -187,7 +186,7 @@
   </svelte:fragment>
 </Modal>
 
-<Toast show={toast.show} message={toast.message} type={toast.type} on:close={() => toast.show = false} />
+
 
 <style>
   .page { padding: 1.25rem; padding-top: 5rem; }
