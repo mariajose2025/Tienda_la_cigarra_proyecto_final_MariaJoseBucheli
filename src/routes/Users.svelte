@@ -213,7 +213,7 @@
   .search-bar {
     display: flex; align-items: center; gap: 0.5rem;
     background: white; border-radius: 10px; padding: 0.6rem 1rem;
-    margin-bottom: 1rem; box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    margin-bottom: 1rem; box-shadow: var(--shadow-sm);
   }
   .search-bar i { color: #9ca3af; }
   .search-bar input { border: none; outline: none; flex: 1; font-size: 0.9rem; background: transparent; }
@@ -222,7 +222,7 @@
 
   .user-card {
     background: white; border-radius: 12px; padding: 1rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    box-shadow: var(--shadow-sm);
     display: flex; align-items: center; gap: 0.75rem;
   }
 
@@ -252,14 +252,17 @@
   .user-actions { display: flex; gap: 0.35rem; }
   .btn-icon {
     background: none; border: none; cursor: pointer; font-size: 1rem;
-    padding: 0.45rem; border-radius: 6px;
+    padding: 0.45rem; border-radius: 6px; transition: background 0.15s;
   }
-  .btn-icon.edit { color: #C49A45; }
-  .btn-icon.edit:hover { background: #FEF3C7; }
-  .btn-icon.delete { color: #064F3C; }
-  .btn-icon.delete:hover { background: #FEE2E2; }
+  .btn-icon.edit { color: #064F3C; }
+  .btn-icon.edit:hover { background: rgba(6,79,60,0.1); }
+  .btn-icon.delete { color: #C2410C; }
+  .btn-icon.delete:hover { background: #FFF7ED; }
 
-  .empty { text-align: center; color: #9ca3af; padding: 2rem; }
+  .empty {
+    text-align: center; color: #9ca3af; padding: 2.5rem;
+    background: #fff; border: 1px dashed var(--border); border-radius: var(--radius);
+  }
   .empty i { font-size: 2rem; margin-bottom: 0.5rem; display: block; }
 
   .form-group { margin-bottom: 0.85rem; }
@@ -268,6 +271,9 @@
     width: 100%; padding: 0.7rem; border: 1.5px solid #d1d5db;
     border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; background: white;
   }
-  input:focus, select:focus { outline: none; border-color: #064F3C; }
+  input:focus, select:focus {
+    outline: none; border-color: #064F3C;
+    box-shadow: 0 0 0 3px rgba(6,79,60,0.14);
+  }
   input:disabled { background: #f3f4f6; color: #6b7280; }
 </style>

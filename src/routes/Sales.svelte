@@ -218,7 +218,7 @@
 
   .form-card {
     background: white; border-radius: 12px; padding: 1.25rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    box-shadow: var(--shadow-sm);
   }
 
   .form-group { margin-bottom: 1rem; }
@@ -227,7 +227,9 @@
     width: 100%; padding: 0.7rem; border: 1.5px solid #d1d5db;
     border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; background: white;
   }
-  select:focus { outline: none; border-color: #1e40af; }
+  select:focus { outline: none; border-color: #064F3C;
+    box-shadow: 0 0 0 3px rgba(6,79,60,0.14);
+  }
 
   .items-section { margin-bottom: 1rem; }
   .items-header {
@@ -245,7 +247,9 @@
     border-radius: 8px; font-size: 0.9rem; box-sizing: border-box; text-align: center;
   }
   .price-input { width: 100px; }
-  input:focus { outline: none; border-color: #1e40af; }
+  input:focus { outline: none; border-color: #064F3C;
+    box-shadow: 0 0 0 3px rgba(6,79,60,0.14);
+  }
 
   .btn-remove {
     background: #FFF7ED; border: none; color: #C2410C;
@@ -267,7 +271,7 @@
 
   .history-list {
     background: white; border-radius: 12px; overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    box-shadow: var(--shadow-sm);
   }
 
   .history-item {

@@ -129,17 +129,20 @@
 <style>
   .page { padding: 1.25rem; padding-top: 5rem; }
   .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-  .page-header h1 { font-size: 1.3rem; color: #1f2937; margin: 0; }
+  .page-header h1 { font-size: 1.3rem; color: #0A241D; margin: 0; display: flex; align-items: center; gap: 0.5rem; }
   .header-actions { display: flex; align-items: center; gap: 0.5rem; }
 
   .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
 
   .card {
-    background: white; border-radius: 12px; padding: 1rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06); position: relative;
+    background: #fff; border-radius: var(--radius); padding: 1rem;
+    box-shadow: var(--shadow-sm); border: 1px solid var(--border);
+    position: relative;
+    transition: transform 0.15s, box-shadow 0.15s;
   }
+  .card:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
 
-  .card-content h3 { margin: 0; font-size: 0.95rem; color: #1f2937; }
+  .card-content h3 { margin: 0; font-size: 0.95rem; color: #0A241D; }
   .card-content p { margin: 0.3rem 0 0; font-size: 0.8rem; color: #6b7280; }
 
   .card-actions {
@@ -149,12 +152,17 @@
 
   .btn-icon {
     background: none; border: none; cursor: pointer; font-size: 0.9rem;
-    padding: 0.3rem; border-radius: 4px;
+    padding: 0.35rem; border-radius: 6px; transition: background 0.15s;
   }
-  .btn-icon.edit:hover { background: #dbeafe; }
+  .btn-icon.edit { color: #064F3C; }
+  .btn-icon.edit:hover { background: rgba(6,79,60,0.1); }
+  .btn-icon.delete { color: #C2410C; }
   .btn-icon.delete:hover { background: #FFF7ED; }
 
-  .empty { text-align: center; color: #9ca3af; padding: 2rem; grid-column: span 2; }
+  .empty {
+    text-align: center; color: #9ca3af; padding: 2.5rem; grid-column: span 2;
+    background: #fff; border: 1px dashed var(--border); border-radius: var(--radius);
+  }
 
   .form-group { margin-bottom: 0.85rem; }
   label { display: block; margin-bottom: 0.25rem; font-size: 0.85rem; font-weight: 600; color: #374151; }
@@ -163,6 +171,9 @@
     border-radius: 8px; font-size: 0.95rem; box-sizing: border-box;
     font-family: inherit;
   }
-  input:focus, textarea:focus { outline: none; border-color: #1e40af; }
+  input:focus, textarea:focus {
+    outline: none; border-color: #064F3C;
+    box-shadow: 0 0 0 3px rgba(6,79,60,0.14);
+  }
   textarea { min-height: 60px; resize: vertical; }
 </style>

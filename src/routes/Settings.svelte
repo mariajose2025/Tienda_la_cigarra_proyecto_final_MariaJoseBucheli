@@ -157,7 +157,7 @@
 
   .settings-card {
     background: white; border-radius: 12px; padding: 1.25rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 1rem;
+    box-shadow: var(--shadow-sm); margin-bottom: 1rem;
   }
 
   .settings-card h2 {
@@ -176,7 +176,10 @@
     width: 100%; padding: 0.7rem; border: 1.5px solid #d1d5db;
     border-radius: 8px; font-size: 0.95rem; box-sizing: border-box;
   }
-  input:focus { outline: none; border-color: #1e40af; }
+  input:focus {
+    outline: none; border-color: #064F3C;
+    box-shadow: 0 0 0 3px rgba(6,79,60,0.14);
+  }
   .hint { display: block; font-size: 0.75rem; color: #9ca3af; margin-top: 0.2rem; }
 
   .danger-zone {

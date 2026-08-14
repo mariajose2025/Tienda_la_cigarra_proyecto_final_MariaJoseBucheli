@@ -661,13 +661,13 @@
 
   .product-card {
     position: relative;
-    background: white; border-radius: 12px; padding: 1rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    transition: transform 0.2s, box-shadow 0.2s;
+    background: #fff; border-radius: var(--radius); padding: 1rem;
+    box-shadow: var(--shadow-sm); border: 1px solid var(--border);
+    transition: transform 0.15s, box-shadow 0.15s;
   }
   .product-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
   }
 
   .product-card-body {
@@ -740,13 +740,17 @@
     background: none; border: none; cursor: pointer; font-size: 0.95rem;
     padding: 0.4rem; border-radius: 6px; width: 32px; height: 32px;
     display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
   }
-  .btn-icon.edit { color: #C49A45; }
-  .btn-icon.edit:hover { background: #FEF3C7; }
-  .btn-icon.delete { color: #064F3C; }
-  .btn-icon.delete:hover { background: #FEE2E2; }
+  .btn-icon.edit { color: #064F3C; }
+  .btn-icon.edit:hover { background: rgba(6,79,60,0.1); }
+  .btn-icon.delete { color: #C2410C; }
+  .btn-icon.delete:hover { background: #FFF7ED; }
 
-  .empty { text-align: center; color: #9ca3af; padding: 2rem; }
+  .empty {
+    text-align: center; color: #9ca3af; padding: 2.5rem;
+    background: #fff; border: 1px dashed var(--border); border-radius: var(--radius);
+  }
 
   .barcode-container {
     margin-top: 0.5rem;
@@ -1126,7 +1130,7 @@
     background: white;
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    box-shadow: var(--shadow-sm);
     position: relative;
     transition: transform 0.2s, box-shadow 0.2s;
   }
@@ -1226,7 +1230,7 @@
     background: white;
     border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    box-shadow: var(--shadow-sm);
     position: relative;
     transition: transform 0.2s;
   }

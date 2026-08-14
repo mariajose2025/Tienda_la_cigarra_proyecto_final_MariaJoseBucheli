@@ -323,7 +323,7 @@
   .open-card {
     background: white; border-radius: 16px; padding: 2rem 1.25rem;
     text-align: center; max-width: 420px; margin: 1.5rem auto;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    box-shadow: var(--shadow-sm);
   }
   .open-icon {
     width: 64px; height: 64px; border-radius: 50%;
@@ -341,7 +341,10 @@
     width: 100%; padding: 0.7rem; border: 1.5px solid #d1d5db;
     border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; background: white;
   }
-  input:focus, select:focus { outline: none; border-color: #064F3C; }
+  input:focus, select:focus {
+    outline: none; border-color: #064F3C;
+    box-shadow: 0 0 0 3px rgba(6,79,60,0.14);
+  }
   .invisible { display: none; }
 
   .session-summary { margin-bottom: 1rem; }
@@ -367,7 +370,7 @@
   .stat-card {
     background: white; border-radius: 12px; padding: 1rem;
     display: flex; align-items: center; gap: 0.75rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    box-shadow: var(--shadow-sm);
   }
   .stat-card i { font-size: 1.4rem; }
   .stat-card.base { border-left: 4px solid #F2C12E; }
@@ -387,11 +390,14 @@
   }
   .section-title i { color: #064F3C; }
 
-  .empty { text-align: center; color: #9ca3af; padding: 2rem; }
+  .empty {
+    text-align: center; color: #9ca3af; padding: 2.5rem;
+    background: #fff; border: 1px dashed var(--border); border-radius: var(--radius);
+  }
 
   .movements-list {
     background: white; border-radius: 12px; overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    box-shadow: var(--shadow-sm);
   }
   .movement-item {
     display: flex; align-items: center; gap: 0.75rem;

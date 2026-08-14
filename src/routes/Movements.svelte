@@ -170,11 +170,14 @@
   }
   .filter-btn.active { background: #064F3C; color: white; border-color: #064F3C; }
 
-  .empty { text-align: center; color: #9ca3af; padding: 2rem; }
+  .empty {
+    text-align: center; color: #9ca3af; padding: 2.5rem;
+    background: #fff; border: 1px dashed var(--border); border-radius: var(--radius);
+  }
 
   .session-card {
     background: white; border-radius: 12px; padding: 1rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 1rem;
+    box-shadow: var(--shadow-sm); margin-bottom: 1rem;
   }
   .session-header {
     display: flex; justify-content: space-between; align-items: flex-start;

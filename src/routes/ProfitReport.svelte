@@ -245,8 +245,8 @@
 
   .kpi-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-bottom: 1rem; }
   .kpi {
-    background: white; border-radius: 12px; padding: 1rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 4px solid #064F3C;
+    background: #fff; border-radius: var(--radius); padding: 1rem;
+    box-shadow: var(--shadow-sm); border: 1px solid var(--border); border-top: 3px solid #064F3C;
     display: flex; flex-direction: column; gap: 0.25rem;
   }
   .kpi-label { font-size: 0.75rem; color: #6b7280; }
@@ -254,22 +254,22 @@
 
   .result-cards { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem; }
   .result-card {
-    background: white; border-radius: 12px; padding: 1rem 1.25rem;
+    background: #fff; border-radius: var(--radius); padding: 1rem 1.25rem;
     display: flex; justify-content: space-between; align-items: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    box-shadow: var(--shadow-sm); border: 1px solid var(--border);
   }
   .result-card span { color: #374151; font-size: 0.9rem; font-weight: 600; }
   .result-card strong { font-size: 1.2rem; }
   .result-card strong.ok { color: #16a34a; }
   .result-card strong.bad { color: #EA580C; }
-  .result-card.main { background: #0A241D; }
+  .result-card.main { background: #0A241D; border-color: #0A241D; }
   .result-card.main span { color: #F2C12E; }
   .result-card.main strong { font-size: 1.4rem; }
 
   .section-title { font-size: 1.1rem; color: #0A241D; margin: 1.25rem 0 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
   .section-title i { color: #064F3C; }
 
-  .table-wrap { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .table-wrap { background: #fff; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
   table { width: 100%; border-collapse: collapse; }
   th, td { padding: 0.7rem 1rem; text-align: left; font-size: 0.85rem; }
   th { background: #f3f4f6; color: #374151; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }

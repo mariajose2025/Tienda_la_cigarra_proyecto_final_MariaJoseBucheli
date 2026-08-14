@@ -140,7 +140,7 @@
   .cards { display: grid; grid-template-columns: 1fr; gap: 1rem; }
   .card {
     background: white; border-radius: 14px; padding: 1.5rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06); text-align: center;
+    box-shadow: var(--shadow-sm); text-align: center;
     display: flex; flex-direction: column; align-items: center;
   }
   .card-icon {

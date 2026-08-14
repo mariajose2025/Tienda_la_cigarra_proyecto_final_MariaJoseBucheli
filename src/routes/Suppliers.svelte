@@ -152,30 +152,37 @@
 <style>
   .page { padding: 1.25rem; padding-top: 5rem; }
   .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-  .page-header h1 { font-size: 1.3rem; color: #1f2937; margin: 0; }
+  .page-header h1 { font-size: 1.3rem; color: #0A241D; margin: 0; display: flex; align-items: center; gap: 0.5rem; }
   .header-actions { display: flex; align-items: center; gap: 0.5rem; }
 
   .list { display: flex; flex-direction: column; gap: 0.75rem; }
 
   .card {
-    background: white; border-radius: 12px; padding: 1rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    background: #fff; border-radius: var(--radius); padding: 1rem;
+    box-shadow: var(--shadow-sm); border: 1px solid var(--border);
     display: flex; justify-content: space-between; align-items: flex-start;
+    transition: transform 0.15s, box-shadow 0.15s;
   }
+  .card:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
 
-  .card-main h3 { margin: 0; font-size: 1rem; color: #1f2937; }
-  .nit { font-weight: 600; color: #1e40af; font-size: 0.85rem; }
+  .card-main h3 { margin: 0; font-size: 1rem; color: #0A241D; }
+  .nit { font-weight: 600; color: #064F3C; font-size: 0.85rem; }
   .card-main p { margin: 0.2rem 0 0; font-size: 0.8rem; color: #6b7280; }
 
   .card-actions { display: flex; gap: 0.35rem; }
   .btn-icon {
     background: none; border: none; cursor: pointer; font-size: 1.1rem;
-    padding: 0.35rem; border-radius: 6px;
+    padding: 0.35rem; border-radius: 6px; transition: background 0.15s;
   }
-  .btn-icon.edit:hover { background: #dbeafe; }
+  .btn-icon.edit { color: #064F3C; }
+  .btn-icon.edit:hover { background: rgba(6,79,60,0.1); }
+  .btn-icon.delete { color: #C2410C; }
   .btn-icon.delete:hover { background: #FFF7ED; }
 
-  .empty { text-align: center; color: #9ca3af; padding: 2rem; }
+  .empty {
+    text-align: center; color: #9ca3af; padding: 2.5rem;
+    background: #fff; border: 1px dashed var(--border); border-radius: var(--radius);
+  }
 
   .form-group { margin-bottom: 0.85rem; }
   label { display: block; margin-bottom: 0.25rem; font-size: 0.85rem; font-weight: 600; color: #374151; }
@@ -183,5 +190,8 @@
     width: 100%; padding: 0.7rem; border: 1.5px solid #d1d5db;
     border-radius: 8px; font-size: 0.95rem; box-sizing: border-box;
   }
-  input:focus { outline: none; border-color: #1e40af; }
+  input:focus {
+    outline: none; border-color: #064F3C;
+    box-shadow: 0 0 0 3px rgba(6,79,60,0.14);
+  }
 </style>

@@ -187,7 +187,10 @@
   .page-header h1 i { color: #064F3C; }
 
   .loading { text-align: center; padding: 3rem; color: #6b7280; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
-  .empty { text-align: center; color: #9ca3af; padding: 2rem; }
+  .empty {
+    text-align: center; color: #9ca3af; padding: 2.5rem;
+    background: #fff; border: 1px dashed var(--border); border-radius: var(--radius);
+  }
 
   .filter-bar { display: flex; gap: 0.5rem; margin-bottom: 0.6rem; overflow-x: auto; flex-wrap: wrap; }
   .filter-btn {
@@ -204,15 +207,15 @@
 
   .kpi-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-bottom: 1rem; }
   .kpi {
-    background: white; border-radius: 12px; padding: 1rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 4px solid #064F3C;
+    background: #fff; border-radius: var(--radius); padding: 1rem;
+    box-shadow: var(--shadow-sm); border: 1px solid var(--border); border-top: 3px solid #064F3C;
     display: flex; flex-direction: column; gap: 0.25rem;
   }
-  .kpi.in { border-left-color: #22c55e; }
+  .kpi.in { border-top-color: #22c55e; }
   .kpi.in .kpi-value { color: #16a34a; }
-  .kpi.out { border-left-color: #EA580C; }
+  .kpi.out { border-top-color: #EA580C; }
   .kpi.out .kpi-value { color: #EA580C; }
-  .kpi.main { background: #0A241D; }
+  .kpi.main { background: #0A241D; border-color: #0A241D; }
   .kpi.main .kpi-label { color: #F2C12E; }
   .kpi.main .kpi-value { color: #F2C12E; }
   .kpi-label { font-size: 0.75rem; color: #6b7280; }
@@ -220,7 +223,7 @@
 
   .info-box {
     background: #FFF7ED; border: 1px solid #FFEDD5; color: #9a3412;
-    border-radius: 10px; padding: 0.75rem 1rem; font-size: 0.82rem;
+    border-radius: var(--radius); padding: 0.75rem 1rem; font-size: 0.82rem;
     display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;
   }
   .info-box i { color: #EA580C; }
@@ -228,7 +231,7 @@
   .section-title { font-size: 1.1rem; color: #0A241D; margin: 1.25rem 0 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
   .section-title i { color: #064F3C; }
 
-  .table-wrap { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .table-wrap { background: #fff; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
   table { width: 100%; border-collapse: collapse; }
   th, td { padding: 0.7rem 1rem; text-align: left; font-size: 0.85rem; }
   th { background: #f3f4f6; color: #374151; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }

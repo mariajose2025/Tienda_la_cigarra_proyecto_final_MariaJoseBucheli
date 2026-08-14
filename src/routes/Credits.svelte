@@ -373,14 +373,14 @@
   .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem; }
 
   .stat-card {
-    background: white; border-radius: 12px; padding: 1rem;
+    background: #fff; border-radius: var(--radius); padding: 1rem;
     display: flex; align-items: center; gap: 0.75rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    box-shadow: var(--shadow-sm); border: 1px solid var(--border);
   }
   .stat-card i { font-size: 1.5rem; }
-  .stat-card.pending { border-left: 4px solid #F2C12E; }
+  .stat-card.pending { border-top: 3px solid #F2C12E; }
   .stat-card.pending i { color: #F2C12E; }
-  .stat-card.paid { border-left: 4px solid #22c55e; }
+  .stat-card.paid { border-top: 3px solid #22c55e; }
   .stat-card.paid i { color: #22c55e; }
   .stat-amount { display: block; font-weight: 700; font-size: 1.1rem; color: #0A241D; }
   .stat-label { font-size: 0.75rem; color: #6b7280; }
@@ -396,12 +396,12 @@
   .list { display: flex; flex-direction: column; gap: 0.75rem; }
 
   .credit-card {
-    background: white; border-radius: 12px; padding: 1rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    background: #fff; border-radius: var(--radius); padding: 1rem;
+    box-shadow: var(--shadow-sm); border: 1px solid var(--border);
     display: flex; justify-content: space-between; align-items: center;
-    cursor: pointer; transition: transform 0.2s;
+    cursor: pointer; transition: transform 0.15s, box-shadow 0.15s;
   }
-  .credit-card:hover { transform: translateY(-1px); }
+  .credit-card:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
 
   .credit-left { display: flex; align-items: center; gap: 0.75rem; flex: 1; min-width: 0; }
 
@@ -434,7 +434,10 @@
     display: flex; align-items: center; gap: 0.3rem;
   }
 
-  .empty { text-align: center; color: #9ca3af; padding: 2rem; }
+  .empty {
+    text-align: center; color: #9ca3af; padding: 2.5rem;
+    background: #fff; border: 1px dashed var(--border); border-radius: var(--radius);
+  }
 
   .form-group { margin-bottom: 0.85rem; }
   label { display: block; margin-bottom: 0.25rem; font-size: 0.85rem; font-weight: 600; color: #0A241D; }
@@ -442,7 +445,10 @@
     width: 100%; padding: 0.7rem; border: 1.5px solid #d1d5db;
     border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; background: white;
   }
-  input:focus, select:focus { outline: none; border-color: #064F3C; }
+  input:focus, select:focus {
+    outline: none; border-color: #064F3C;
+    box-shadow: 0 0 0 3px rgba(6,79,60,0.14);
+  }
 
   .items-section { margin-bottom: 1rem; }
   .items-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }

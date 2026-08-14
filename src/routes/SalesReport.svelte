@@ -193,7 +193,10 @@
   .page-header h1 i { color: #064F3C; }
 
   .loading { text-align: center; padding: 3rem; color: #6b7280; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
-  .empty { text-align: center; color: #9ca3af; padding: 2rem; }
+  .empty {
+    text-align: center; color: #9ca3af; padding: 2.5rem;
+    background: #fff; border: 1px dashed var(--border); border-radius: var(--radius);
+  }
 
   .filter-bar { display: flex; gap: 0.5rem; margin-bottom: 0.6rem; overflow-x: auto; flex-wrap: wrap; }
   .filter-btn {
@@ -206,12 +209,15 @@
   .date-range { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; }
   .date-range label { font-size: 0.8rem; color: #374151; font-weight: 600; }
   .date-range input { padding: 0.4rem 0.6rem; border: 1.5px solid #d1d5db; border-radius: 8px; font-size: 0.85rem; }
-  .date-range input:focus { outline: none; border-color: #064F3C; }
+  .date-range input:focus {
+    outline: none; border-color: #064F3C;
+    box-shadow: 0 0 0 3px rgba(6,79,60,0.14);
+  }
 
   .kpi-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-bottom: 1rem; }
   .kpi {
-    background: white; border-radius: 12px; padding: 1rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 4px solid #064F3C;
+    background: #fff; border-radius: var(--radius); padding: 1rem;
+    box-shadow: var(--shadow-sm); border: 1px solid var(--border); border-top: 3px solid #064F3C;
     display: flex; flex-direction: column; gap: 0.25rem;
   }
   .kpi-label { font-size: 0.75rem; color: #6b7280; }
@@ -222,15 +228,15 @@
 
   .method-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-bottom: 1rem; }
   .method-card {
-    background: white; border-radius: 12px; padding: 1rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    background: #fff; border-radius: var(--radius); padding: 1rem;
+    box-shadow: var(--shadow-sm); border: 1px solid var(--border);
     display: flex; flex-direction: column; gap: 0.25rem;
   }
   .method-name { font-weight: 600; color: #0A241D; font-size: 0.9rem; }
   .method-count { font-size: 0.75rem; color: #6b7280; }
   .method-total { font-size: 1.1rem; font-weight: 700; color: #064F3C; }
 
-  .table-wrap { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .table-wrap { background: #fff; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
   table { width: 100%; border-collapse: collapse; }
   th, td { padding: 0.7rem 1rem; text-align: left; font-size: 0.85rem; }
   th { background: #f3f4f6; color: #374151; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }

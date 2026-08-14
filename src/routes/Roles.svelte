@@ -267,7 +267,7 @@
 
   .assigned-card {
     background: white; border-radius: 10px; padding: 0.75rem 1rem;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    box-shadow: var(--shadow-sm);
     display: flex; align-items: center; gap: 0.6rem;
   }
   .assigned-avatar {
