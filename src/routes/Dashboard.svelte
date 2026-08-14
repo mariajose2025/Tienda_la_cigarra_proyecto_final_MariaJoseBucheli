@@ -22,6 +22,10 @@
   let recentSales = [];
   let loading = true;
 
+  $: roleLabel = $currentUser?.roleName === 'Administrador' ? 'Administrador'
+    : $currentUser?.roleName === 'Inspector' ? 'Inspector'
+    : 'Cajero';
+
   onMount(async () => {
     try {
       const [products, suppliers, categories, purchases, sales, clients, credits] = await Promise.all([
@@ -74,8 +78,11 @@
 
 <div class="dashboard">
   <div class="welcome-section">
-    <h1>Bienvenido, {$currentUser?.name || 'Usuario'}</h1>
-    <p>Sistema de Tienda de Barrio - La Cigarra</p>
+    <div class="welcome-text">
+      <h1>Bienvenido, {$currentUser?.name || 'Usuario'}</h1>
+      <p>Sistema de Tienda de Barrio - La Cigarra</p>
+    </div>
+    <span class="role-badge"><i class="fa-solid fa-circle-check"></i> {roleLabel}</span>
   </div>
 
   {#if loading}
@@ -116,11 +123,17 @@
         <i class="fa-solid fa-file-invoice-dollar"></i>
         <span class="stat-number">{stats.pendingCredits}</span>
         <span class="stat-label">Fiados Pendientes</span>
+        {#if stats.totalPending > 0}
+          <span class="stat-sub">{formatCurrency(stats.totalPending)}</span>
+        {/if}
       </div>
       <div class="stat-card alert">
         <i class="fa-solid fa-triangle-exclamation"></i>
         <span class="stat-number">{stats.lowStock}</span>
         <span class="stat-label">Stock Bajo</span>
+        {#if stats.expiringSoon > 0}
+          <span class="stat-sub">{stats.expiringSoon} vencen pronto</span>
+        {/if}
       </div>
     </div>
 
@@ -182,9 +195,19 @@
 <style>
   .dashboard { padding: 1.25rem; padding-top: 5rem; }
 
-  .welcome-section { margin-bottom: 1.5rem; }
+  .welcome-section {
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.5rem;
+  }
   .welcome-section h1 { font-size: 1.4rem; color: #0A241D; margin: 0; }
   .welcome-section p { color: #6b7280; font-size: 0.9rem; margin-top: 0.25rem; }
+
+  .role-badge {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    background: #064F3C; color: white; font-size: 0.8rem; font-weight: 600;
+    padding: 0.4rem 0.85rem; border-radius: 999px;
+  }
+  .role-badge i { color: #F2C12E; }
 
   .loading { text-align: center; padding: 3rem; color: #6b7280; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
   .loading i { color: #064F3C; }
@@ -193,30 +216,34 @@
 
   .stat-card {
     background: white; border-radius: 12px; padding: 1rem;
-    text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    border-left: 4px solid; display: flex; flex-direction: column; align-items: center; gap: 0.25rem;
+    text-align: center; box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+    border-top: 3px solid; display: flex; flex-direction: column; align-items: center; gap: 0.15rem;
+    transition: transform 0.2s, box-shadow 0.2s;
   }
+  .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
   .stat-card i { font-size: 1.2rem; margin-bottom: 0.25rem; }
 
-  .stat-card.red { border-left-color: #064F3C; }
+  .stat-card.red { border-top-color: #064F3C; }
   .stat-card.red i { color: #064F3C; }
-  .stat-card.gold { border-left-color: #F2C12E; }
+  .stat-card.gold { border-top-color: #F2C12E; }
   .stat-card.gold i { color: #C49A45; }
-  .stat-card.olive { border-left-color: #A3A856; }
+  .stat-card.olive { border-top-color: #A3A856; }
   .stat-card.olive i { color: #A3A856; }
-  .stat-card.brown { border-left-color: #C49A45; }
+  .stat-card.brown { border-top-color: #C49A45; }
   .stat-card.brown i { color: #C49A45; }
-  .stat-card.green { border-left-color: #22c55e; }
+  .stat-card.green { border-top-color: #22c55e; }
   .stat-card.green i { color: #22c55e; }
-  .stat-card.dark { border-left-color: #0A241D; }
+  .stat-card.dark { border-top-color: #0A241D; }
   .stat-card.dark i { color: #0A241D; }
-  .stat-card.warning { border-left-color: #F2C12E; }
+  .stat-card.warning { border-top-color: #F2C12E; }
   .stat-card.warning i { color: #F2C12E; }
-  .stat-card.alert { border-left-color: #064F3C; }
-  .stat-card.alert i { color: #064F3C; }
+  .stat-card.alert { border-top-color: #C2410C; }
+  .stat-card.alert i { color: #C2410C; }
 
   .stat-number { display: block; font-size: 1.5rem; font-weight: 700; color: #0A241D; }
   .stat-label { font-size: 0.75rem; color: #6b7280; }
+  .stat-sub { font-size: 0.7rem; color: #C2410C; font-weight: 600; }
 
   .quick-access h2, .recent-section h2 {
     font-size: 1.1rem; color: #0A241D; margin-bottom: 0.75rem;
@@ -227,25 +254,35 @@
   .access-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-bottom: 1.5rem; }
 
   .access-card {
-    background: white; border-radius: 12px; padding: 1.25rem;
+    background: white; border-radius: 12px; padding: 1.1rem;
     text-align: center; text-decoration: none; color: #0A241D;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: var(--shadow-sm); border: 1px solid var(--border);
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
     display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
   }
-  .access-card i { font-size: 1.5rem; color: #064F3C; }
-  .access-card.gold { background: #0A241D; color: #F2C12E; }
-  .access-card.gold i { color: #F2C12E; }
-  .access-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+  .access-card i {
+    font-size: 1.4rem; color: #064F3C;
+    width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
+    background: rgba(6,79,60,0.08); border-radius: 12px;
+  }
+  .access-card.gold { background: #0A241D; color: #F2C12E; border-color: #0A241D; }
+  .access-card.gold i { color: #F2C12E; background: rgba(242,193,46,0.12); }
+  .access-card:hover {
+    transform: translateY(-3px); box-shadow: var(--shadow-md);
+    border-color: rgba(6,79,60,0.35);
+  }
 
   .recent-list {
     background: white; border-radius: 12px; overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    box-shadow: var(--shadow-sm); border: 1px solid var(--border);
   }
 
   .recent-item {
     display: flex; justify-content: space-between; align-items: center;
     padding: 0.85rem 1rem; border-bottom: 1px solid #f3f4f6;
+    transition: background 0.15s;
   }
+  .recent-item:hover { background: #fafbfc; }
   .recent-item:last-child { border-bottom: none; }
   .recent-name { font-weight: 600; color: #0A241D; font-size: 0.9rem; }
   .recent-date { color: #9ca3af; font-size: 0.8rem; }
@@ -254,6 +291,6 @@
   @media (min-width: 768px) {
     .dashboard { padding: 1.5rem 2rem; padding-top: 5rem; }
     .stats-grid { grid-template-columns: repeat(4, 1fr); }
-    .access-grid { grid-template-columns: repeat(3, 1fr); }
+    .access-grid { grid-template-columns: repeat(4, 1fr); }
   }
 </style>

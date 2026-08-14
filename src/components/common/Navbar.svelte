@@ -1,43 +1,71 @@
 <script>
-  import { link, push } from 'svelte-spa-router';
+  import { link, push, location } from 'svelte-spa-router';
   import { currentUser, isAuthenticated } from '../../stores/auth';
   import { isAdmin, canView } from '../../utils/permissions';
   import { logout } from '../../services/authService';
 
   let menuOpen = false;
 
-  let activeSections = {
-    general: true,
-    inventario: false,
-    operaciones: false,
-    contabilidad: false,
-    admin: false,
-    cuenta: false
+  let pinned = {};
+  let hovered = null;
+  let isMobile = false;
+
+  $: if (typeof window !== 'undefined') isMobile = window.innerWidth < 768;
+
+  const SECTIONS = {
+    general: ['/admin', '/nosotros'],
+    inventario: ['/admin/productos', '/admin/categorias', '/admin/proveedores'],
+    operaciones: ['/admin/compras', '/admin/ventas', '/admin/clientes', '/admin/fiados'],
+    contabilidad: ['/admin/ganancias', '/admin/cuentas-cobrar', '/admin/gastos', '/admin/valor-inventario', '/admin/flujo-caja', '/admin/ventas-reporte', '/admin/movimientos', '/admin/caja'],
+    admin: ['/admin/usuarios', '/admin/roles', '/admin/configuracion', '/admin/backup'],
+    cuenta: ['/perfil']
   };
+
+  $: path = $location.path;
+
+  function isSectionActive(section) {
+    return SECTIONS[section]?.some(p => path === p || (p !== '/' && path.startsWith(p))) || false;
+  }
 
   function toggleMenu() {
     menuOpen = !menuOpen;
   }
 
   function toggleSection(section) {
-    activeSections[section] = !activeSections[section];
-    activeSections = { ...activeSections };
+    pinned[section] = !pinned[section];
+    pinned = { ...pinned };
   }
 
-  function closeMenu() {
+  function enterSection(section) {
+    if (!isMobile) hovered = section;
+  }
+
+  function leaveSection(section) {
+    if (hovered === section) hovered = null;
+  }
+
+  function shouldShow(section) {
+    return pinned[section] || hovered === section;
+  }
+
+  function closeMenus() {
+    pinned = {};
+    hovered = null;
     menuOpen = false;
   }
 
   async function handleLogout() {
     await logout();
-    menuOpen = false;
+    closeMenus();
     push('/');
   }
 </script>
 
-<nav class="navbar">
+<svelte:window on:click={closeMenus} />
+
+<nav class="navbar" on:click|stopPropagation>
   <div class="navbar-brand">
-    <a href="/" use:link class="navbar-logo" on:click={closeMenu}>
+    <a href="/" use:link class="navbar-logo" on:click={closeMenus}>
       <img src="/logo.png" alt="Tienda La Cigarra" class="logo-img" />
     </a>
     <button class="menu-toggle" on:click={toggleMenu} aria-label="Menú">
@@ -47,100 +75,98 @@
 
   {#if $isAuthenticated && $currentUser}
     <div class="navbar-menu" class:active={menuOpen}>
-      
-      <div class="nav-section">
-        <button class="nav-section-title" on:click={() => toggleSection('general')} type="button">
+      <div class="nav-section" on:mouseenter={() => enterSection('general')} on:mouseleave={() => leaveSection('general')}>
+        <button class="nav-section-title" class:active={isSectionActive('general')} on:click={() => toggleSection('general')} type="button">
           <span><i class="fa-solid fa-house"></i> General</span>
-          <i class="fa-solid fa-chevron-down caret" class:rotated={activeSections.general}></i>
+          <i class="fa-solid fa-chevron-down caret" class:rotated={shouldShow('general')}></i>
         </button>
-        <div class="nav-links-list" class:expanded={activeSections.general}>
-          <a href="/admin" use:link class="nav-link" on:click={closeMenu}>Inicio</a>
-          <a href="/nosotros" use:link class="nav-link" on:click={closeMenu}>Nosotros</a>
+        <div class="nav-links-list" class:open={shouldShow('general')}>
+          <a href="/admin" use:link class="nav-link" class:current={path === '/admin'} on:click={closeMenus}>Inicio</a>
+          <a href="/nosotros" use:link class="nav-link" class:current={path === '/nosotros'} on:click={closeMenus}>Nosotros</a>
         </div>
       </div>
 
-      <div class="nav-section">
-        <button class="nav-section-title" on:click={() => toggleSection('inventario')} type="button">
+      <div class="nav-section" on:mouseenter={() => enterSection('inventario')} on:mouseleave={() => leaveSection('inventario')}>
+        <button class="nav-section-title" class:active={isSectionActive('inventario')} on:click={() => toggleSection('inventario')} type="button">
           <span><i class="fa-solid fa-box-open"></i> Inventario</span>
-          <i class="fa-solid fa-chevron-down caret" class:rotated={activeSections.inventario}></i>
+          <i class="fa-solid fa-chevron-down caret" class:rotated={shouldShow('inventario')}></i>
         </button>
-        <div class="nav-links-list" class:expanded={activeSections.inventario}>
-          <a href="/admin/productos" use:link class="nav-link" on:click={closeMenu}>Productos</a>
-          <a href="/admin/categorias" use:link class="nav-link" on:click={closeMenu}>Clasificación</a>
-          <a href="/admin/proveedores" use:link class="nav-link" on:click={closeMenu}>Proveedores</a>
+        <div class="nav-links-list" class:open={shouldShow('inventario')}>
+          <a href="/admin/productos" use:link class="nav-link" class:current={path === '/admin/productos'} on:click={closeMenus}>Productos</a>
+          <a href="/admin/categorias" use:link class="nav-link" class:current={path === '/admin/categorias'} on:click={closeMenus}>Clasificación</a>
+          <a href="/admin/proveedores" use:link class="nav-link" class:current={path === '/admin/proveedores'} on:click={closeMenus}>Proveedores</a>
         </div>
       </div>
 
-      <div class="nav-section">
-        <button class="nav-section-title" on:click={() => toggleSection('operaciones')} type="button">
+      <div class="nav-section" on:mouseenter={() => enterSection('operaciones')} on:mouseleave={() => leaveSection('operaciones')}>
+        <button class="nav-section-title" class:active={isSectionActive('operaciones')} on:click={() => toggleSection('operaciones')} type="button">
           <span><i class="fa-solid fa-cart-shopping"></i> Operaciones</span>
-          <i class="fa-solid fa-chevron-down caret" class:rotated={activeSections.operaciones}></i>
+          <i class="fa-solid fa-chevron-down caret" class:rotated={shouldShow('operaciones')}></i>
         </button>
-        <div class="nav-links-list" class:expanded={activeSections.operaciones}>
-          <a href="/admin/compras" use:link class="nav-link" on:click={closeMenu}>Compras</a>
-          <a href="/admin/ventas" use:link class="nav-link" on:click={closeMenu}>Ventas</a>
-          <a href="/admin/clientes" use:link class="nav-link" on:click={closeMenu}>Clientes</a>
-          <a href="/admin/fiados" use:link class="nav-link" on:click={closeMenu}>Fiados</a>
+        <div class="nav-links-list" class:open={shouldShow('operaciones')}>
+          <a href="/admin/compras" use:link class="nav-link" class:current={path === '/admin/compras'} on:click={closeMenus}>Compras</a>
+          <a href="/admin/ventas" use:link class="nav-link" class:current={path === '/admin/ventas'} on:click={closeMenus}>Ventas</a>
+          <a href="/admin/clientes" use:link class="nav-link" class:current={path === '/admin/clientes'} on:click={closeMenus}>Clientes</a>
+          <a href="/admin/fiados" use:link class="nav-link" class:current={path === '/admin/fiados'} on:click={closeMenus}>Fiados</a>
         </div>
       </div>
 
       {#if canView($currentUser, 'cash')}
-        <div class="nav-section">
-          <button class="nav-section-title" on:click={() => toggleSection('contabilidad')} type="button">
+        <div class="nav-section" on:mouseenter={() => enterSection('contabilidad')} on:mouseleave={() => leaveSection('contabilidad')}>
+          <button class="nav-section-title" class:active={isSectionActive('contabilidad')} on:click={() => toggleSection('contabilidad')} type="button">
             <span><i class="fa-solid fa-scale-balanced"></i> Contabilidad</span>
-            <i class="fa-solid fa-chevron-down caret" class:rotated={activeSections.contabilidad}></i>
+            <i class="fa-solid fa-chevron-down caret" class:rotated={shouldShow('contabilidad')}></i>
           </button>
-          <div class="nav-links-list" class:expanded={activeSections.contabilidad}>
-            <a href="/admin/ganancias" use:link class="nav-link" on:click={closeMenu}>Reporte de Ganancias</a>
-            <a href="/admin/cuentas-cobrar" use:link class="nav-link" on:click={closeMenu}>Cuentas por Cobrar</a>
-            <a href="/admin/gastos" use:link class="nav-link" on:click={closeMenu}>Gastos</a>
-            <a href="/admin/valor-inventario" use:link class="nav-link" on:click={closeMenu}>Valor del Inventario</a>
-            <a href="/admin/flujo-caja" use:link class="nav-link" on:click={closeMenu}>Flujo de Caja</a>
-            <a href="/admin/ventas-reporte" use:link class="nav-link" on:click={closeMenu}>Ventas por Período</a>
-            <a href="/admin/movimientos" use:link class="nav-link" on:click={closeMenu}>Movimientos de Caja</a>
-            <a href="/admin/caja" use:link class="nav-link" on:click={closeMenu}>Caja (Abrir/Cerrar)</a>
+          <div class="nav-links-list" class:open={shouldShow('contabilidad')}>
+            <a href="/admin/ganancias" use:link class="nav-link" class:current={path === '/admin/ganancias'} on:click={closeMenus}>Reporte de Ganancias</a>
+            <a href="/admin/cuentas-cobrar" use:link class="nav-link" class:current={path === '/admin/cuentas-cobrar'} on:click={closeMenus}>Cuentas por Cobrar</a>
+            <a href="/admin/gastos" use:link class="nav-link" class:current={path === '/admin/gastos'} on:click={closeMenus}>Gastos</a>
+            <a href="/admin/valor-inventario" use:link class="nav-link" class:current={path === '/admin/valor-inventario'} on:click={closeMenus}>Valor del Inventario</a>
+            <a href="/admin/flujo-caja" use:link class="nav-link" class:current={path === '/admin/flujo-caja'} on:click={closeMenus}>Flujo de Caja</a>
+            <a href="/admin/ventas-reporte" use:link class="nav-link" class:current={path === '/admin/ventas-reporte'} on:click={closeMenus}>Ventas por Período</a>
+            <a href="/admin/movimientos" use:link class="nav-link" class:current={path === '/admin/movimientos'} on:click={closeMenus}>Movimientos de Caja</a>
+            <a href="/admin/caja" use:link class="nav-link" class:current={path === '/admin/caja'} on:click={closeMenus}>Caja (Abrir/Cerrar)</a>
           </div>
         </div>
       {/if}
 
       {#if isAdmin($currentUser)}
-        <div class="nav-section">
-          <button class="nav-section-title" on:click={() => toggleSection('admin')} type="button">
+        <div class="nav-section" on:mouseenter={() => enterSection('admin')} on:mouseleave={() => leaveSection('admin')}>
+          <button class="nav-section-title" class:active={isSectionActive('admin')} on:click={() => toggleSection('admin')} type="button">
             <span><i class="fa-solid fa-gear"></i> Administración</span>
-            <i class="fa-solid fa-chevron-down caret" class:rotated={activeSections.admin}></i>
+            <i class="fa-solid fa-chevron-down caret" class:rotated={shouldShow('admin')}></i>
           </button>
-          <div class="nav-links-list" class:expanded={activeSections.admin}>
-            <a href="/admin/usuarios" use:link class="nav-link" on:click={closeMenu}>Usuarios</a>
-            <a href="/admin/roles" use:link class="nav-link" on:click={closeMenu}>Asignar Roles</a>
-            <a href="/admin/configuracion" use:link class="nav-link" on:click={closeMenu}>Configuración</a>
-            <a href="/admin/backup" use:link class="nav-link" on:click={closeMenu}>Copia de Seguridad</a>
+          <div class="nav-links-list" class:open={shouldShow('admin')}>
+            <a href="/admin/usuarios" use:link class="nav-link" class:current={path === '/admin/usuarios'} on:click={closeMenus}>Usuarios</a>
+            <a href="/admin/roles" use:link class="nav-link" class:current={path === '/admin/roles'} on:click={closeMenus}>Asignar Roles</a>
+            <a href="/admin/configuracion" use:link class="nav-link" class:current={path === '/admin/configuracion'} on:click={closeMenus}>Configuración</a>
+            <a href="/admin/backup" use:link class="nav-link" class:current={path === '/admin/backup'} on:click={closeMenus}>Copia de Seguridad</a>
           </div>
         </div>
       {/if}
 
-      <div class="nav-section">
-        <button class="nav-section-title" on:click={() => toggleSection('cuenta')} type="button">
+      <div class="nav-section" on:mouseenter={() => enterSection('cuenta')} on:mouseleave={() => leaveSection('cuenta')}>
+        <button class="nav-section-title" class:active={isSectionActive('cuenta')} on:click={() => toggleSection('cuenta')} type="button">
           <span><i class="fa-solid fa-user"></i> Cuenta</span>
-          <i class="fa-solid fa-chevron-down caret" class:rotated={activeSections.cuenta}></i>
+          <i class="fa-solid fa-chevron-down caret" class:rotated={shouldShow('cuenta')}></i>
         </button>
-        <div class="nav-links-list" class:expanded={activeSections.cuenta}>
-          <a href="/perfil" use:link class="nav-link" on:click={closeMenu}>Mi Perfil</a>
+        <div class="nav-links-list" class:open={shouldShow('cuenta')}>
+          <a href="/perfil" use:link class="nav-link" class:current={path === '/perfil'} on:click={closeMenus}>Mi Perfil</a>
           <button class="btn-logout" on:click={handleLogout}>
             <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión
           </button>
         </div>
       </div>
-
     </div>
   {:else}
     <div class="navbar-menu public-menu" class:active={menuOpen}>
       <div class="nav-links-public">
-        <a href="/" use:link class="nav-link" on:click={closeMenu}>Inicio</a>
-        <a href="/nosotros" use:link class="nav-link" on:click={closeMenu}>Nosotros</a>
-        <a href="/login" use:link class="btn-login" on:click={closeMenu}>
+        <a href="/" use:link class="nav-link" on:click={closeMenus}>Inicio</a>
+        <a href="/nosotros" use:link class="nav-link" on:click={closeMenus}>Nosotros</a>
+        <a href="/login" use:link class="btn-login" on:click={closeMenus}>
           <i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión
         </a>
-        <a href="/registro" use:link class="btn-register" on:click={closeMenu}>
+        <a href="/registro" use:link class="btn-register" on:click={closeMenus}>
           <i class="fa-solid fa-user-plus"></i> Crear Cuenta
         </a>
       </div>
@@ -158,7 +184,7 @@
     color: white;
     padding: 0.75rem 1rem;
     z-index: 1000;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 12px rgba(4,59,47,0.35);
   }
 
   .navbar-brand {
@@ -250,6 +276,12 @@
     padding: 0.5rem 0.75rem;
     cursor: pointer;
     text-align: left;
+    border-radius: 8px;
+  }
+
+  .nav-section-title.active {
+    color: #F2C12E;
+    background: rgba(242,193,46,0.12);
   }
 
   .nav-section-title i:first-child {
@@ -274,7 +306,7 @@
     margin-top: 0.25rem;
   }
 
-  .nav-links-list.expanded {
+  .nav-links-list.open {
     display: flex;
   }
 
@@ -293,6 +325,12 @@
   .nav-link:hover {
     background: rgba(242,193,46,0.15);
     color: white;
+  }
+
+  .nav-link.current {
+    background: rgba(242,193,46,0.2);
+    color: #F2C12E;
+    font-weight: 600;
   }
 
   .btn-logout {
@@ -389,7 +427,7 @@
       flex-direction: row;
       align-items: center;
       padding-top: 0;
-      gap: 0.5rem;
+      gap: 0.25rem;
       overflow: visible;
       max-height: none;
     }
@@ -404,18 +442,24 @@
     .nav-section-title {
       font-size: 0.85rem;
       color: rgba(255,255,255,0.9);
-      padding: 0.6rem 0.85rem;
-      border-radius: 6px;
+      padding: 0.55rem 0.75rem;
+      border-radius: 8px;
       text-transform: none;
       letter-spacing: normal;
       display: flex;
       gap: 0.35rem;
       align-items: center;
+      white-space: nowrap;
     }
 
     .nav-section-title:hover {
       background: rgba(255,255,255,0.1);
       color: white;
+    }
+
+    .nav-section-title.active {
+      background: rgba(242,193,46,0.18);
+      color: #F2C12E;
     }
 
     .nav-section-title i:first-child {
@@ -428,25 +472,27 @@
       opacity: 0.7;
     }
 
-    .nav-section:hover .nav-links-list {
-      display: flex !important;
-    }
-
     .nav-links-list {
-      display: none !important;
+      display: none;
       position: absolute;
       top: 100%;
       left: 50%;
       transform: translateX(-50%);
       background: white;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-      border-radius: 8px;
-      min-width: 170px;
+      box-shadow: 0 8px 24px rgba(4,59,47,0.18);
+      border-radius: 10px;
+      min-width: 190px;
       padding: 0.5rem;
       z-index: 1005;
       gap: 0.1rem;
-      margin-top: 0.25rem;
-      border: 1px solid rgba(0,0,0,0.08);
+      margin-top: 0.5rem;
+      border: 1px solid rgba(0,0,0,0.06);
+      animation: dropIn 0.16s ease;
+    }
+
+    @keyframes dropIn {
+      from { opacity: 0; transform: translateX(-50%) translateY(-6px); }
+      to { opacity: 1; transform: translateX(-50%) translateY(0); }
     }
 
     .nav-links-list::before {
@@ -460,10 +506,14 @@
       border-color: transparent transparent white transparent;
     }
 
+    .nav-links-list.open {
+      display: flex;
+    }
+
     .nav-link {
       color: #374151;
       font-size: 0.85rem;
-      padding: 0.5rem 0.75rem;
+      padding: 0.55rem 0.8rem;
       border-radius: 6px;
       gap: 0.5rem;
     }
@@ -471,6 +521,12 @@
     .nav-link:hover {
       background: #f3f4f6;
       color: #064F3C;
+    }
+
+    .nav-link.current {
+      background: rgba(6,79,60,0.08);
+      color: #064F3C;
+      font-weight: 700;
     }
 
     .btn-logout {

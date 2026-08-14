@@ -90,8 +90,8 @@
 
   .form-input:focus {
     outline: none;
-    border-color: #1e40af;
-    box-shadow: 0 0 0 3px rgba(30,64,175,0.1);
+    border-color: #064F3C;
+    box-shadow: 0 0 0 3px rgba(6,79,60,0.14);
   }
 
   .form-input.error {

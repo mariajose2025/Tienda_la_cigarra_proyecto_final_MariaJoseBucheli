@@ -35,12 +35,22 @@
     gap: 0.5rem;
     padding: 0.75rem 1.5rem;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     font-size: 0.95rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
     min-height: 44px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .btn:active:not(:disabled) {
+    transform: translateY(0);
   }
 
   .btn:disabled {
@@ -63,10 +73,10 @@
   .btn-success:hover:not(:disabled) { background: #16a34a; }
 
   .btn-danger {
-    background: #064F3C;
+    background: #dc2626;
     color: white;
   }
-  .btn-danger:hover:not(:disabled) { background: #043B2F; }
+  .btn-danger:hover:not(:disabled) { background: #b91c1c; }
 
   .btn-secondary {
     background: #6b7280;
