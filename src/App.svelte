@@ -49,7 +49,8 @@
     '/login': Login,
     '/registro': Register,
     '/setup': Setup,
-    '/nosotros': About
+    '/nosotros': About,
+    '*': Home
   };
 
   const authRoutes = {
@@ -75,7 +76,8 @@
     '/admin/roles': Roles,
     '/admin/configuracion': Settings,
     '/perfil': Profile,
-    '/nosotros': About
+    '/nosotros': About,
+    '*': Dashboard
   };
 
   $: canAccessAuth = $isAuthenticated && $currentUser && ($currentUser.emailVerified || $currentUser.email === ADMIN_EMAIL);
@@ -130,7 +132,7 @@
   <div class="app-container has-navbar">
     {#if appReady}
       {#if needsSetup}
-        <Router routes={{'/setup': Setup}} />
+        <Router routes={{'/setup': Setup, '*': Setup}} />
       {:else if canAccessAuth}
         <Router routes={authRoutes} />
       {:else}

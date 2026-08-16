@@ -209,11 +209,22 @@ Todos los módulos de listado/reportes tienen botón **Exportar** que genera un 
 
 ---
 
+### ✅ Corrección: página en blanco en `/admin` o rutas desconocidas
+- **Problema:** al entrar directamente a una ruta como `https://.../#/admin` sin sesión iniciada (o a cualquier ruta no registrada), la página quedaba **completamente en blanco**: solo se veía el logo del Navbar y el footer. La causa: `svelte-spa-router` no encontraba un componente que coincidiera con la ruta (p. ej. `/admin` no existe en las rutas públicas cuando no hay sesión) y, al no haber match, el Router renderizaba un componente vacío.
+- **Solución:** se agregaron **rutas catch-all** (`'*'`) a todos los mapas de rutas en `App.svelte`:
+  - Rutas públicas → `'*': Home` (sin sesión, cualquier ruta desconocida muestra la página de inicio).
+  - Rutas autenticadas → `'*': Dashboard` (con sesión, rutas desconocidas muestran el panel).
+  - Ruta de configuración inicial → `'*': Setup`.
+- **Archivos:** `src/App.svelte`.
+
+---
+
 ## ❗ Problemas conocidos y soluciones
 
 | Problema | Causa | Solución aplicada |
 | --- | --- | --- |
 | **Pantalla atascada en "Cargando sistema..."** | `appReady` dependía de las respuestas de Firestore | Timeout de seguridad de 400 ms en `App.svelte`; las cargas iniciales corren en paralelo sin bloquear la UI |
+| **Página en blanco en `/admin` o rutas desconocidas** | `svelte-spa-router` no encontraba match para la ruta (sin sesión, `/admin` no está en las rutas públicas) y renderizaba vacío | Rutas catch-all (`'*'`) en `App.svelte`: públicas → Home, autenticadas → Dashboard, setup → Setup |
 | **Factura sin datos de la tienda** | Datos no configurados | Configurarlos en **Configuración → Datos de la Tienda** (nombre, dirección, teléfono, NIT) |
 | **No se puede vender a fiado** | No hay clientes registrados | Registrar clientes primero en **Clientes** |
 
