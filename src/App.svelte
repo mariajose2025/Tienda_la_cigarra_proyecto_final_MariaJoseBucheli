@@ -95,25 +95,32 @@
     }
   }
 
-  onMount(async () => {
-    try {
-      const usersSnapshot = await getDocs(collection(db, 'users'));
-      needsSetup = usersSnapshot.empty;
-    } catch (e) {
-      console.error('Error checking setup:', e);
-      needsSetup = false;
-    }
-
+  onMount(() => {
     initAuthListener();
 
-    try {
-      const settings = await getSettings();
-      app.setSettings(settings);
-    } catch (e) {
-      console.error('Error loading settings:', e);
-    }
+    // Carga de datos iniciales en paralelo (no bloquea la pantalla).
+    // Si Firebase tarda o falla, la app igualmente muestra su contenido.
+    const loadInitialData = async () => {
+      try {
+        const usersSnapshot = await getDocs(collection(db, 'users'));
+        needsSetup = usersSnapshot.empty;
+      } catch (e) {
+        console.error('Error checking setup:', e);
+        needsSetup = false;
+      }
 
-    setTimeout(() => { appReady = true; }, 500);
+      try {
+        const settings = await getSettings();
+        app.setSettings(settings);
+      } catch (e) {
+        console.error('Error loading settings:', e);
+      }
+    };
+    loadInitialData();
+
+    // Timeout de seguridad: garantiza que la pantalla de carga NUNCA
+    // se quede indefinidamente, aunque Firestore no responda.
+    setTimeout(() => { appReady = true; }, 400);
   });
 </script>
 

@@ -202,6 +202,21 @@ Todos los módulos de listado/reportes tienen botón **Exportar** que genera un 
 - Integración del **fiado** dentro del registro de ventas (método de pago "Fiado" + cliente).
 - Datos de la tienda configurables (nombre, dirección, teléfono, NIT).
 
+### ✅ Corrección: pantalla atascada en "Cargando sistema..."
+- **Problema:** al abrir la app, la pantalla de carga podía quedarse indefinidamente cuando Firestore tardaba o no respondía (lentitud de red, reglas de seguridad o bloqueos). La razón era que `appReady` solo se activaba **después** de que las consultas iniciales a Firebase (`getDocs` de usuarios y `getSettings`) terminaban; si alguna nunca resolvía, la app se quedaba en "Cargando sistema..." para siempre.
+- **Solución:** se agregó un **timeout de seguridad** en `App.svelte` que activa `appReady` a los 400 ms de forma independiente a Firebase. Las cargas iniciales (estado de configuración y settings) ahora corren **en paralelo** sin bloquear la pantalla. Así, si Firebase falla o tarda, la app muestra su contenido (login/inicio) en lugar de quedarse cargando.
+- **Archivos:** `src/App.svelte`.
+
+---
+
+## ❗ Problemas conocidos y soluciones
+
+| Problema | Causa | Solución aplicada |
+| --- | --- | --- |
+| **Pantalla atascada en "Cargando sistema..."** | `appReady` dependía de las respuestas de Firestore | Timeout de seguridad de 400 ms en `App.svelte`; las cargas iniciales corren en paralelo sin bloquear la UI |
+| **Factura sin datos de la tienda** | Datos no configurados | Configurarlos en **Configuración → Datos de la Tienda** (nombre, dirección, teléfono, NIT) |
+| **No se puede vender a fiado** | No hay clientes registrados | Registrar clientes primero en **Clientes** |
+
 ---
 
 ##  Despliegue
