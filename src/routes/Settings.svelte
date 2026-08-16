@@ -15,6 +15,10 @@
   let expiryYellow = 30;
   let expiryRed = 7;
   let ivaPercentage = 19;
+  let storeName = 'La Cigarra';
+  let storeAddress = '';
+  let storePhone = '';
+  let storeNit = '';
   let loading = false;
   let clearing = false;
 
@@ -26,6 +30,10 @@
       expiryYellow = settings.alertThresholds?.expiryYellow || 30;
       expiryRed = settings.alertThresholds?.expiryRed || 7;
       ivaPercentage = settings.ivaPercentage || 19;
+      storeName = settings.store?.name || 'La Cigarra';
+      storeAddress = settings.store?.address || '';
+      storePhone = settings.store?.phone || '';
+      storeNit = settings.store?.nit || '';
     } catch (e) {
       console.error('Error loading settings:', e);
     }
@@ -44,6 +52,12 @@
     loading = true;
     try {
       const settings = {
+        store: {
+          name: storeName.trim() || 'La Cigarra',
+          address: storeAddress.trim(),
+          phone: storePhone.trim(),
+          nit: storeNit.trim()
+        },
         alertThresholds: { stockYellow, stockRed, expiryYellow, expiryRed },
         ivaPercentage: Number(ivaPercentage)
       };
@@ -86,6 +100,30 @@
   <h1>Configuración del Sistema</h1>
 
   {#if isAdmin($currentUser)}
+  <div class="settings-card">
+    <h2>Datos de la Tienda</h2>
+    <p class="section-desc">Estos datos aparecen en la factura que se genera al registrar una venta.</p>
+
+    <div class="form-group">
+      <label for="storeName">Nombre del negocio</label>
+      <input id="storeName" type="text" bind:value={storeName} />
+    </div>
+    <div class="form-group">
+      <label for="storeAddress">Dirección</label>
+      <input id="storeAddress" type="text" bind:value={storeAddress} />
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="storePhone">Teléfono</label>
+        <input id="storePhone" type="text" bind:value={storePhone} />
+      </div>
+      <div class="form-group">
+        <label for="storeNit">NIT</label>
+        <input id="storeNit" type="text" bind:value={storeNit} />
+      </div>
+    </div>
+  </div>
+
   <div class="settings-card">
     <h2>Umbrales de Alerta de Stock</h2>
     <p class="section-desc">Define los niveles para activar el semáforo de alertas en el inventario.</p>

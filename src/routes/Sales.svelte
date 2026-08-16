@@ -4,6 +4,8 @@
   import { notify } from '../stores/toast';
   import { updateProductStock, getProductById } from '../services/productService';
   import { getOpenSession, addAutomaticMovement } from '../services/cashService';
+  import { getAllClients } from '../services/clientService';
+  import { createCredit } from '../services/creditService';
   import { currentUser } from '../stores/auth';
   import { canCreate, canView } from '../utils/permissions';
   import { ivaPercentage } from '../stores/app';
@@ -11,21 +13,31 @@
   import { normalizeRows } from '../utils/exportUtils';
   import Button from '../components/common/Button.svelte';
   import ExportButton from '../components/common/ExportButton.svelte';
+  import Modal from '../components/common/Modal.svelte';
+  import InvoiceModal from '../components/common/InvoiceModal.svelte';
 
   let sales = [];
   let products = [];
+  let clients = [];
 
   let items = [{ productId: '', quantity: 1, unitPrice: 0 }];
   let paymentMethod = 'efectivo';
+  let selectedClientId = '';
   let loading = false;
+
+  let showInvoiceModal = false;
+  let lastSale = null;
+  let lastCredit = null;
+  let viewingSale = null;
 
   $: iva = $ivaPercentage;
   $: subtotal = items.reduce((sum, item) => sum + calculateItemSubtotal(item.quantity, item.unitPrice), 0);
   $: totals = calculateTotalWithIVA(subtotal, iva);
+  $: isFiadoPayment = paymentMethod === 'fiado';
 
   onMount(async () => {
-    [sales, products] = await Promise.all([
-      getAll('sales'), getAll('products')
+    [sales, products, clients] = await Promise.all([
+      getAll('sales'), getAll('products'), getAllClients()
     ]);
   });
 
@@ -47,10 +59,29 @@
     }
   }
 
+  function openInvoice(sale, credit = null) {
+    lastSale = sale;
+    lastCredit = credit;
+    viewingSale = null;
+    showInvoiceModal = true;
+  }
+
+  function closeInvoiceModal() {
+    showInvoiceModal = false;
+    lastSale = null;
+    lastCredit = null;
+    viewingSale = null;
+  }
+
   async function saveSale() {
     const validItems = items.filter(i => i.productId && i.quantity > 0);
     if (validItems.length === 0) {
       notify('warning', 'Agrega al menos un producto');
+      return;
+    }
+
+    if (paymentMethod === 'fiado' && !selectedClientId) {
+      notify('warning', 'Selecciona el cliente para el fiado');
       return;
     }
 
@@ -64,6 +95,9 @@
 
     loading = true;
     try {
+      const client = clients.find(c => c.id === selectedClientId);
+      const invoiceNumber = 'FAC-' + String(Date.now()).slice(-8);
+
       const saleData = {
         items: validItems.map(item => {
           const product = products.find(p => p.id === item.productId);
@@ -79,8 +113,17 @@
         iva: totals.iva,
         total: totals.total,
         paymentMethod,
-        saleDate: new Date()
+        saleDate: new Date(),
+        invoiceNumber,
+        cashierName: $currentUser?.name || $currentUser?.email || ''
       };
+
+      if (paymentMethod === 'fiado') {
+        saleData.clientId = selectedClientId;
+        saleData.clientName = client?.name || '';
+        saleData.clientCedula = client?.cedula || '';
+        saleData.status = 'pending';
+      }
 
       const saleId = await create('sales', saleData);
 
@@ -98,11 +141,32 @@
         }
       }
 
-      notify('success', 'Venta registrada exitosamente');
+      let credit = null;
+      if (paymentMethod === 'fiado') {
+        credit = await createCredit({
+          clientId: selectedClientId,
+          clientName: client?.name || '',
+          clientCedula: client?.cedula || '',
+          saleId,
+          invoiceNumber,
+          items: saleData.items,
+          total: totals.total,
+          notes: '',
+          status: 'pending',
+          createdAt: new Date()
+        });
+        notify('success', 'Venta a fiado registrada correctamente');
+      } else {
+        notify('success', 'Venta registrada exitosamente');
+      }
+
       items = [{ productId: '', quantity: 1, unitPrice: 0 }];
       paymentMethod = 'efectivo';
+      selectedClientId = '';
       products = await getAll('products');
       sales = await getAll('sales');
+
+      openInvoice({ ...saleData, id: saleId }, credit);
     } catch (e) {
       notify('error', 'Error al registrar venta');
     }
@@ -165,8 +229,24 @@
         <option value="tarjeta">Tarjeta</option>
         <option value="nequi">Nequi</option>
         <option value="daviplata">Daviplata</option>
+        <option value="fiado">Fiado (Crédito)</option>
       </select>
     </div>
+
+    {#if isFiadoPayment}
+      <div class="form-group fiado-client">
+        <label for="fiadoClient">Cliente (obligatorio para fiado)</label>
+        <select id="fiadoClient" bind:value={selectedClientId}>
+          <option value="">Selecciona un cliente...</option>
+          {#each clients as client}
+            <option value={client.id}>{client.name} — CC {client.cedula}</option>
+          {/each}
+        </select>
+        {#if clients.length === 0}
+          <p class="fiado-hint"><i class="fa-solid fa-circle-info"></i> No hay clientes registrados. Regístralos primero en Clientes para poder vender a fiado.</p>
+        {/if}
+      </div>
+    {/if}
 
     <div class="totals">
       <div class="total-row">
@@ -200,12 +280,21 @@
             <span class="history-name">{paymentLabels[sale.paymentMethod] || sale.paymentMethod}</span>
             <span class="history-date">{formatDate(sale.saleDate)}</span>
           </div>
-          <span class="history-amount">{formatCurrency(sale.total)}</span>
+          <div class="history-right">
+            <span class="history-amount">{formatCurrency(sale.total)}</span>
+            <button class="btn-invoice" on:click={() => openInvoice(sale)} title="Ver factura">
+              <i class="fa-solid fa-receipt"></i>
+            </button>
+          </div>
         </div>
       {/each}
     </div>
   {/if}
 </div>
+
+<Modal show={showInvoiceModal} title="Factura" size="large" on:close={closeInvoiceModal}>
+  <InvoiceModal sale={lastSale} credit={lastCredit} />
+</Modal>
 
 
 
@@ -280,7 +369,19 @@
   .history-item:last-child { border-bottom: none; }
   .history-name { font-weight: 600; color: #1f2937; font-size: 0.9rem; }
   .history-date { font-size: 0.8rem; color: #9ca3af; display: block; }
+  .history-right { display: flex; align-items: center; gap: 0.6rem; }
   .history-amount { font-weight: 700; color: #16a34a; font-size: 0.9rem; }
+
+  .btn-invoice {
+    background: rgba(6,79,60,0.1); border: none; color: #064F3C;
+    width: 34px; height: 34px; border-radius: 8px; cursor: pointer;
+    font-size: 0.95rem; transition: background 0.15s;
+  }
+  .btn-invoice:hover { background: rgba(6,79,60,0.18); }
+
+  .fiado-client { background: #fef9c3; border: 1px solid #fde047; border-radius: 10px; padding: 0.75rem; }
+  .fiado-client label { color: #854d0e; }
+  .fiado-hint { font-size: 0.8rem; color: #854d0e; margin: 0.5rem 0 0; display: flex; align-items: center; gap: 0.4rem; }
 
   .readonly-msg {
     text-align: center; color: #6b7280; padding: 1.5rem;

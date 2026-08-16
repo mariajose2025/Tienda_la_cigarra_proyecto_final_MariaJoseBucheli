@@ -8,6 +8,12 @@ export async function getSettings() {
   const docSnap = await getDoc(docRef);
   if (!docSnap.exists()) {
     const defaultSettings = {
+      store: {
+        name: 'La Cigarra',
+        address: 'Calle Principal #1-23',
+        phone: '300 000 0000',
+        nit: '000000000-0'
+      },
       alertThresholds: {
         stockYellow: 10,
         stockRed: 5,
