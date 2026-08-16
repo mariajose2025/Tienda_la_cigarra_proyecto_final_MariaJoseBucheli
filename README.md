@@ -1,10 +1,10 @@
-# 🦗 Tienda La Cigarra — Sistema de Gestión de Tienda de Barrio
+#  Tienda La Cigarra — Sistema de Gestión de Tienda de Barrio
 
 Sistema web de gestión para tienda de barrio desarrollado con **Svelte + Vite + Firebase** (Firestore) y desplegado en **Netlify**.
 
 ---
 
-## 🚀 Cómo ejecutar el proyecto
+##  Cómo ejecutar el proyecto
 
 ```bash
 npm install        # instala las dependencias
@@ -28,7 +28,7 @@ VITE_FIREBASE_APP_ID=
 
 ---
 
-## 🏗️ Arquitectura del proyecto
+##  Arquitectura del proyecto
 
 ```
 src/
@@ -58,7 +58,7 @@ src/
 
 ---
 
-## 👥 Roles y permisos
+##  Roles y permisos
 
 | Rol | Acceso |
 | --- | --- |
@@ -72,7 +72,7 @@ src/
 
 ---
 
-## 🧾 Módulos del sistema
+##  Módulos del sistema
 
 ### General
 - **Dashboard** — Resumen general con métricas, tarjetas y accesos rápidos según el rol.
@@ -106,7 +106,7 @@ src/
 
 ---
 
-## 🧾 Factura de venta
+##  Factura de venta
 
 Al registrar una venta se genera automáticamente una **factura** con:
 
@@ -125,7 +125,7 @@ Las ventas a fiado además:
 
 ---
 
-## 🔔 Sistema de notificaciones (toasts)
+##  Sistema de notificaciones (toasts)
 
 Todas las páginas usan el sistema global de notificaciones (`src/stores/toast.js` + `ToastContainer.svelte`):
 
@@ -138,13 +138,13 @@ Todas las páginas usan el sistema global de notificaciones (`src/stores/toast.j
 
 ---
 
-## 📄 Exportación a Excel
+##  Exportación a Excel
 
 Todos los módulos de listado/reportes tienen botón **Exportar** que genera un archivo `.xlsx` con los datos de ese módulo (productos, ventas, compras, fiados, caja, gastos, reportes, etc.). Además existe un **backup completo** en Copia de Seguridad.
 
 ---
 
-## 🛠️ Correcciones y funcionalidades agregadas
+##  Correcciones y funcionalidades agregadas
 
 > Historial de cambios del proyecto.
 
@@ -204,7 +204,7 @@ Todos los módulos de listado/reportes tienen botón **Exportar** que genera un 
 
 ---
 
-## 🌐 Despliegue
+##  Despliegue
 
 - Repositorio: `https://github.com/mariajose2025/Tienda_la_cigarra_proyecto_final_MariaJoseBucheli`
 - Sitio: `https://phenomenal-moxie-1a6ac0.netlify.app/#/`
@@ -213,7 +213,7 @@ Todos los módulos de listado/reportes tienen botón **Exportar** que genera un 
 
 ---
 
-## 📦 Dependencias principales
+##  Dependencias principales
 
 | Paquete | Uso |
 | --- | --- |
