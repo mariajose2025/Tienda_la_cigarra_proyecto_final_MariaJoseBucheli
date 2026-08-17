@@ -20,7 +20,7 @@
   let products = [];
   let clients = [];
 
-  let items = [{ productId: '', quantity: 1, unitPrice: 0 }];
+  let items = [{ productId: '', quantity: 1, unitPrice: '' }];
   let paymentMethod = 'efectivo';
   let clientSearch = '';
   let selectedClient = null;
@@ -42,6 +42,30 @@
         (c.cedula || '').includes(clientSearch.trim())
       )
     : clients;
+
+  $: todaySales = sales.filter(s => isToday(s.saleDate));
+  $: todayCount = todaySales.length;
+  $: todayTotal = todaySales.reduce((sum, s) => sum + (s.total || 0), 0);
+  $: monthSales = sales.filter(s => isThisMonth(s.saleDate));
+  $: monthCount = monthSales.length;
+  $: monthTotal = monthSales.reduce((sum, s) => sum + (s.total || 0), 0);
+  $: creditSales = sales.filter(s => s.paymentMethod === 'fiado' && s.status === 'pending');
+  $: creditCount = creditSales.length;
+  $: creditTotal = creditSales.reduce((sum, s) => sum + (s.total || 0), 0);
+
+  function isToday(timestamp) {
+    if (!timestamp) return false;
+    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    const now = new Date();
+    return date.getDate() === now.getDate() && date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+  }
+
+  function isThisMonth(timestamp) {
+    if (!timestamp) return false;
+    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    const now = new Date();
+    return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+  }
 
   function selectClient(client) {
     selectedClient = client;
@@ -70,7 +94,7 @@
   });
 
   function addItem() {
-    items = [...items, { productId: '', quantity: 1, unitPrice: 0 }];
+    items = [...items, { productId: '', quantity: 1, unitPrice: '' }];
   }
 
   function removeItem(index) {
@@ -190,7 +214,7 @@
         notify('success', 'Venta registrada exitosamente');
       }
 
-      items = [{ productId: '', quantity: 1, unitPrice: 0 }];
+items = [{ productId: '', quantity: 1, unitPrice: '' }];
       paymentMethod = 'efectivo';
       selectedClient = null;
       clientSearch = '';
@@ -214,7 +238,8 @@
     efectivo: 'Efectivo',
     tarjeta: 'Tarjeta',
     nequi: 'Nequi',
-    daviplata: 'Daviplata'
+    daviplata: 'Daviplata',
+    fiado: 'Fiado'
   };
 </script>
 
@@ -226,7 +251,38 @@
     {/if}
   </div>
 
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="summary-icon icon-sale"><i class="fa-solid fa-cash-register"></i></div>
+      <div class="summary-body">
+        <span class="summary-label">Ventas de hoy</span>
+        <span class="summary-value">{formatCurrency(todayTotal)}</span>
+        <span class="summary-sub">{todayCount} ticket(s)</span>
+      </div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-icon icon-month"><i class="fa-solid fa-calendar-days"></i></div>
+      <div class="summary-body">
+        <span class="summary-label">Ventas del mes</span>
+        <span class="summary-value">{formatCurrency(monthTotal)}</span>
+        <span class="summary-sub">{monthCount} ticket(s)</span>
+      </div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-icon icon-credit"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+      <div class="summary-body">
+        <span class="summary-label">Fiado por cobrar</span>
+        <span class="summary-value">{formatCurrency(creditTotal)}</span>
+        <span class="summary-sub">{creditCount} fiado(s) pendiente(s)</span>
+      </div>
+    </div>
+  </div>
+
   <div class="form-card">
+    <div class="form-card-head">
+      <i class="fa-solid fa-cart-plus"></i>
+      <span>Nueva venta</span>
+    </div>
     {#if canCreate($currentUser, 'sales')}
     <div class="items-section">
       <div class="items-header">
@@ -245,7 +301,11 @@
             {/each}
           </select>
           <input type="number" bind:value={item.quantity} min="1" placeholder="Cant." class="qty-input" />
-          <input type="number" bind:value={item.unitPrice} min="0" placeholder="$ Precio" class="price-input" />
+          <div class="price-lock">
+            <input type="number" bind:value={item.unitPrice} min="0" placeholder="Automático" class="price-input" readonly />
+            <span class="lock-icon" title="Precio automático del inventario"><i class="fa-solid fa-lock"></i></span>
+          </div>
+          <span class="row-subtotal">{formatCurrency(calculateItemSubtotal(item.quantity, item.unitPrice))}</span>
           {#if items.length > 1}
             <button class="btn-remove" on:click={() => removeItem(index)}>✕</button>
           {/if}
@@ -325,7 +385,7 @@
       {#each sales.slice(0, 10) as sale}
         <div class="history-item">
           <div class="history-info">
-            <span class="history-name">{paymentLabels[sale.paymentMethod] || sale.paymentMethod}</span>
+            <span class="badge badge-{sale.paymentMethod}">{paymentLabels[sale.paymentMethod] || sale.paymentMethod}</span>
             {#if sale.clientName}
               <span class="history-client">{sale.clientName}</span>
             {/if}
@@ -356,9 +416,44 @@
   h1 { font-size: 1.3rem; color: #1f2937; }
 
   .form-card {
-    background: white; border-radius: 12px; padding: 1.25rem;
-    box-shadow: var(--shadow-sm);
+    background: white; border-radius: 14px; padding: 1.5rem;
+    box-shadow: var(--shadow-sm); border: 1px solid #eef2f1;
   }
+
+  .form-card-head {
+    display: flex; align-items: center; gap: 0.55rem;
+    font-weight: 700; color: #064F3C; font-size: 1.02rem;
+    padding-bottom: 1rem; margin-bottom: 1.25rem;
+    border-bottom: 2px solid #eef2f1;
+  }
+  .form-card-head i { color: #0d9488; font-size: 1.1rem; }
+
+  .summary-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .summary-card {
+    background: white; border-radius: 14px; padding: 1.1rem 1.25rem;
+    display: flex; align-items: center; gap: 0.9rem;
+    box-shadow: var(--shadow-sm); border: 1px solid #eef2f1;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .summary-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md, 0 6px 16px rgba(0,0,0,0.08)); }
+
+  .summary-icon {
+    width: 46px; height: 46px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; flex-shrink: 0;
+  }
+  .icon-sale { background: #ecfdf5; color: #059669; }
+  .icon-month { background: #eff6ff; color: #2563eb; }
+  .icon-credit { background: #fffbeb; color: #d97706; }
+
+  .summary-body { display: flex; flex-direction: column; min-width: 0; }
+  .summary-label { font-size: 0.78rem; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+  .summary-value { font-size: 1.35rem; font-weight: 800; color: #111827; line-height: 1.25; white-space: nowrap; }
+  .summary-sub { font-size: 0.78rem; color: #9ca3af; }
 
   .form-group { margin-bottom: 1rem; }
   label { display: block; margin-bottom: 0.3rem; font-size: 0.875rem; font-weight: 600; color: #374151; }
@@ -380,12 +475,25 @@
   .item-row {
     display: flex; gap: 0.5rem; margin-bottom: 0.5rem; align-items: center;
   }
-  .item-row select { flex: 2; }
+  .item-row select { flex: 1; }
   .qty-input, .price-input {
-    width: 80px; padding: 0.65rem; border: 1.5px solid #d1d5db;
+    width: 72px; padding: 0.65rem; border: 1.5px solid #d1d5db;
     border-radius: 8px; font-size: 0.9rem; box-sizing: border-box; text-align: center;
   }
-  .price-input { width: 100px; }
+  .price-lock { position: relative; }
+  .price-input {
+    width: 108px; padding-right: 1.9rem; background: #f8fafc;
+    color: #065f46; font-weight: 700; cursor: default;
+  }
+  .price-input:focus { border-color: #d1d5db; box-shadow: none; }
+  .lock-icon {
+    position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%);
+    font-size: 0.72rem; color: #94a3b8; pointer-events: none;
+  }
+  .row-subtotal {
+    min-width: 74px; text-align: right; font-weight: 700;
+    color: #374151; font-size: 0.88rem; white-space: nowrap;
+  }
   input:focus { outline: none; border-color: #064F3C;
     box-shadow: 0 0 0 3px rgba(6,79,60,0.14);
   }
@@ -402,26 +510,38 @@
     font-size: 0.9rem; color: #374151;
   }
   .total-final {
-    font-weight: 700; font-size: 1.1rem; color: #1f2937;
+    font-weight: 800; font-size: 1.15rem; color: #064F3C;
     border-top: 1px solid #e5e7eb; padding-top: 0.5rem; margin-top: 0.3rem;
   }
 
   .section-title { font-size: 1.1rem; color: #1f2937; margin: 1.5rem 0 0.75rem; }
 
   .history-list {
-    background: white; border-radius: 12px; overflow: hidden;
-    box-shadow: var(--shadow-sm);
+    background: white; border-radius: 14px; overflow: hidden;
+    box-shadow: var(--shadow-sm); border: 1px solid #eef2f1;
   }
 
   .history-item {
     display: flex; justify-content: space-between; align-items: center;
     padding: 0.85rem 1rem; border-bottom: 1px solid #f3f4f6;
+    transition: background 0.12s;
   }
+  .history-item:hover { background: #fafdfb; }
   .history-item:last-child { border-bottom: none; }
-  .history-name { font-weight: 600; color: #1f2937; font-size: 0.9rem; }
-  .history-date { font-size: 0.8rem; color: #9ca3af; display: block; }
+  .history-date { font-size: 0.8rem; color: #9ca3af; display: block; margin-top: 0.2rem; }
   .history-right { display: flex; align-items: center; gap: 0.6rem; }
-  .history-amount { font-weight: 700; color: #16a34a; font-size: 0.9rem; }
+  .history-amount { font-weight: 800; color: #065f46; font-size: 0.95rem; }
+
+  .badge {
+    display: inline-flex; align-items: center;
+    padding: 0.22rem 0.6rem; border-radius: 999px;
+    font-size: 0.75rem; font-weight: 700;
+  }
+  .badge-efectivo { background: #ecfdf5; color: #059669; }
+  .badge-tarjeta { background: #eff6ff; color: #2563eb; }
+  .badge-nequi { background: #faf5ff; color: #9333ea; }
+  .badge-daviplata { background: #ecfeff; color: #0891b2; }
+  .badge-fiado { background: #fffbeb; color: #d97706; }
 
   .btn-invoice {
     background: rgba(6,79,60,0.1); border: none; color: #064F3C;
@@ -474,4 +594,10 @@
     font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
   }
   .readonly-msg i { color: #9ca3af; }
+
+  @media (max-width: 820px) {
+    .summary-grid { grid-template-columns: 1fr; }
+    .item-row { flex-wrap: wrap; }
+    .item-row select { flex: 1 1 100%; }
+  }
 </style>

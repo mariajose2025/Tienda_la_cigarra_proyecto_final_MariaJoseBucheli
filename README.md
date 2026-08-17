@@ -263,6 +263,13 @@ Todos los módulos de listado/reportes tienen botón **Exportar** que genera un 
 - Al guardar la venta se registra `clientId`, `clientName` y `clientCedula` en el documento de la venta, y el **nombre del cliente aparece en el historial** de "Últimas Ventas".
 - **Archivo:** `src/routes/Sales.svelte`.
 
+### ✅ Mejora: precio automático e inmutable en Ventas + rediseño del panel
+- El **precio se autocompleta automáticamente** al seleccionar el producto (desde `salePrice` del inventario que configura el administrador) y queda **bloqueado con candado** (`readonly`): el cajero ya no digita precios.
+- Cada fila muestra el **subtotal en vivo** (cantidad × precio) y el total se actualiza al instante.
+- El panel de Ventas ahora tiene **tarjetas de resumen**: ventas de hoy, ventas del mes y fiado por cobrar (monto + número de tickets).
+- El historial de "Últimas Ventas" usa **etiquetas de color por método de pago** (Efectivo, Tarjeta, Nequi, Daviplata, Fiado).
+- **Archivo:** `src/routes/Sales.svelte`.
+
 ---
 
 ## ❗ Problemas conocidos y soluciones
