@@ -209,12 +209,9 @@ Todos los módulos de listado/reportes tienen botón **Exportar** que genera un 
 
 ---
 
-### ✅ Corrección: página en blanco en `/admin` o rutas desconocidas
-- **Problema:** al entrar directamente a una ruta como `https://.../#/admin` sin sesión iniciada (o a cualquier ruta no registrada), la página quedaba **completamente en blanco**: solo se veía el logo del Navbar y el footer. La causa: `svelte-spa-router` no encontraba un componente que coincidiera con la ruta (p. ej. `/admin` no existe en las rutas públicas cuando no hay sesión) y, al no haber match, el Router renderizaba un componente vacío.
-- **Solución:** se agregaron **rutas catch-all** (`'*'`) a todos los mapas de rutas en `App.svelte`:
-  - Rutas públicas → `'*': Home` (sin sesión, cualquier ruta desconocida muestra la página de inicio).
-  - Rutas autenticadas → `'*': Dashboard` (con sesión, rutas desconocidas muestran el panel).
-  - Ruta de configuración inicial → `'*': Setup`.
+### ✅ Corrección: página en blanco al cargar la app
+- **Problema:** al entrar al sitio, los botones del Home (Iniciar Sesión / Conócenos) aparecían brevemente y desaparecían, quedando solo el Navbar (logo) y el Footer. La causa era que `App.svelte` usaba **tres `<Router>` separados** dentro de bloques `{#if needsSetup}...{:else if canAccessAuth}...{:else}`. Cuando `canAccessAuth` o `needsSetup` cambiaban (al resolver la autenticación de Firebase o la consulta de usuarios), Svelte **destruía** el Router activo y **creaba uno nuevo**. Durante ese ciclo de destrucción/recreación, el contenido del Router quedaba en `null` (vacío), produciendo la pantalla en blanco.
+- **Solución:** se reemplazaron los tres Routers condicionales por **un solo `<Router>`** con todas las rutas combinadas (públicas + autenticadas + setup + fallback `'*'`). Las redirecciones según el estado de autenticación ahora se manejan en un bloque reactivo `$:` con `push()`, sin destruir/recrear el Router. Esto garantiza que el Router siempre renderiza un componente y nunca queda vacío.
 - **Archivos:** `src/App.svelte`.
 
 ---
@@ -225,6 +222,7 @@ Todos los módulos de listado/reportes tienen botón **Exportar** que genera un 
 | --- | --- | --- |
 | **Pantalla atascada en "Cargando sistema..."** | `appReady` dependía de las respuestas de Firestore | Timeout de seguridad de 400 ms en `App.svelte`; las cargas iniciales corren en paralelo sin bloquear la UI |
 | **Página en blanco en `/admin` o rutas desconocidas** | `svelte-spa-router` no encontraba match para la ruta (sin sesión, `/admin` no está en las rutas públicas) y renderizaba vacío | Rutas catch-all (`'*'`) en `App.svelte`: públicas → Home, autenticadas → Dashboard, setup → Setup |
+| **Página en blanco al cargar la app** | `App.svelte` usaba múltiples `<Router>` en bloques `{#if}`; al cambiar `canAccessAuth` o `needsSetup`, Svelte destruía/recreaba el Router, dejando el contenido en `null` | Un solo `<Router>` con todas las rutas combinadas + redirecciones reactivas sin destruir el Router |
 | **Factura sin datos de la tienda** | Datos no configurados | Configurarlos en **Configuración → Datos de la Tienda** (nombre, dirección, teléfono, NIT) |
 | **No se puede vender a fiado** | No hay clientes registrados | Registrar clientes primero en **Clientes** |
 
