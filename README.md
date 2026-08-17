@@ -216,6 +216,13 @@ Todos los módulos de listado/reportes tienen botón **Exportar** que genera un 
 
 ---
 
+### ✅ Corrección: crash al cargar la app con sesión activa (`Cannot read properties of undefined (reading 'startsWith')`)
+- **Problema:** en consola aparecía `TypeError: Cannot read properties of undefined (reading 'startsWith')` dentro de `Array.some`. El Navbar calculaba la ruta activa con `$: path = $location.path`, pero el store `location` de `svelte-spa-router` devuelve **un string** (ej: `'/'`, `'/admin/ventas'`), no un objeto. Por eso `path` era **siempre `undefined`** y, en cuanto el usuario autenticado se renderizaba el menú de administración, `isSectionActive()` ejecutaba `path.startsWith(...)` sobre `undefined` y **crasheaba toda la aplicación** (los botones aparecían brevemente y desaparecían).
+- **Solución:** `$: path = $location || '/'` (el store ya es el string de la ruta). Se agregó el fix en `src/components/common/Navbar.svelte`.
+- **Archivos:** `src/components/common/Navbar.svelte`.
+
+---
+
 ## ❗ Problemas conocidos y soluciones
 
 | Problema | Causa | Solución aplicada |
@@ -223,6 +230,7 @@ Todos los módulos de listado/reportes tienen botón **Exportar** que genera un 
 | **Pantalla atascada en "Cargando sistema..."** | `appReady` dependía de las respuestas de Firestore | Timeout de seguridad de 400 ms en `App.svelte`; las cargas iniciales corren en paralelo sin bloquear la UI |
 | **Página en blanco en `/admin` o rutas desconocidas** | `svelte-spa-router` no encontraba match para la ruta (sin sesión, `/admin` no está en las rutas públicas) y renderizaba vacío | Rutas catch-all (`'*'`) en `App.svelte`: públicas → Home, autenticadas → Dashboard, setup → Setup |
 | **Página en blanco al cargar la app** | `App.svelte` usaba múltiples `<Router>` en bloques `{#if}`; al cambiar `canAccessAuth` o `needsSetup`, Svelte destruía/recreaba el Router, dejando el contenido en `null` | Un solo `<Router>` con todas las rutas combinadas + redirecciones reactivas sin destruir el Router |
+| **Crash con sesión activa (`startsWith` de undefined)** | `Navbar.svelte` usaba `$location.path`, pero `$location` es un string (no objeto) → `path` siempre `undefined` → `isSectionActive()` crasheaba al renderizar el menú de admin | `$: path = $location || '/'` en `src/components/common/Navbar.svelte` |
 | **Factura sin datos de la tienda** | Datos no configurados | Configurarlos en **Configuración → Datos de la Tienda** (nombre, dirección, teléfono, NIT) |
 | **No se puede vender a fiado** | No hay clientes registrados | Registrar clientes primero en **Clientes** |
 
