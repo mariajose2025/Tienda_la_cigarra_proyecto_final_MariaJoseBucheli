@@ -278,6 +278,11 @@ Todos los módulos de listado/reportes tienen botón **Exportar** que genera un 
 - **Responsiva**: en pantallas menores a 1100 px las dos columnas se apilan (formulario arriba, factura debajo).
 - **Archivo:** `src/routes/Sales.svelte`.
 
+### ✅ Fiados: se crean solo desde la venta
+- Se eliminó el botón **"Nuevo Fiado"** y su modal de creación manual: el crédito se genera **automáticamente** al registrar una venta con método de pago **Fiado (Crédito)** desde Ventas.
+- La página de Fiados ahora muestra un **aviso informativo** explicando este flujo, y conserva todo lo demás: cobro (marca pagado + movimiento de caja), filtros (todos/pendientes/vencidos/pagados), detalle con productos, exportar y eliminar.
+- **Archivo:** `src/routes/Credits.svelte`.
+
 ---
 
 ## ❗ Problemas conocidos y soluciones

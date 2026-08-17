@@ -2,32 +2,21 @@
   import { onMount } from 'svelte';
   import { getAllClients } from '../services/clientService';
   import { notify } from '../stores/toast';
-  import { getAllProducts } from '../services/productService';
-  import { getAllCredits, createCredit, updateCredit, deleteCredit } from '../services/creditService';
+  import { getAllCredits, updateCredit, deleteCredit } from '../services/creditService';
   import { getOpenSession, addAutomaticMovement } from '../services/cashService';
   import { currentUser } from '../stores/auth';
-  import { canCreate, canEdit, canView } from '../utils/permissions';
+  import { canEdit, canView } from '../utils/permissions';
   import { formatCurrency } from '../utils/iva';
   import { normalizeRows } from '../utils/exportUtils';
-  import Button from '../components/common/Button.svelte';
   import ExportButton from '../components/common/ExportButton.svelte';
   import Modal from '../components/common/Modal.svelte';
 
   let credits = [];
   let clients = [];
-  let products = [];
-  let showModal = false;
   let showDetailModal = false;
-  let editingCredit = null;
   let selectedCredit = null;
   let loading = false;
   let filterStatus = 'all';
-
-  let formData = {
-    clientId: '',
-    items: [{ productId: '', quantity: 1, unitPrice: 0 }],
-    notes: ''
-  };
 
   $: filteredCredits = credits.filter(c => {
     if (filterStatus === 'all') return true;
@@ -47,99 +36,14 @@
   $: totalPaid = credits.filter(c => c.status === 'paid').reduce((sum, c) => sum + (c.total || 0), 0);
 
   onMount(async () => {
-    [credits, clients, products] = await Promise.all([
-      getAllCredits(), getAllClients(), getAllProducts()
+    [credits, clients] = await Promise.all([
+      getAllCredits(), getAllClients()
     ]);
   });
-
-  function openModal() {
-    if (clients.length === 0) {
-      notify('warning', 'Primero registra al menos un cliente');
-      return;
-    }
-    editingCredit = null;
-    formData = {
-      clientId: '',
-      items: [{ productId: '', quantity: 1, unitPrice: 0 }],
-      notes: ''
-    };
-    showModal = true;
-  }
-
-  function closeModal() {
-    showModal = false;
-    editingCredit = null;
-  }
 
   function openDetail(credit) {
     selectedCredit = credit;
     showDetailModal = true;
-  }
-
-  function addItem() {
-    formData.items = [...formData.items, { productId: '', quantity: 1, unitPrice: 0 }];
-  }
-
-  function removeItem(index) {
-    if (formData.items.length > 1) {
-      formData.items = formData.items.filter((_, i) => i !== index);
-    }
-  }
-
-  function updateItemPrice(index) {
-    const product = products.find(p => p.id === formData.items[index].productId);
-    if (product) {
-      formData.items[index].unitPrice = product.salePrice;
-      // Forzar reactividad en Svelte — copia del array para trigger
-      formData.items = [...formData.items];
-    }
-  }
-
-  $: creditTotal = formData.items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
-
-  async function saveCredit() {
-    if (!formData.clientId) {
-      notify('warning', 'Selecciona un cliente');
-      return;
-    }
-
-    const validItems = formData.items.filter(i => i.productId && i.quantity > 0);
-    if (validItems.length === 0) {
-      notify('warning', 'Agrega al menos un producto');
-      return;
-    }
-
-    loading = true;
-    try {
-      const client = clients.find(c => c.id === formData.clientId);
-      const creditData = {
-        clientId: formData.clientId,
-        clientName: client?.name || '',
-        clientCedula: client?.cedula || '',
-        items: validItems.map(item => {
-          const product = products.find(p => p.id === item.productId);
-          return {
-            productId: item.productId,
-            productName: product?.name || '',
-            quantity: Number(item.quantity),
-            unitPrice: Number(item.unitPrice),
-            subtotal: Number(item.quantity) * Number(item.unitPrice)
-          };
-        }),
-        total: creditTotal,
-        notes: formData.notes,
-        status: 'pending',
-        createdAt: new Date()
-      };
-
-      await createCredit(creditData);
-      notify('success', 'Fiado registrado exitosamente');
-      closeModal();
-      credits = await getAllCredits();
-    } catch (e) {
-      notify('error', 'Error al registrar fiado');
-    }
-    loading = false;
   }
 
   async function markAsPaid(credit) {
@@ -203,10 +107,12 @@
       {#if canView($currentUser, 'credits')}
         <ExportButton rows={normalizeRows('credits', filteredCredits)} filename="fiados.xlsx" sheetName="Fiados" label="Exportar" />
       {/if}
-      {#if canCreate($currentUser, 'credits')}
-        <Button on:click={openModal}><i class="fa-solid fa-plus"></i> Nuevo Fiado</Button>
-      {/if}
     </div>
+  </div>
+
+  <div class="info-banner">
+    <i class="fa-solid fa-circle-info"></i>
+    <span>Los fiados se registran automáticamente al vender con el método <strong>Fiado (Crédito)</strong> desde <strong>Ventas</strong>. Aquí puedes verlos, cobrarlos y filtrarlos.</span>
   </div>
 
   <div class="stats-row">
@@ -264,68 +170,10 @@
         </div>
       </div>
     {:else}
-      <p class="empty"><i class="fa-solid fa-file-invoice"></i> No hay registros de fiados</p>
+      <p class="empty"><i class="fa-solid fa-file-invoice"></i> Aún no hay fiados. Se generan automáticamente al vender a fiado desde Ventas.</p>
     {/each}
   </div>
 </div>
-
-<Modal show={showModal} title="Nuevo Fiado" on:close={closeModal} size="large">
-  <div class="form-group">
-    <label for="client">Cliente *</label>
-    <select id="client" bind:value={formData.clientId}>
-      <option value="">Seleccionar cliente...</option>
-      {#each clients as client}
-        <option value={client.id}>{client.name} — CC: {client.cedula}</option>
-      {/each}
-    </select>
-  </div>
-
-  <div class="items-section">
-    <div class="items-header">
-      <span><i class="fa-solid fa-box-open"></i> Productos del Fiado</span>
-      <Button variant="outline" on:click={addItem}><i class="fa-solid fa-plus"></i> Agregar</Button>
-    </div>
-
-    {#each formData.items as item, index}
-      <div class="item-row">
-        <select bind:value={item.productId} on:change={() => updateItemPrice(index)}>
-          <option value="">Seleccionar producto...</option>
-          {#each products as prod}
-            <option value={prod.id}>{prod.name} (Stock: {prod.currentStock})</option>
-          {/each}
-        </select>
-        <input type="number" bind:value={item.quantity} min="1" placeholder="Cant." class="qty-input" />
-        <div class="price-field">
-          <input type="number" bind:value={item.unitPrice} min="0" placeholder="$ Precio" class="price-input" />
-          {#if item.productId}
-            <span class="price-hint">Precio venta</span>
-          {/if}
-        </div>
-        {#if formData.items.length > 1}
-          <button class="btn-remove" on:click={() => removeItem(index)}><i class="fa-solid fa-xmark"></i></button>
-        {/if}
-      </div>
-    {/each}
-  </div>
-
-  <div class="form-group">
-    <label for="notes">Notas (opcional)</label>
-    <input id="notes" type="text" bind:value={formData.notes} placeholder="Ej: Producto para evento" />
-  </div>
-
-  <div class="total-display">
-    <span>Total a Fiado:</span>
-    <span class="total-amount">{formatCurrency(creditTotal)}</span>
-  </div>
-
-  <svelte:fragment slot="footer">
-    <button class="btn-cancel" on:click={closeModal}>Cancelar</button>
-    <button class="btn-save" on:click={saveCredit} disabled={loading}>
-      {#if loading}<i class="fa-solid fa-spinner fa-spin"></i>{/if}
-      <i class="fa-solid fa-check"></i> Registrar Fiado
-    </button>
-  </svelte:fragment>
-</Modal>
 
 <Modal show={showDetailModal} title="Detalle del Fiado" on:close={() => showDetailModal = false}>
   {#if selectedCredit}
@@ -438,43 +286,13 @@
     background: #fff; border: 1px dashed var(--border); border-radius: var(--radius);
   }
 
-  .form-group { margin-bottom: 0.85rem; }
-  label { display: block; margin-bottom: 0.25rem; font-size: 0.85rem; font-weight: 600; color: #0A241D; }
-  input, select {
-    width: 100%; padding: 0.7rem; border: 1.5px solid #d1d5db;
-    border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; background: white;
+  .info-banner {
+    display: flex; align-items: center; gap: 0.55rem;
+    background: #ecfdf5; border: 1px solid #bbf7d0; color: #065f46;
+    border-radius: 10px; padding: 0.7rem 1rem; margin-bottom: 1rem;
+    font-size: 0.85rem;
   }
-  input:focus, select:focus {
-    outline: none; border-color: #064F3C;
-    box-shadow: 0 0 0 3px rgba(6,79,60,0.14);
-  }
-
-  .items-section { margin-bottom: 1rem; }
-  .items-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
-  .items-header span { font-weight: 600; color: #0A241D; font-size: 0.9rem; display: flex; align-items: center; gap: 0.35rem; }
-  .item-row { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; align-items: center; }
-  .item-row select { flex: 2; }
-  .qty-input, .price-input {
-    width: 80px; padding: 0.65rem; border: 1.5px solid #d1d5db;
-    border-radius: 8px; font-size: 0.9rem; box-sizing: border-box; text-align: center;
-  }
-  .price-input { width: 100px; }
-  .price-field { display: flex; flex-direction: column; align-items: center; gap: 0.15rem; }
-  .price-hint {
-    font-size: 0.6rem; color: #22c55e; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 0.4px;
-  }
-  .btn-remove {
-    background: #FEE2E2; border: none; color: #064F3C;
-    width: 32px; height: 32px; border-radius: 6px;
-    cursor: pointer; font-size: 0.9rem; flex-shrink: 0;
-  }
-
-  .total-display {
-    background: #0A241D; color: #F2C12E; padding: 0.85rem 1rem;
-    border-radius: 10px; display: flex; justify-content: space-between;
-    font-weight: 700; font-size: 1.05rem;
-  }
+  .info-banner i { color: #059669; }
 
   .detail-section { margin-bottom: 1rem; }
   .detail-section p { margin: 0.3rem 0; font-size: 0.9rem; color: #374151; }
@@ -488,19 +306,4 @@
   }
 
   .notes { margin-top: 0.75rem; font-size: 0.85rem; color: #6b7280; font-style: italic; }
-
-  .btn-cancel {
-    background: #6b7280; color: white; border: none;
-    padding: 0.75rem 1.25rem; border-radius: 8px; font-size: 0.9rem;
-    font-weight: 600; cursor: pointer;
-  }
-  .btn-cancel:hover { background: #4b5563; }
-
-  .btn-save {
-    background: #064F3C; color: white; border: none;
-    padding: 0.75rem 1.25rem; border-radius: 8px; font-size: 0.9rem;
-    font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;
-  }
-  .btn-save:hover { background: #043B2F; }
-  .btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
 </style>
