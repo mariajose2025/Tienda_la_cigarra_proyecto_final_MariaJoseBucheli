@@ -6,7 +6,7 @@
   import { initAuthListener } from './services/authService';
   import { getSettings } from './services/settingsService';
   import { app } from './stores/app';
-  import { isAuthenticated, currentUser } from './stores/auth';
+  import { isAuthenticated, currentUser, isLoading as authLoading } from './stores/auth';
   import Navbar from './components/common/Navbar.svelte';
   import Footer from './components/common/Footer.svelte';
   import ToastContainer from './components/common/ToastContainer.svelte';
@@ -79,14 +79,14 @@
   $: {
     currentPath = (window.location.hash || '#/').replace('#', '');
 
-    if (appReady && needsSetup && currentPath !== '/setup') {
-      push('/setup');
-    } else if (appReady && canAccessAuth && (currentPath === '/' || currentPath === '')) {
-      push('/admin');
-    } else if (appReady && !canAccessAuth && !needsSetup) {
+    if (appReady && !canAccessAuth) {
       if (currentPath.startsWith('/admin') || currentPath === '/perfil') {
-        push('/');
+        replace('/');
       }
+    }
+
+    if (appReady && canAccessAuth && (currentPath === '/' || currentPath === '')) {
+      replace('/admin');
     }
   }
 
@@ -123,7 +123,7 @@
   <Navbar />
 
   <div class="app-container has-navbar">
-    {#if appReady}
+    {#if appReady && !$authLoading}
       <Router routes={allRoutes} />
     {:else}
       <div class="loading-screen">
