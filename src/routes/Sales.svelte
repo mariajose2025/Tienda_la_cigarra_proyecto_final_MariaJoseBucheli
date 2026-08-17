@@ -132,8 +132,8 @@
       return;
     }
 
-    if (paymentMethod === 'fiado' && !selectedClient) {
-      notify('warning', 'Selecciona el cliente para el fiado');
+    if (!selectedClient) {
+      notify('warning', 'Selecciona el cliente para la venta');
       return;
     }
 
@@ -313,31 +313,20 @@ items = [{ productId: '', quantity: 1, unitPrice: '' }];
       {/each}
     </div>
 
-    <div class="form-group">
-      <label for="payment">Método de Pago</label>
-      <select id="payment" bind:value={paymentMethod}>
-        <option value="efectivo">Efectivo</option>
-        <option value="tarjeta">Tarjeta</option>
-        <option value="nequi">Nequi</option>
-        <option value="daviplata">Daviplata</option>
-        <option value="fiado">Fiado (Crédito)</option>
-      </select>
-    </div>
-
     <div class="form-group client-search">
-      <label for="clientSearch">{isFiadoPayment ? 'Cliente (obligatorio para fiado)' : 'Cliente (opcional)'}</label>
+      <label for="clientSearch">Cliente <span class="req">*</span> <span class="req-note">— ¿a quién le vendes?</span></label>
       <input
         id="clientSearch"
         type="text"
         bind:value={clientSearch}
-        placeholder="Busca por nombre o cédula..."
+        placeholder="Busca el cliente por nombre o cédula..."
         autocomplete="off"
         on:input={onClientSearchInput}
         on:focus={onClientSearchInput}
         on:blur={onClientSearchBlur}
       />
       {#if selectedClient}
-        <p class="client-selected"><i class="fa-solid fa-user-check"></i> {selectedClient.name} — CC {selectedClient.cedula}
+        <p class="client-selected"><i class="fa-solid fa-user-check"></i> Vendiendo a: {selectedClient.name} — CC {selectedClient.cedula}
           <button type="button" class="btn-clear-client" on:click={clearClient} aria-label="Quitar cliente">&times;</button>
         </p>
       {/if}
@@ -351,9 +340,20 @@ items = [{ productId: '', quantity: 1, unitPrice: '' }];
           {/each}
         </ul>
       {/if}
-      {#if isFiadoPayment && clients.length === 0}
-        <p class="fiado-hint"><i class="fa-solid fa-circle-info"></i> No hay clientes registrados. Regístralos primero en Clientes para poder vender a fiado.</p>
+      {#if clients.length === 0}
+        <p class="fiado-hint"><i class="fa-solid fa-circle-info"></i> No hay clientes registrados. Regístralos primero en Clientes para poder vender.</p>
       {/if}
+    </div>
+
+    <div class="form-group">
+      <label for="payment">Método de Pago</label>
+      <select id="payment" bind:value={paymentMethod}>
+        <option value="efectivo">Efectivo</option>
+        <option value="tarjeta">Tarjeta</option>
+        <option value="nequi">Nequi</option>
+        <option value="daviplata">Daviplata</option>
+        <option value="fiado">Fiado (Crédito)</option>
+      </select>
     </div>
 
     <div class="totals">
@@ -552,6 +552,9 @@ items = [{ productId: '', quantity: 1, unitPrice: '' }];
   .btn-invoice:hover { background: rgba(6,79,60,0.18); }
 
   .fiado-hint { font-size: 0.8rem; color: #854d0e; margin: 0.5rem 0 0; display: flex; align-items: center; gap: 0.4rem; }
+
+  .req { color: #dc2626; font-weight: 800; }
+  .req-note { color: #9ca3af; font-weight: 500; font-size: 0.78rem; }
 
   .client-search { position: relative; }
   .client-search input { width: 100%; padding: 0.7rem; border: 1.5px solid #d1d5db; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; }

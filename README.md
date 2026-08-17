@@ -259,7 +259,7 @@ Todos los módulos de listado/reportes tienen botón **Exportar** que genera un 
 
 ### ✅ Mejora: buscador de cliente en Ventas (por nombre o cédula)
 - El campo de cliente ahora es un **buscador en vivo**: escribe nombre o cédula y aparece la lista de coincidencias; al elegir, se muestra el cliente seleccionado con su cédula (botón para quitarlo).
-- Disponible para **todas las ventas** (opcional), **obligatorio en fiado**.
+- **Obligatorio en todas las ventas** (no solo fiado): aparece como primer campo del formulario ("Cliente * — ¿a quién le vendes?") y la venta no se registra sin cliente seleccionado — muestra "Vendiendo a: Nombre — CC cédula".
 - Al guardar la venta se registra `clientId`, `clientName` y `clientCedula` en el documento de la venta, y el **nombre del cliente aparece en el historial** de "Últimas Ventas".
 - **Archivo:** `src/routes/Sales.svelte`.
 
