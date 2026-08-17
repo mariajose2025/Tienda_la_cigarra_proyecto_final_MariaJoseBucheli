@@ -21,7 +21,8 @@
     cuenta: ['/perfil']
   };
 
-  $: path = $location.path;
+  // $location de svelte-spa-router es un string (ej: '/admin/ventas'), no un objeto.
+  $: path = $location || '/';
 
   function isSectionActive(section) {
     return SECTIONS[section]?.some(p => path === p || (p !== '/' && path.startsWith(p))) || false;
