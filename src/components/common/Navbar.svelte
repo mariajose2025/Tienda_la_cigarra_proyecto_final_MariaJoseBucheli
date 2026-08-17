@@ -24,9 +24,24 @@
   // $location de svelte-spa-router es un string (ej: '/admin/ventas'), no un objeto.
   $: path = $location || '/';
 
-  function isSectionActive(section) {
-    return SECTIONS[section]?.some(p => path === p || (p !== '/' && path.startsWith(p))) || false;
-  }
+  // IMPORTANTE: Svelte NO rastrea dependencias a través de llamadas a funciones en el markup
+  // (class:open={shouldShow(...)} se calculaba UNA sola vez y nunca se actualizaba).
+  // Por eso se computan estados derivados con referencias directas a pinned/hovered/path.
+  $: openMap = {
+    general: pinned.general || hovered === 'general',
+    inventario: pinned.inventario || hovered === 'inventario',
+    operaciones: pinned.operaciones || hovered === 'operaciones',
+    contabilidad: pinned.contabilidad || hovered === 'contabilidad',
+    admin: pinned.admin || hovered === 'admin',
+    cuenta: pinned.cuenta || hovered === 'cuenta'
+  };
+
+  $: activeMap = Object.fromEntries(
+    Object.entries(SECTIONS).map(([section, paths]) => [
+      section,
+      paths.some(p => path === p || (p !== '/' && path.startsWith(p)))
+    ])
+  );
 
   function toggleMenu() {
     menuOpen = !menuOpen;
@@ -43,10 +58,6 @@
 
   function leaveSection(section) {
     if (hovered === section) hovered = null;
-  }
-
-  function shouldShow(section) {
-    return pinned[section] || hovered === section;
   }
 
   function closeMenus() {
@@ -77,22 +88,22 @@
   {#if $isAuthenticated && $currentUser}
     <div class="navbar-menu" class:active={menuOpen}>
       <div class="nav-section" role="group" on:mouseenter={() => enterSection('general')} on:mouseleave={() => leaveSection('general')}>
-        <button class="nav-section-title" class:active={isSectionActive('general')} on:click={() => toggleSection('general')} type="button">
+        <button class="nav-section-title" class:active={activeMap.general} on:click={() => toggleSection('general')} type="button">
           <span><i class="fa-solid fa-house"></i> General</span>
-          <i class="fa-solid fa-chevron-down caret" class:rotated={shouldShow('general')}></i>
+          <i class="fa-solid fa-chevron-down caret" class:rotated={openMap.general}></i>
         </button>
-        <div class="nav-links-list" class:open={shouldShow('general')}>
+        <div class="nav-links-list" class:open={openMap.general}>
           <a href="/admin" use:link class="nav-link" class:current={path === '/admin'} on:click={closeMenus}>Inicio</a>
           <a href="/nosotros" use:link class="nav-link" class:current={path === '/nosotros'} on:click={closeMenus}>Nosotros</a>
         </div>
       </div>
 
       <div class="nav-section" role="group" on:mouseenter={() => enterSection('inventario')} on:mouseleave={() => leaveSection('inventario')}>
-        <button class="nav-section-title" class:active={isSectionActive('inventario')} on:click={() => toggleSection('inventario')} type="button">
+        <button class="nav-section-title" class:active={activeMap.inventario} on:click={() => toggleSection('inventario')} type="button">
           <span><i class="fa-solid fa-box-open"></i> Inventario</span>
-          <i class="fa-solid fa-chevron-down caret" class:rotated={shouldShow('inventario')}></i>
+          <i class="fa-solid fa-chevron-down caret" class:rotated={openMap.inventario}></i>
         </button>
-        <div class="nav-links-list" class:open={shouldShow('inventario')}>
+        <div class="nav-links-list" class:open={openMap.inventario}>
           <a href="/admin/productos" use:link class="nav-link" class:current={path === '/admin/productos'} on:click={closeMenus}>Productos</a>
           <a href="/admin/categorias" use:link class="nav-link" class:current={path === '/admin/categorias'} on:click={closeMenus}>Clasificación</a>
           <a href="/admin/proveedores" use:link class="nav-link" class:current={path === '/admin/proveedores'} on:click={closeMenus}>Proveedores</a>
@@ -100,11 +111,11 @@
       </div>
 
       <div class="nav-section" role="group" on:mouseenter={() => enterSection('operaciones')} on:mouseleave={() => leaveSection('operaciones')}>
-        <button class="nav-section-title" class:active={isSectionActive('operaciones')} on:click={() => toggleSection('operaciones')} type="button">
+        <button class="nav-section-title" class:active={activeMap.operaciones} on:click={() => toggleSection('operaciones')} type="button">
           <span><i class="fa-solid fa-cart-shopping"></i> Operaciones</span>
-          <i class="fa-solid fa-chevron-down caret" class:rotated={shouldShow('operaciones')}></i>
+          <i class="fa-solid fa-chevron-down caret" class:rotated={openMap.operaciones}></i>
         </button>
-        <div class="nav-links-list" class:open={shouldShow('operaciones')}>
+        <div class="nav-links-list" class:open={openMap.operaciones}>
           <a href="/admin/compras" use:link class="nav-link" class:current={path === '/admin/compras'} on:click={closeMenus}>Compras</a>
           <a href="/admin/ventas" use:link class="nav-link" class:current={path === '/admin/ventas'} on:click={closeMenus}>Ventas</a>
           <a href="/admin/clientes" use:link class="nav-link" class:current={path === '/admin/clientes'} on:click={closeMenus}>Clientes</a>
@@ -114,11 +125,11 @@
 
       {#if canView($currentUser, 'cash')}
         <div class="nav-section" role="group" on:mouseenter={() => enterSection('contabilidad')} on:mouseleave={() => leaveSection('contabilidad')}>
-          <button class="nav-section-title" class:active={isSectionActive('contabilidad')} on:click={() => toggleSection('contabilidad')} type="button">
+          <button class="nav-section-title" class:active={activeMap.contabilidad} on:click={() => toggleSection('contabilidad')} type="button">
             <span><i class="fa-solid fa-scale-balanced"></i> Contabilidad</span>
-            <i class="fa-solid fa-chevron-down caret" class:rotated={shouldShow('contabilidad')}></i>
+            <i class="fa-solid fa-chevron-down caret" class:rotated={openMap.contabilidad}></i>
           </button>
-          <div class="nav-links-list" class:open={shouldShow('contabilidad')}>
+          <div class="nav-links-list" class:open={openMap.contabilidad}>
             <a href="/admin/ganancias" use:link class="nav-link" class:current={path === '/admin/ganancias'} on:click={closeMenus}>Reporte de Ganancias</a>
             <a href="/admin/cuentas-cobrar" use:link class="nav-link" class:current={path === '/admin/cuentas-cobrar'} on:click={closeMenus}>Cuentas por Cobrar</a>
             <a href="/admin/gastos" use:link class="nav-link" class:current={path === '/admin/gastos'} on:click={closeMenus}>Gastos</a>
@@ -133,11 +144,11 @@
 
       {#if isAdmin($currentUser)}
         <div class="nav-section" role="group" on:mouseenter={() => enterSection('admin')} on:mouseleave={() => leaveSection('admin')}>
-          <button class="nav-section-title" class:active={isSectionActive('admin')} on:click={() => toggleSection('admin')} type="button">
+          <button class="nav-section-title" class:active={activeMap.admin} on:click={() => toggleSection('admin')} type="button">
             <span><i class="fa-solid fa-gear"></i> Administración</span>
-            <i class="fa-solid fa-chevron-down caret" class:rotated={shouldShow('admin')}></i>
+            <i class="fa-solid fa-chevron-down caret" class:rotated={openMap.admin}></i>
           </button>
-          <div class="nav-links-list" class:open={shouldShow('admin')}>
+          <div class="nav-links-list" class:open={openMap.admin}>
             <a href="/admin/usuarios" use:link class="nav-link" class:current={path === '/admin/usuarios'} on:click={closeMenus}>Usuarios</a>
             <a href="/admin/roles" use:link class="nav-link" class:current={path === '/admin/roles'} on:click={closeMenus}>Asignar Roles</a>
             <a href="/admin/configuracion" use:link class="nav-link" class:current={path === '/admin/configuracion'} on:click={closeMenus}>Configuración</a>
@@ -147,11 +158,11 @@
       {/if}
 
       <div class="nav-section" role="group" on:mouseenter={() => enterSection('cuenta')} on:mouseleave={() => leaveSection('cuenta')}>
-        <button class="nav-section-title" class:active={isSectionActive('cuenta')} on:click={() => toggleSection('cuenta')} type="button">
+        <button class="nav-section-title" class:active={activeMap.cuenta} on:click={() => toggleSection('cuenta')} type="button">
           <span><i class="fa-solid fa-user"></i> Cuenta</span>
-          <i class="fa-solid fa-chevron-down caret" class:rotated={shouldShow('cuenta')}></i>
+          <i class="fa-solid fa-chevron-down caret" class:rotated={openMap.cuenta}></i>
         </button>
-        <div class="nav-links-list" class:open={shouldShow('cuenta')}>
+        <div class="nav-links-list" class:open={openMap.cuenta}>
           <a href="/perfil" use:link class="nav-link" class:current={path === '/perfil'} on:click={closeMenus}>Mi Perfil</a>
           <button class="btn-logout" on:click={handleLogout}>
             <i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión

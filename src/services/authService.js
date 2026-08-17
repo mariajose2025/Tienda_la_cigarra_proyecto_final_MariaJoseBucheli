@@ -4,7 +4,9 @@ import {
   signOut,
   onAuthStateChanged,
   sendEmailVerification,
-  updatePassword
+  updatePassword,
+  setPersistence,
+  browserSessionPersistence
 } from 'firebase/auth';
 import { auth, db } from './firebase';
 import { doc, getDoc, setDoc, collection, query, where, getDocs } from 'firebase/firestore';
@@ -13,6 +15,10 @@ import { auth as authStore } from '../stores/auth';
 const ADMIN_EMAIL = 'admin@cinar.com';
 
 export function initAuthListener() {
+  // Seguridad: la sesión solo vive mientras el navegador está abierto.
+  // Al volver a abrir la página, se exige iniciar sesión de nuevo
+  // (antes la sesión persistía en localStorage y la página iniciaba sesión sola).
+  setPersistence(auth, browserSessionPersistence).catch(() => {});
   onAuthStateChanged(auth, async (firebaseUser) => {
     if (!firebaseUser) {
       authStore.clear();
