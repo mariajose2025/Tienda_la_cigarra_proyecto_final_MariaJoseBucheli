@@ -239,6 +239,17 @@ Todos los módulos de listado/reportes tienen botón **Exportar** que genera un 
 
 ---
 
+### ✅ Corrección: cajero sin permisos (no podía vender) y botón de factura
+- **Problema:** el usuario con rol Cajero **no podía registrar ventas, clientes ni fiados** (veía "Vista previa — No tienes permiso para registrar ventas").
+- **Causa raíz:** al editar un usuario en **Usuarios** sin seleccionar rol en el modal, `saveUser` escribía `roleName: ''` y **borraba el rol del usuario**. Sin `roleName` ningún permiso aplica (`canView`/`canCreate` devuelven `false`). Se verificó en Firestore: el documento del usuario cajero existía pero sin `roleName`.
+- **Soluciones aplicadas:**
+  - `Users.svelte`: al guardar sin rol seleccionado se **conserva el rol actual** en vez de borrarlo.
+  - `authService.js`: al iniciar sesión, si el documento no tiene rol, se **restaura el rol por defecto** (`Administrador` para `admin@cinar.com`, `Cajero` en el resto) — el cajero recupera sus permisos automáticamente en el próximo ingreso.
+  - `Sales.svelte`: el botón de factura en "Últimas Ventas" ahora dice **"Ver Factura"** (antes era solo un icono poco visible).
+- **Archivos:** `src/routes/Users.svelte`, `src/services/authService.js`, `src/routes/Sales.svelte`.
+
+---
+
 ## ❗ Problemas conocidos y soluciones
 
 | Problema | Causa | Solución aplicada |
@@ -249,6 +260,7 @@ Todos los módulos de listado/reportes tienen botón **Exportar** que genera un 
 | **Crash con sesión activa (`startsWith` de undefined)** | `Navbar.svelte` usaba `$location.path`, pero `$location` es un string (no objeto) → `path` siempre `undefined` → `isSectionActive()` crasheaba al renderizar el menú de admin | `$: path = $location || '/'` en `src/components/common/Navbar.svelte` |
 | **Menús del Navbar no se despliegan al hacer clic** | Svelte no rastrea dependencias a través de llamadas a funciones: `class:open={shouldShow(...)}` se calculaba una sola vez | Estados derivados `openMap`/`activeMap` con referencias directas a `pinned`/`hovered`/`path` en `src/components/common/Navbar.svelte` |
 | **Inicia sesión automáticamente al abrir la página** | Firebase guardaba la sesión en `localStorage` y la restauraba en cada visita | `setPersistence(auth, browserSessionPersistence)` en `src/services/authService.js`: la sesión expira al cerrar el navegador |
+| **Cajero sin permisos para vender** | Al editar un usuario en Usuarios sin seleccionar rol, `roleName` se guardaba vacío y el usuario perdía todos los permisos | Conservar el rol actual si no se selecciona uno (`Users.svelte`) + restaurar rol por defecto al iniciar sesión (`authService.js`) |
 | **Factura sin datos de la tienda** | Datos no configurados | Configurarlos en **Configuración → Datos de la Tienda** (nombre, dirección, teléfono, NIT) |
 | **No se puede vender a fiado** | No hay clientes registrados | Registrar clientes primero en **Clientes** |
 
