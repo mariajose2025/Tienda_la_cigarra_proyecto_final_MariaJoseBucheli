@@ -44,17 +44,12 @@
 
   const ADMIN_EMAIL = 'admin@cinar.com';
 
-  const publicOnlyRoutes = {
+  const allRoutes = {
     '/': Home,
     '/login': Login,
     '/registro': Register,
     '/setup': Setup,
     '/nosotros': About,
-    '*': Home
-  };
-
-  const authRoutes = {
-    '/': Dashboard,
     '/admin': Dashboard,
     '/admin/productos': Products,
     '/admin/categorias': Categories,
@@ -76,24 +71,22 @@
     '/admin/roles': Roles,
     '/admin/configuracion': Settings,
     '/perfil': Profile,
-    '/nosotros': About,
-    '*': Dashboard
+    '*': Home
   };
 
   $: canAccessAuth = $isAuthenticated && $currentUser && ($currentUser.emailVerified || $currentUser.email === ADMIN_EMAIL);
 
   $: {
-    const hash = window.location.hash || '#/';
-    currentPath = hash.replace('#', '');
+    currentPath = (window.location.hash || '#/').replace('#', '');
 
-    if (appReady && !canAccessAuth) {
+    if (appReady && needsSetup && currentPath !== '/setup') {
+      push('/setup');
+    } else if (appReady && canAccessAuth && (currentPath === '/' || currentPath === '')) {
+      push('/admin');
+    } else if (appReady && !canAccessAuth && !needsSetup) {
       if (currentPath.startsWith('/admin') || currentPath === '/perfil') {
         push('/');
       }
-    }
-
-    if (appReady && canAccessAuth && (currentPath === '/' || currentPath === '')) {
-      push('/admin');
     }
   }
 
@@ -131,13 +124,7 @@
 
   <div class="app-container has-navbar">
     {#if appReady}
-      {#if needsSetup}
-        <Router routes={{'/setup': Setup, '*': Setup}} />
-      {:else if canAccessAuth}
-        <Router routes={authRoutes} />
-      {:else}
-        <Router routes={publicOnlyRoutes} />
-      {/if}
+      <Router routes={allRoutes} />
     {:else}
       <div class="loading-screen">
         <div class="spinner"></div>
