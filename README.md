@@ -248,6 +248,21 @@ Todos los módulos de listado/reportes tienen botón **Exportar** que genera un 
   - `Sales.svelte`: el botón de factura en "Últimas Ventas" ahora dice **"Ver Factura"** (antes era solo un icono poco visible).
 - **Archivos:** `src/routes/Users.svelte`, `src/services/authService.js`, `src/routes/Sales.svelte`.
 
+### ✅ Corrección: la factura no abría (crash silencioso al hacer clic)
+- **Problema:** al hacer clic en "Ver Factura" (o al terminar una venta) **no pasaba nada**: el modal nunca aparecía.
+- **Causa raíz (verificada con CDP):** al crear el `InvoiceModal` se lanzaba `TypeError: Cannot read properties of undefined (reading 'name')`. El documento `settings/config` en Firestore **no tenía el campo `store`** (solo `alertThresholds` e `ivaPercentage`), por lo que `$storeInfo` valía `undefined` y la factura hacía `$storeInfo.name` → excepción durante el render → modal invisible.
+- **Soluciones aplicadas:**
+  - `stores/app.js`: `storeInfo` ahora **nunca es `undefined`** — mezcla los valores por defecto con los del documento (`{...DEFAULT, ...(settings.store || {})}`); lo mismo para `alertThresholds` e `ivaPercentage`.
+  - `settingsService.js`: `getSettings()` **repara el documento** — si faltan campos (`store`, etc.), los rellena con los valores por defecto y los persiste una sola vez (`merge`).
+- **Verificado:** clic en "Ver Factura" → modal abre con nombre, dirección, teléfono y NIT de la tienda; **cero errores de consola**.
+- **Archivos:** `src/stores/app.js`, `src/services/settingsService.js`.
+
+### ✅ Mejora: buscador de cliente en Ventas (por nombre o cédula)
+- El campo de cliente ahora es un **buscador en vivo**: escribe nombre o cédula y aparece la lista de coincidencias; al elegir, se muestra el cliente seleccionado con su cédula (botón para quitarlo).
+- Disponible para **todas las ventas** (opcional), **obligatorio en fiado**.
+- Al guardar la venta se registra `clientId`, `clientName` y `clientCedula` en el documento de la venta, y el **nombre del cliente aparece en el historial** de "Últimas Ventas".
+- **Archivo:** `src/routes/Sales.svelte`.
+
 ---
 
 ## ❗ Problemas conocidos y soluciones
@@ -261,6 +276,7 @@ Todos los módulos de listado/reportes tienen botón **Exportar** que genera un 
 | **Menús del Navbar no se despliegan al hacer clic** | Svelte no rastrea dependencias a través de llamadas a funciones: `class:open={shouldShow(...)}` se calculaba una sola vez | Estados derivados `openMap`/`activeMap` con referencias directas a `pinned`/`hovered`/`path` en `src/components/common/Navbar.svelte` |
 | **Inicia sesión automáticamente al abrir la página** | Firebase guardaba la sesión en `localStorage` y la restauraba en cada visita | `setPersistence(auth, browserSessionPersistence)` en `src/services/authService.js`: la sesión expira al cerrar el navegador |
 | **Cajero sin permisos para vender** | Al editar un usuario en Usuarios sin seleccionar rol, `roleName` se guardaba vacío y el usuario perdía todos los permisos | Conservar el rol actual si no se selecciona uno (`Users.svelte`) + restaurar rol por defecto al iniciar sesión (`authService.js`) |
+| **La factura no abre al hacer clic (no pasa nada)** | `settings/config` en Firestore sin el campo `store` → `$storeInfo` = `undefined` → `$storeInfo.name` lanzaba una excepción al renderizar el modal | `storeInfo` defensivo con valores por defecto (`stores/app.js`) + reparación automática del documento (`settingsService.js`) |
 | **Factura sin datos de la tienda** | Datos no configurados | Configurarlos en **Configuración → Datos de la Tienda** (nombre, dirección, teléfono, NIT) |
 | **No se puede vender a fiado** | No hay clientes registrados | Registrar clientes primero en **Clientes** |
 

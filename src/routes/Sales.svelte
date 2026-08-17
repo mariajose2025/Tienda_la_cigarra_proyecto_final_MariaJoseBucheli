@@ -22,7 +22,9 @@
 
   let items = [{ productId: '', quantity: 1, unitPrice: 0 }];
   let paymentMethod = 'efectivo';
-  let selectedClientId = '';
+  let clientSearch = '';
+  let selectedClient = null;
+  let showClientList = false;
   let loading = false;
 
   let showInvoiceModal = false;
@@ -34,6 +36,32 @@
   $: subtotal = items.reduce((sum, item) => sum + calculateItemSubtotal(item.quantity, item.unitPrice), 0);
   $: totals = calculateTotalWithIVA(subtotal, iva);
   $: isFiadoPayment = paymentMethod === 'fiado';
+  $: filteredClients = clientSearch.trim()
+    ? clients.filter(c =>
+        (c.name || '').toLowerCase().includes(clientSearch.trim().toLowerCase()) ||
+        (c.cedula || '').includes(clientSearch.trim())
+      )
+    : clients;
+
+  function selectClient(client) {
+    selectedClient = client;
+    clientSearch = client.name;
+    showClientList = false;
+  }
+
+  function clearClient() {
+    selectedClient = null;
+    clientSearch = '';
+    showClientList = false;
+  }
+
+  function onClientSearchInput() {
+    showClientList = true;
+  }
+
+  function onClientSearchBlur() {
+    setTimeout(() => { showClientList = false; }, 150);
+  }
 
   onMount(async () => {
     [sales, products, clients] = await Promise.all([
@@ -80,7 +108,7 @@
       return;
     }
 
-    if (paymentMethod === 'fiado' && !selectedClientId) {
+    if (paymentMethod === 'fiado' && !selectedClient) {
       notify('warning', 'Selecciona el cliente para el fiado');
       return;
     }
@@ -95,7 +123,7 @@
 
     loading = true;
     try {
-      const client = clients.find(c => c.id === selectedClientId);
+      const client = selectedClient;
       const invoiceNumber = 'FAC-' + String(Date.now()).slice(-8);
 
       const saleData = {
@@ -118,10 +146,12 @@
         cashierName: $currentUser?.name || $currentUser?.email || ''
       };
 
+      if (selectedClient) {
+        saleData.clientId = selectedClient.id;
+        saleData.clientName = selectedClient.name || '';
+        saleData.clientCedula = selectedClient.cedula || '';
+      }
       if (paymentMethod === 'fiado') {
-        saleData.clientId = selectedClientId;
-        saleData.clientName = client?.name || '';
-        saleData.clientCedula = client?.cedula || '';
         saleData.status = 'pending';
       }
 
@@ -144,9 +174,9 @@
       let credit = null;
       if (paymentMethod === 'fiado') {
         credit = await createCredit({
-          clientId: selectedClientId,
-          clientName: client?.name || '',
-          clientCedula: client?.cedula || '',
+          clientId: selectedClient.id,
+          clientName: selectedClient.name || '',
+          clientCedula: selectedClient.cedula || '',
           saleId,
           invoiceNumber,
           items: saleData.items,
@@ -162,7 +192,8 @@
 
       items = [{ productId: '', quantity: 1, unitPrice: 0 }];
       paymentMethod = 'efectivo';
-      selectedClientId = '';
+      selectedClient = null;
+      clientSearch = '';
       products = await getAll('products');
       sales = await getAll('sales');
 
@@ -233,20 +264,37 @@
       </select>
     </div>
 
-    {#if isFiadoPayment}
-      <div class="form-group fiado-client">
-        <label for="fiadoClient">Cliente (obligatorio para fiado)</label>
-        <select id="fiadoClient" bind:value={selectedClientId}>
-          <option value="">Selecciona un cliente...</option>
-          {#each clients as client}
-            <option value={client.id}>{client.name} — CC {client.cedula}</option>
+    <div class="form-group client-search">
+      <label for="clientSearch">{isFiadoPayment ? 'Cliente (obligatorio para fiado)' : 'Cliente (opcional)'}</label>
+      <input
+        id="clientSearch"
+        type="text"
+        bind:value={clientSearch}
+        placeholder="Busca por nombre o cédula..."
+        autocomplete="off"
+        on:input={onClientSearchInput}
+        on:focus={onClientSearchInput}
+        on:blur={onClientSearchBlur}
+      />
+      {#if selectedClient}
+        <p class="client-selected"><i class="fa-solid fa-user-check"></i> {selectedClient.name} — CC {selectedClient.cedula}
+          <button type="button" class="btn-clear-client" on:click={clearClient} aria-label="Quitar cliente">&times;</button>
+        </p>
+      {/if}
+      {#if showClientList && filteredClients.length > 0}
+        <ul class="client-list">
+          {#each filteredClients as client}
+            <li on:click={() => selectClient(client)} on:keydown={(e) => { if (e.key === 'Enter') selectClient(client); }} tabindex="0" role="button">
+              <span class="client-list-name">{client.name}</span>
+              <span class="client-list-cedula">CC {client.cedula}</span>
+            </li>
           {/each}
-        </select>
-        {#if clients.length === 0}
-          <p class="fiado-hint"><i class="fa-solid fa-circle-info"></i> No hay clientes registrados. Regístralos primero en Clientes para poder vender a fiado.</p>
-        {/if}
-      </div>
-    {/if}
+        </ul>
+      {/if}
+      {#if isFiadoPayment && clients.length === 0}
+        <p class="fiado-hint"><i class="fa-solid fa-circle-info"></i> No hay clientes registrados. Regístralos primero en Clientes para poder vender a fiado.</p>
+      {/if}
+    </div>
 
     <div class="totals">
       <div class="total-row">
@@ -278,6 +326,9 @@
         <div class="history-item">
           <div class="history-info">
             <span class="history-name">{paymentLabels[sale.paymentMethod] || sale.paymentMethod}</span>
+            {#if sale.clientName}
+              <span class="history-client">{sale.clientName}</span>
+            {/if}
             <span class="history-date">{formatDate(sale.saleDate)}</span>
           </div>
           <div class="history-right">
@@ -380,9 +431,43 @@
   }
   .btn-invoice:hover { background: rgba(6,79,60,0.18); }
 
-  .fiado-client { background: #fef9c3; border: 1px solid #fde047; border-radius: 10px; padding: 0.75rem; }
-  .fiado-client label { color: #854d0e; }
   .fiado-hint { font-size: 0.8rem; color: #854d0e; margin: 0.5rem 0 0; display: flex; align-items: center; gap: 0.4rem; }
+
+  .client-search { position: relative; }
+  .client-search input { width: 100%; padding: 0.7rem; border: 1.5px solid #d1d5db; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; }
+  .client-search input:focus { outline: none; border-color: #064F3C; box-shadow: 0 0 0 3px rgba(6,79,60,0.14); }
+
+  .client-list {
+    position: absolute; top: 100%; left: 0; right: 0; z-index: 50;
+    background: white; border: 1.5px solid #e5e7eb; border-radius: 10px;
+    box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.12));
+    max-height: 200px; overflow-y: auto; list-style: none;
+    margin: 0.25rem 0 0; padding: 0.25rem;
+  }
+  .client-list li {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0.55rem 0.7rem; border-radius: 8px; cursor: pointer;
+    font-size: 0.9rem;
+  }
+  .client-list li:hover, .client-list li:focus { background: #f0fdf4; outline: none; }
+  .client-list-name { font-weight: 600; color: #1f2937; }
+  .client-list-cedula { font-size: 0.78rem; color: #9ca3af; }
+
+  .client-selected {
+    margin: 0.5rem 0 0; padding: 0.55rem 0.7rem;
+    background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px;
+    font-size: 0.9rem; font-weight: 600; color: #065f46;
+    display: flex; align-items: center; gap: 0.45rem;
+  }
+  .client-selected i { color: #16a34a; }
+  .btn-clear-client {
+    margin-left: auto; background: transparent; border: none;
+    color: #6b7280; font-size: 1.05rem; cursor: pointer; line-height: 1;
+    padding: 0.1rem 0.4rem; border-radius: 6px;
+  }
+  .btn-clear-client:hover { background: #e5e7eb; color: #374151; }
+
+  .history-client { font-size: 0.8rem; color: #065f46; font-weight: 600; display: block; }
 
   .readonly-msg {
     text-align: center; color: #6b7280; padding: 1.5rem;
