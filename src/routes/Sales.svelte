@@ -8,7 +8,7 @@
   import { createCredit } from '../services/creditService';
   import { currentUser } from '../stores/auth';
   import { canCreate, canView } from '../utils/permissions';
-  import { ivaPercentage } from '../stores/app';
+  import { ivaPercentage, storeInfo } from '../stores/app';
   import { calculateTotalWithIVA, formatCurrency, calculateItemSubtotal } from '../utils/iva';
   import { normalizeRows } from '../utils/exportUtils';
   import Button from '../components/common/Button.svelte';
@@ -36,6 +36,13 @@
   $: subtotal = items.reduce((sum, item) => sum + calculateItemSubtotal(item.quantity, item.unitPrice), 0);
   $: totals = calculateTotalWithIVA(subtotal, iva);
   $: isFiadoPayment = paymentMethod === 'fiado';
+  $: previewItems = items.filter(i => i.productId);
+  $: previewInvoiceNumber = 'FAC-' + String(Date.now()).slice(-8);
+  $: previewDate = new Date().toLocaleDateString('es-CO');
+
+  function productName(productId) {
+    return products.find(p => p.id === productId)?.name || 'Producto';
+  }
   $: filteredClients = clientSearch.trim()
     ? clients.filter(c =>
         (c.name || '').toLowerCase().includes(clientSearch.trim().toLowerCase()) ||
@@ -278,6 +285,8 @@ items = [{ productId: '', quantity: 1, unitPrice: '' }];
     </div>
   </div>
 
+  <div class="sales-layout">
+  <div class="form-col">
   <div class="form-card">
     <div class="form-card-head">
       <i class="fa-solid fa-cart-plus"></i>
@@ -378,6 +387,69 @@ items = [{ productId: '', quantity: 1, unitPrice: '' }];
       <p class="readonly-msg"><i class="fa-solid fa-eye"></i> Vista previa — No tienes permiso para registrar ventas</p>
     {/if}
   </div>
+  </div>
+
+  <div class="preview-col">
+    <div class="invoice-preview">
+      <div class="preview-head">
+        <div class="preview-brand">
+          <h3>{$storeInfo.name}</h3>
+          <p>{$storeInfo.address}</p>
+          <p>Tel: {$storeInfo.phone} · NIT: {$storeInfo.nit}</p>
+        </div>
+        <div class="preview-meta">
+          <span class="preview-doc-title">{isFiadoPayment ? 'RECIBO / FIADO' : 'FACTURA DE VENTA'}</span>
+          <span>N° {previewInvoiceNumber}</span>
+          <span>{previewDate}</span>
+        </div>
+      </div>
+
+      <div class="preview-client">
+        <span class="pv-label">Cliente</span>
+        {#if selectedClient}
+          <span class="pv-client">{selectedClient.name}</span>
+          <span class="pv-cedula">CC {selectedClient.cedula}</span>
+        {:else}
+          <span class="pv-empty">Selecciona el cliente...</span>
+        {/if}
+      </div>
+
+      <div class="preview-table-wrap">
+        {#if previewItems.length > 0}
+          <table class="preview-table">
+            <thead>
+              <tr><th>Cant.</th><th>Producto</th><th>Precio</th><th>Subtotal</th></tr>
+            </thead>
+            <tbody>
+              {#each previewItems as item}
+                <tr>
+                  <td>{item.quantity || 0}</td>
+                  <td>{productName(item.productId)}</td>
+                  <td>{formatCurrency(item.unitPrice || 0)}</td>
+                  <td>{formatCurrency(calculateItemSubtotal(item.quantity, item.unitPrice))}</td>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+        {:else}
+          <p class="pv-empty-items"><i class="fa-solid fa-box-open"></i> Agrega productos para ver la factura</p>
+        {/if}
+      </div>
+
+      <div class="preview-totals">
+        <div class="pv-row"><span>Subtotal</span><span>{formatCurrency(totals.subtotal)}</span></div>
+        <div class="pv-row"><span>IVA ({iva}%)</span><span>{formatCurrency(totals.iva)}</span></div>
+        <div class="pv-row pv-total"><span>Total</span><span>{formatCurrency(totals.total)}</span></div>
+      </div>
+
+      <div class="preview-atendido">
+        <span class="pv-label">Atendido por</span>
+        <span>{$currentUser?.name || $currentUser?.email || '—'}</span>
+        <span class="pv-method">Pago: {paymentLabels[paymentMethod] || paymentMethod}</span>
+      </div>
+    </div>
+  </div>
+  </div>
 
   {#if sales.length > 0}
     <h2 class="section-title">Últimas Ventas</h2>
@@ -432,6 +504,83 @@ items = [{ productId: '', quantity: 1, unitPrice: '' }];
     display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;
     margin-bottom: 1.25rem;
   }
+
+  .sales-layout {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 1.25rem; align-items: start;
+  }
+  .form-col { min-width: 0; }
+  .preview-col { min-width: 0; position: sticky; top: 5rem; }
+
+  .invoice-preview {
+    background: white; border-radius: 14px; padding: 1.4rem 1.5rem;
+    box-shadow: var(--shadow-sm); border: 1px solid #eef2f1;
+    font-size: 0.85rem;
+  }
+  .preview-head {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 1rem; padding-bottom: 0.8rem;
+    border-bottom: 2px dashed #e5e7eb; margin-bottom: 0.8rem;
+  }
+  .preview-brand h3 { margin: 0 0 0.25rem; color: #064F3C; font-size: 1.15rem; }
+  .preview-brand p { margin: 0.1rem 0; color: #6b7280; font-size: 0.78rem; }
+  .preview-meta {
+    display: flex; flex-direction: column; align-items: flex-end; gap: 0.15rem;
+    color: #6b7280; font-size: 0.78rem; white-space: nowrap;
+  }
+  .preview-doc-title {
+    font-weight: 800; color: #064F3C; font-size: 0.9rem;
+    letter-spacing: 0.03em;
+  }
+
+  .preview-client {
+    display: flex; align-items: baseline; gap: 0.5rem; flex-wrap: wrap;
+    padding: 0.55rem 0.7rem; background: #f8fafc; border-radius: 10px;
+    margin-bottom: 0.9rem;
+  }
+  .pv-label { font-size: 0.72rem; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.04em; }
+  .pv-client { font-weight: 700; color: #111827; }
+  .pv-cedula { color: #6b7280; font-size: 0.8rem; }
+  .pv-empty { color: #9ca3af; font-style: italic; }
+
+  .preview-table-wrap { overflow-x: auto; }
+  .preview-table { width: 100%; border-collapse: collapse; }
+  .preview-table th {
+    text-align: left; font-size: 0.72rem; text-transform: uppercase;
+    letter-spacing: 0.04em; color: #9ca3af; font-weight: 700;
+    padding: 0.35rem 0.5rem; border-bottom: 1px solid #e5e7eb;
+  }
+  .preview-table th:last-child, .preview-table td:last-child { text-align: right; }
+  .preview-table td {
+    padding: 0.45rem 0.5rem; border-bottom: 1px solid #f3f4f6;
+    color: #374151; font-size: 0.84rem;
+  }
+  .preview-table td:nth-child(1) { text-align: center; width: 48px; color: #9ca3af; }
+  .preview-table td:nth-child(3), .preview-table td:nth-child(4) { text-align: right; white-space: nowrap; }
+  .preview-table tbody tr:last-child td { border-bottom: none; }
+  .pv-empty-items {
+    text-align: center; color: #9ca3af; padding: 1.25rem 0;
+    font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+  }
+
+  .preview-totals {
+    margin-top: 0.8rem; border-top: 2px dashed #e5e7eb; padding-top: 0.7rem;
+  }
+  .pv-row {
+    display: flex; justify-content: space-between; padding: 0.2rem 0;
+    color: #374151; font-size: 0.84rem;
+  }
+  .pv-total {
+    border-top: 1px solid #e5e7eb; margin-top: 0.35rem; padding-top: 0.5rem;
+    font-weight: 800; color: #064F3C; font-size: 1.05rem;
+  }
+
+  .preview-atendido {
+    display: flex; align-items: baseline; gap: 0.5rem; flex-wrap: wrap;
+    margin-top: 0.9rem; padding-top: 0.7rem; border-top: 2px dashed #e5e7eb;
+    color: #6b7280; font-size: 0.8rem;
+  }
+  .pv-method { margin-left: auto; font-weight: 700; color: #064F3C; }
 
   .summary-card {
     background: white; border-radius: 14px; padding: 1.1rem 1.25rem;
@@ -602,5 +751,10 @@ items = [{ productId: '', quantity: 1, unitPrice: '' }];
     .summary-grid { grid-template-columns: 1fr; }
     .item-row { flex-wrap: wrap; }
     .item-row select { flex: 1 1 100%; }
+  }
+
+  @media (max-width: 1100px) {
+    .sales-layout { grid-template-columns: 1fr; }
+    .preview-col { position: static; }
   }
 </style>

@@ -270,6 +270,14 @@ Todos los módulos de listado/reportes tienen botón **Exportar** que genera un 
 - El historial de "Últimas Ventas" usa **etiquetas de color por método de pago** (Efectivo, Tarjeta, Nequi, Daviplata, Fiado).
 - **Archivo:** `src/routes/Sales.svelte`.
 
+### ✅ Restricción de registro: producto + cliente obligatorios
+- **No se puede registrar una venta sin** (1) al menos un producto seleccionado ("Agrega al menos un producto") y (2) un cliente seleccionado ("Selecciona el cliente para la venta"). En ambos casos se bloquea el registro y se muestra la notificación correspondiente.
+
+### ✅ Rediseño: formulario a la izquierda + vista previa de factura en vivo
+- La página de Ventas ahora usa **dos columnas**: a la izquierda el formulario de registro (más angosto) y a la derecha la **vista previa de la factura en vivo**, que se actualiza mientras se llena: productos, cantidades, precios automáticos, cliente, método de pago (si es fiado muestra "RECIBO / FIADO"), subtotal, IVA y total.
+- **Responsiva**: en pantallas menores a 1100 px las dos columnas se apilan (formulario arriba, factura debajo).
+- **Archivo:** `src/routes/Sales.svelte`.
+
 ---
 
 ## ❗ Problemas conocidos y soluciones
