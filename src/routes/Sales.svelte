@@ -283,7 +283,7 @@
           <div class="history-right">
             <span class="history-amount">{formatCurrency(sale.total)}</span>
             <button class="btn-invoice" on:click={() => openInvoice(sale)} title="Ver factura">
-              <i class="fa-solid fa-receipt"></i>
+              <i class="fa-solid fa-receipt"></i> Ver Factura
             </button>
           </div>
         </div>
@@ -374,8 +374,9 @@
 
   .btn-invoice {
     background: rgba(6,79,60,0.1); border: none; color: #064F3C;
-    width: 34px; height: 34px; border-radius: 8px; cursor: pointer;
-    font-size: 0.95rem; transition: background 0.15s;
+    padding: 0.4rem 0.8rem; border-radius: 8px; cursor: pointer;
+    font-size: 0.85rem; font-weight: 600; transition: background 0.15s;
+    display: inline-flex; align-items: center; gap: 0.4rem;
   }
   .btn-invoice:hover { background: rgba(6,79,60,0.18); }
 

@@ -40,7 +40,10 @@ export function initAuthListener() {
         uid: firebaseUser.uid,
         email: firebaseUser.email,
         emailVerified: firebaseUser.emailVerified,
-        ...userData
+        ...userData,
+        // Si el documento no tiene rol (p. ej. se borró al editar sin seleccionar rol),
+        // se restaura el rol por defecto: Administrador para admin@cinar.com, Cajero en el resto.
+        roleName: userData.roleName || (isAdminUser ? 'Administrador' : 'Cajero')
       });
     } catch (e) {
       authStore.setUser({

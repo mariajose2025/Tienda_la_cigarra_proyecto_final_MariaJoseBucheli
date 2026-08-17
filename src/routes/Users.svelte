@@ -75,7 +75,7 @@
         name: formData.name,
         phone: formData.phone,
         roleId: formData.roleId,
-        roleName: selectedRole ? selectedRole.name : ''
+        roleName: selectedRole ? selectedRole.name : (editingUser.roleName || '')
       });
       notify('success', 'Usuario actualizado correctamente');
       closeModal();
