@@ -223,6 +223,22 @@ Todos los módulos de listado/reportes tienen botón **Exportar** que genera un 
 
 ---
 
+### ✅ Corrección: menús desplegables del Navbar no abrían al hacer clic
+- **Problema:** al hacer clic en los títulos de sección (General, Inventario, Operaciones, Contabilidad, Administración, Cuenta), el menú desplegable **no se abría** (tampoco con hover en escritorio). La flecha de caret tampoco rotaba. Los enlaces del Dashboard sí funcionaban.
+- **Causa raíz:** Svelte **no rastrea dependencias a través de llamadas a funciones** en el markup. Las clases usaban `class:open={shouldShow('general')}` y `class:active={isSectionActive('general')}`: el compilador calculaba esas clases **una sola vez al montar** y jamás las volvía a evaluar cuando cambiaban `pinned`/`hovered`/`path` (verificado en el bundle compilado: el update `p()` del Navbar no actualizaba las clases `open`).
+- **Solución:** los estados derivados se computan ahora con variables reactivas que referencian directamente a sus dependencias: `$: openMap = { general: pinned.general || hovered === 'general', ... }` y `$: activeMap = Object.fromEntries(...)` con el path. El markup usa `class:open={openMap.general}`, `class:rotated={openMap.general}` y `class:active={activeMap.general}`.
+- **Archivos:** `src/components/common/Navbar.svelte`.
+
+---
+
+### ✅ Seguridad: la sesión ya no persiste al cerrar el navegador
+- **Problema:** al volver a abrir la página, la app **iniciaba sesión automáticamente** con la cuenta de admin sin pedir credenciales.
+- **Causa:** Firebase guardaba la sesión en `localStorage` (persistencia por defecto) y `onAuthStateChanged` la restauraba en cada visita. No había código de auto-login.
+- **Solución:** `setPersistence(auth, browserSessionPersistence)` al iniciar el listener de autenticación: la sesión vive solo mientras el navegador está abierto. Al abrir la página de nuevo se exige iniciar sesión.
+- **Archivos:** `src/services/authService.js`.
+
+---
+
 ## ❗ Problemas conocidos y soluciones
 
 | Problema | Causa | Solución aplicada |
@@ -231,6 +247,8 @@ Todos los módulos de listado/reportes tienen botón **Exportar** que genera un 
 | **Página en blanco en `/admin` o rutas desconocidas** | `svelte-spa-router` no encontraba match para la ruta (sin sesión, `/admin` no está en las rutas públicas) y renderizaba vacío | Rutas catch-all (`'*'`) en `App.svelte`: públicas → Home, autenticadas → Dashboard, setup → Setup |
 | **Página en blanco al cargar la app** | `App.svelte` usaba múltiples `<Router>` en bloques `{#if}`; al cambiar `canAccessAuth` o `needsSetup`, Svelte destruía/recreaba el Router, dejando el contenido en `null` | Un solo `<Router>` con todas las rutas combinadas + redirecciones reactivas sin destruir el Router |
 | **Crash con sesión activa (`startsWith` de undefined)** | `Navbar.svelte` usaba `$location.path`, pero `$location` es un string (no objeto) → `path` siempre `undefined` → `isSectionActive()` crasheaba al renderizar el menú de admin | `$: path = $location || '/'` en `src/components/common/Navbar.svelte` |
+| **Menús del Navbar no se despliegan al hacer clic** | Svelte no rastrea dependencias a través de llamadas a funciones: `class:open={shouldShow(...)}` se calculaba una sola vez | Estados derivados `openMap`/`activeMap` con referencias directas a `pinned`/`hovered`/`path` en `src/components/common/Navbar.svelte` |
+| **Inicia sesión automáticamente al abrir la página** | Firebase guardaba la sesión en `localStorage` y la restauraba en cada visita | `setPersistence(auth, browserSessionPersistence)` en `src/services/authService.js`: la sesión expira al cerrar el navegador |
 | **Factura sin datos de la tienda** | Datos no configurados | Configurarlos en **Configuración → Datos de la Tienda** (nombre, dirección, teléfono, NIT) |
 | **No se puede vender a fiado** | No hay clientes registrados | Registrar clientes primero en **Clientes** |
 
