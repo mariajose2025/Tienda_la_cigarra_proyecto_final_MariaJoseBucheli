@@ -117,7 +117,7 @@ Al registrar una venta se genera automáticamente una **factura** con:
 - Subtotal, IVA y total.
 - Método de pago.
 - En ventas a fiado: etiqueta **"SALDO PENDIENTE POR PAGAR"**.
-- Botones **Imprimir** y **Descargar PDF** (usa el diálogo de impresión del navegador).
+- Botones **Imprimir** (diálogo del navegador) y **Descargar PDF** — este último genera un **archivo PDF real** (`factura-<número>.pdf`) con la librería `html2pdf.js`, cargada bajo demanda (chunk separado que solo se descarga al usarlo).
 
 Las ventas a fiado además:
 - Crean automáticamente el crédito en el módulo de **Fiados**.
@@ -314,6 +314,11 @@ Todos los módulos de listado/reportes tienen botón **Exportar** que genera un 
 - Se aplica en **todos los cálculos de dinero**: subtotales por producto, IVA, totales (ventas y compras), y en **todas las sumas** de caja, flujo de caja, movimientos, gastos, fiados, cuentas por cobrar, ganancias, ventas por período, valor del inventario y dashboard.
 - `formatCurrency()` también redondea: todo lo que se muestra en pantalla es exacto, y los montos que se guardan en Firestore quedan limpios (verificado: venta de 1.5 × $3.000 + IVA 19% se guarda exactamente como $5.355).
 - **Archivos:** `src/utils/iva.js` y todas las páginas de `src/routes/` con totales.
+
+### ✅ Descarga de PDF real en la factura
+- El botón **"Descargar PDF"** de la factura ya no abre el diálogo de imprimir: genera un **archivo `.pdf` real** (`factura-<número>.pdf`) usando `html2pdf.js` (jsPDF + html2canvas) sobre el contenido de la factura.
+- La librería se carga **bajo demanda** con `import()` dinámico y se compila en un chunk aparte (`pdf-*.js`): el bundle principal no crece y el PDF solo se descarga cuando se pide.
+- **Archivo:** `src/components/common/InvoiceModal.svelte`, `vite.config.js` (chunk `pdf`).
 
 ---
 

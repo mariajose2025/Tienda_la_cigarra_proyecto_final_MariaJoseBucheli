@@ -43,6 +43,24 @@
   function printInvoice() {
     window.print();
   }
+
+  async function downloadPDF() {
+    const element = document.getElementById('invoice-print-area');
+    if (!element) return;
+    try {
+      const { default: html2pdf } = await import('html2pdf.js');
+      await html2pdf().set({
+        margin: [10, 10, 10, 10],
+        filename: `factura-${invoiceNumber(sale)}.pdf`,
+        image: { type: 'jpeg', quality: 0.95 },
+        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['avoid-all'] }
+      }).from(element).save();
+    } catch (e) {
+      console.error('Error generando PDF:', e);
+    }
+  }
 </script>
 
 {#if sale || credit}
@@ -51,7 +69,7 @@
       <button class="btn-toolbar" on:click={printInvoice}>
         <i class="fa-solid fa-print"></i> Imprimir
       </button>
-      <button class="btn-toolbar" on:click={printInvoice}>
+      <button class="btn-toolbar" on:click={downloadPDF}>
         <i class="fa-solid fa-file-pdf"></i> Descargar PDF
       </button>
     </div>

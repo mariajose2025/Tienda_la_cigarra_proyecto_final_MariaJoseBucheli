@@ -11,6 +11,7 @@ export default defineConfig({
           if (id.includes('node_modules')) {
             if (id.includes('firebase')) return 'firebase';
             if (id.includes('xlsx') || id.includes('sheetjs')) return 'excel';
+            if (id.includes('html2pdf') || id.includes('jspdf') || id.includes('html2canvas')) return 'pdf';
             return 'vendor';
           }
         }
