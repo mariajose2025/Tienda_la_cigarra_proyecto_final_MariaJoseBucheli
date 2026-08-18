@@ -283,6 +283,38 @@ Todos los módulos de listado/reportes tienen botón **Exportar** que genera un 
 - La página de Fiados ahora muestra un **aviso informativo** explicando este flujo, y conserva todo lo demás: cobro (marca pagado + movimiento de caja), filtros (todos/pendientes/vencidos/pagados), detalle con productos, exportar y eliminar.
 - **Archivo:** `src/routes/Credits.svelte`.
 
+### ✅ Seguridad: reglas de Firestore + protección de /setup y Roles
+- Se agregó el archivo **`firestore.rules`** (raíz del proyecto) que cierra la base de datos al público:
+  - `settings/config` se puede **leer** sin sesión (la app lo necesita para el login), pero **escribir** solo con sesión (o la primera vez, durante la instalación).
+  - El **resto de colecciones** (usuarios, productos, ventas, fiados, caja, etc.) solo se leen/escriben **con sesión iniciada**. Mientras la tienda no esté instalada (no existe `settings/config`) el acceso queda abierto para completar el asistente `/setup`.
+- **`/setup` protegido**: si la tienda ya está configurada, la ruta redirige a `/login` (antes cualquiera podía re-ejecutar la instalación). El chequeo de instalación ahora usa `settings/config` en lugar de la colección `users` (compatible con las reglas).
+- **`/admin/roles` solo Administrador**: los cajeros/inspectores que intenten entrar son redirigidos a `/admin` (en `App.svelte`), con respaldo de pantalla "Acceso restringido" dentro de `Roles.svelte`.
+- `getSettings()` ya no crea el documento de configuración sin sesión (respeta las reglas); la persistencia inicial la hace el asistente `/setup`.
+- **Archivos:** `firestore.rules`, `src/App.svelte`, `src/routes/Roles.svelte`, `src/services/settingsService.js`.
+- **Importante:** las reglas se activan publicándolas en la consola de Firebase (Firestore → Reglas) — ver sección *Seguridad* más abajo.
+
+### ✅ Fix: contador "vence pronto" del Dashboard
+- El Dashboard contaba productos por vencer calculando `new Date(p.expiryDate)` directamente sobre un Timestamp de Firestore, lo que producía `NaN` y el contador no mostraba un número válido.
+- Ahora convierte el Timestamp correctamente (`.toDate()` cuando existe) y descarta fechas inválidas o vacías.
+- **Archivo:** `src/routes/Dashboard.svelte`.
+
+---
+
+## 🔒 Seguridad: publicar las reglas de Firestore
+
+Las reglas están en el archivo **`firestore.rules`** (raíz del proyecto) pero **deben publicarse en la consola de Firebase** para que entren en vigencia. Pasos:
+
+1. Entra a la consola de Firebase → selecciona el proyecto de la tienda.
+2. Menú **Firestore Database** → pestaña **Reglas** (o Rules).
+3. Borra el contenido actual y pega el contenido de `firestore.rules`.
+4. Clic en **Publicar**.
+
+Antes de publicar, verifica que ya exista el documento `settings/config` en Firestore (lo crea el asistente `/setup` al instalar; si tu tienda ya está en uso, ya existe y la app lo mantiene). Con las reglas activas:
+
+- **Sin sesión**: solo se puede leer `settings/config` (lo que necesita la app para mostrar el login). Todo lo demás queda bloqueado.
+- **Con sesión**: se puede leer/escribir todo normalmente.
+- **Reinstalación**: `/setup` ya no es accesible si la tienda está configurada (redirige a `/login`).
+
 ---
 
 ## ❗ Problemas conocidos y soluciones

@@ -1,0 +1,32 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------------------------------------------------------------------
+    // settings/config: lectura pública.
+    // La aplicación necesita leer esta configuración antes de iniciar sesión
+    // (para saber si la tienda ya está instalada y mostrar el login).
+    // Escritura: permitida la primera vez (cuando el documento NO existe,
+    // es decir, durante la instalación) y después SOLO con sesión iniciada.
+    // ---------------------------------------------------------------------
+    match /settings/{doc} {
+      allow read: if true;
+      allow write: if request.auth != null
+        || !exists(/databases/$(database)/documents/settings/config);
+    }
+
+    // ---------------------------------------------------------------------
+    // Resto de las colecciones (users, products, sales, credits, caja, etc.):
+    // SOLO se pueden leer/escribir con sesión iniciada (usuario autenticado).
+    //
+    // Excepción de instalación: mientras NO exista settings/config
+    // (tienda recién creada), el acceso queda abierto para poder completar
+    // el asistente /setup. En cuanto se crea la configuración, el proyecto
+    // queda cerrado para el público.
+    // ---------------------------------------------------------------------
+    match /{document=**} {
+      allow read, write: if request.auth != null
+        || !exists(/databases/$(database)/documents/settings/config);
+    }
+  }
+}

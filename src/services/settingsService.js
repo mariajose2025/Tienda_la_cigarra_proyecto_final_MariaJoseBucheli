@@ -1,5 +1,5 @@
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { db } from './firebase';
+import { db, auth } from './firebase';
 
 const SETTINGS_DOC = 'config';
 
@@ -23,7 +23,12 @@ export async function getSettings() {
   const docRef = doc(db, 'settings', SETTINGS_DOC);
   const docSnap = await getDoc(docRef);
   if (!docSnap.exists()) {
-    await setDoc(docRef, DEFAULT_SETTINGS);
+    // Sin sesión (visitante anónimo de una tienda no configurada) se devuelven
+    // los valores por defecto sin escribir; la persistencia inicial la hace
+    // el asistente /setup (con sesión) para respetar las reglas de seguridad.
+    if (auth.currentUser) {
+      await setDoc(docRef, DEFAULT_SETTINGS).catch(() => {});
+    }
     return DEFAULT_SETTINGS;
   }
 

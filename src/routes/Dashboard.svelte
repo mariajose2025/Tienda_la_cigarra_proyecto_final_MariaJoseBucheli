@@ -48,7 +48,10 @@
 
       const now = new Date();
       stats.expiringSoon = products.filter(p => {
-        const days = Math.ceil((new Date(p.expiryDate) - now) / (1000*60*60*24));
+        if (!p.expiryDate) return false;
+        const expiry = p.expiryDate.toDate ? p.expiryDate.toDate() : new Date(p.expiryDate);
+        if (isNaN(expiry)) return false;
+        const days = Math.ceil((expiry - now) / (1000*60*60*24));
         return days <= 30 && days > 0;
       }).length;
 

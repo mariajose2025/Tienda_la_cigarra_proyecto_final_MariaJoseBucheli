@@ -86,6 +86,14 @@
 </script>
 
 <div class="page">
+  {#if !isAdmin($currentUser)}
+    <div class="no-access">
+      <i class="fa-solid fa-lock"></i>
+      <h1>Acceso restringido</h1>
+      <p>La asignación de roles solo está disponible para el <strong>Administrador</strong>.</p>
+      <a href="#/admin" class="back-link"><i class="fa-solid fa-arrow-left"></i> Volver al inicio</a>
+    </div>
+  {:else}
   <div class="page-header">
     <h1><i class="fa-solid fa-user-shield"></i> Asignación de Roles</h1>
     <ExportButton rows={normalizeRows('users', usersWithRole)} filename="usuarios-roles.xlsx" sheetName="Usuarios" label="Exportar" />
@@ -187,6 +195,7 @@
         {/each}
       </div>
     </div>
+  {/if}
   {/if}
 </div>
 
@@ -291,4 +300,16 @@
     border-radius: 6px; flex-shrink: 0;
   }
   .btn-remove-role:hover { background: #FEE2E2; color: #064F3C; }
+
+  .no-access {
+    text-align: center; padding: 3rem 1rem; background: #fff;
+    border: 1px dashed var(--border); border-radius: var(--radius);
+  }
+  .no-access i { font-size: 2.5rem; color: #9ca3af; margin-bottom: 0.75rem; }
+  .no-access h1 { font-size: 1.2rem; color: #0A241D; margin: 0 0 0.5rem; }
+  .no-access p { font-size: 0.9rem; color: #6b7280; margin: 0 0 1rem; }
+  .back-link {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    color: #064F3C; font-weight: 600; font-size: 0.9rem;
+  }
 </style>

@@ -1,12 +1,13 @@
 <script>
   import Router, { push, replace } from 'svelte-spa-router';
   import { onMount } from 'svelte';
-  import { collection, getDocs } from 'firebase/firestore';
+  import { doc, getDoc } from 'firebase/firestore';
   import { db } from './services/firebase';
   import { initAuthListener } from './services/authService';
   import { getSettings } from './services/settingsService';
   import { app } from './stores/app';
   import { isAuthenticated, currentUser, isLoading as authLoading } from './stores/auth';
+  import { isAdmin } from './utils/permissions';
   import Navbar from './components/common/Navbar.svelte';
   import Footer from './components/common/Footer.svelte';
   import ToastContainer from './components/common/ToastContainer.svelte';
@@ -40,6 +41,7 @@
 
   let appReady = false;
   let needsSetup = false;
+  let setupChecked = false;
   let currentPath = '';
 
   const ADMIN_EMAIL = 'admin@cinar.com';
@@ -85,6 +87,17 @@
       }
     }
 
+    // Seguridad: /setup solo está disponible mientras la tienda NO está configurada.
+    // Si ya hay usuarios/tienda configurada, se redirige a Login.
+    if (appReady && setupChecked && !needsSetup && currentPath === '/setup') {
+      replace('/login');
+    }
+
+    // Seguridad: la asignación de roles es exclusiva del Administrador.
+    if (appReady && canAccessAuth && currentPath === '/admin/roles' && !isAdmin($currentUser)) {
+      replace('/admin');
+    }
+
     if (appReady && canAccessAuth && (currentPath === '/' || currentPath === '')) {
       replace('/admin');
     }
@@ -97,11 +110,15 @@
     // Si Firebase tarda o falla, la app igualmente muestra su contenido.
     const loadInitialData = async () => {
       try {
-        const usersSnapshot = await getDocs(collection(db, 'users'));
-        needsSetup = usersSnapshot.empty;
+        // La tienda necesita configuración si settings/config NO existe
+        // (se crea al completar el asistente de instalación /setup).
+        const configSnap = await getDoc(doc(db, 'settings', 'config'));
+        needsSetup = !configSnap.exists();
       } catch (e) {
         console.error('Error checking setup:', e);
         needsSetup = false;
+      } finally {
+        setupChecked = true;
       }
 
       try {
