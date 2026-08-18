@@ -298,6 +298,11 @@ Todos los módulos de listado/reportes tienen botón **Exportar** que genera un 
 - Ahora convierte el Timestamp correctamente (`.toDate()` cuando existe) y descarta fechas inválidas o vacías.
 - **Archivo:** `src/routes/Dashboard.svelte`.
 
+### ✅ Renombrada la sección "Contabilidad" → "Caja y Reportes"
+- El menú del panel ahora muestra **Caja y Reportes** con un icono de gráfico de barras (`fa-chart-column`), más alusivo al contenido real (caja, gastos, reportes y movimientos).
+- Los mensajes de permisos y la descripción del rol **Cajero** se actualizaron para usar el nuevo nombre.
+- **Archivos:** `src/components/common/Navbar.svelte`, páginas de `src/routes/` y `src/routes/Roles.svelte`.
+
 ---
 
 ## 🔒 Seguridad: publicar las reglas de Firestore

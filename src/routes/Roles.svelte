@@ -14,7 +14,7 @@
   let loading = false;
 
   const ROLES = [
-    { value: 'Cajero', label: 'Cajero', desc: 'Atiende el punto de venta: registra ventas, fiados y clientes. Puede ver el inventario y proveedores pero no modificarlos ni acceder a contabilidad', icon: 'fa-cash-register', color: '#16a34a' },
+    { value: 'Cajero', label: 'Cajero', desc: 'Atiende el punto de venta: registra ventas, fiados y clientes. Puede ver el inventario y proveedores pero no modificarlos ni acceder a Caja y Reportes', icon: 'fa-cash-register', color: '#16a34a' },
     { value: 'Inspector', label: 'Inspector', desc: 'Solo puede ver la información sin poder modificar nada (solo lectura)', icon: 'fa-eye', color: '#6366f1' }
   ];
 

@@ -72,7 +72,7 @@
     <div class="no-access">
       <i class="fa-solid fa-lock"></i>
       <h2>Acceso restringido</h2>
-      <p>Las Cuentas por Cobrar son parte de Contabilidad y solo están disponibles para administradores.</p>
+      <p>Las Cuentas por Cobrar son parte de Caja y Reportes y solo están disponibles para administradores.</p>
     </div>
   {:else}
     <div class="page-header">

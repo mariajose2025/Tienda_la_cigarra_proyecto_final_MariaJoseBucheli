@@ -16,7 +16,7 @@
     general: ['/admin', '/nosotros'],
     inventario: ['/admin/productos', '/admin/categorias', '/admin/proveedores'],
     operaciones: ['/admin/compras', '/admin/ventas', '/admin/clientes', '/admin/fiados'],
-    contabilidad: ['/admin/ganancias', '/admin/cuentas-cobrar', '/admin/gastos', '/admin/valor-inventario', '/admin/flujo-caja', '/admin/ventas-reporte', '/admin/movimientos', '/admin/caja'],
+    cajaReportes: ['/admin/ganancias', '/admin/cuentas-cobrar', '/admin/gastos', '/admin/valor-inventario', '/admin/flujo-caja', '/admin/ventas-reporte', '/admin/movimientos', '/admin/caja'],
     admin: ['/admin/usuarios', '/admin/roles', '/admin/configuracion', '/admin/backup'],
     cuenta: ['/perfil']
   };
@@ -31,7 +31,7 @@
     general: pinned.general || hovered === 'general',
     inventario: pinned.inventario || hovered === 'inventario',
     operaciones: pinned.operaciones || hovered === 'operaciones',
-    contabilidad: pinned.contabilidad || hovered === 'contabilidad',
+    cajaReportes: pinned.cajaReportes || hovered === 'cajaReportes',
     admin: pinned.admin || hovered === 'admin',
     cuenta: pinned.cuenta || hovered === 'cuenta'
   };
@@ -124,12 +124,12 @@
       </div>
 
       {#if canView($currentUser, 'cash')}
-        <div class="nav-section" role="group" on:mouseenter={() => enterSection('contabilidad')} on:mouseleave={() => leaveSection('contabilidad')}>
-          <button class="nav-section-title" class:active={activeMap.contabilidad} on:click={() => toggleSection('contabilidad')} type="button">
-            <span><i class="fa-solid fa-scale-balanced"></i> Contabilidad</span>
-            <i class="fa-solid fa-chevron-down caret" class:rotated={openMap.contabilidad}></i>
+        <div class="nav-section" role="group" on:mouseenter={() => enterSection('cajaReportes')} on:mouseleave={() => leaveSection('cajaReportes')}>
+          <button class="nav-section-title" class:active={activeMap.cajaReportes} on:click={() => toggleSection('cajaReportes')} type="button">
+            <span><i class="fa-solid fa-chart-column"></i> Caja y Reportes</span>
+            <i class="fa-solid fa-chevron-down caret" class:rotated={openMap.cajaReportes}></i>
           </button>
-          <div class="nav-links-list" class:open={openMap.contabilidad}>
+          <div class="nav-links-list" class:open={openMap.cajaReportes}>
             <a href="/admin/ganancias" use:link class="nav-link" class:current={path === '/admin/ganancias'} on:click={closeMenus}>Reporte de Ganancias</a>
             <a href="/admin/cuentas-cobrar" use:link class="nav-link" class:current={path === '/admin/cuentas-cobrar'} on:click={closeMenus}>Cuentas por Cobrar</a>
             <a href="/admin/gastos" use:link class="nav-link" class:current={path === '/admin/gastos'} on:click={closeMenus}>Gastos</a>

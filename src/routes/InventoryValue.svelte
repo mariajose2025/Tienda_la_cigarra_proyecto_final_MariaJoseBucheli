@@ -50,7 +50,7 @@
     <div class="no-access">
       <i class="fa-solid fa-lock"></i>
       <h2>Acceso restringido</h2>
-      <p>El Valor del Inventario es parte de Contabilidad y solo está disponible para administradores.</p>
+      <p>El Valor del Inventario es parte de Caja y Reportes y solo está disponible para administradores.</p>
     </div>
   {:else}
     <div class="page-header">
