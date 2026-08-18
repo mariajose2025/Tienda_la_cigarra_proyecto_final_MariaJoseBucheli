@@ -149,7 +149,7 @@
         </a>
         <a href="/admin/fiados" use:link class="access-card gold">
           <i class="fa-solid fa-file-invoice-dollar"></i>
-          <span>Nuevo Fiado</span>
+          <span>Ver Fiados</span>
         </a>
         <a href="/admin/productos" use:link class="access-card">
           <i class="fa-solid fa-box-open"></i>
