@@ -1,6 +1,6 @@
 #  Tienda La Cigarra — Sistema de Gestión de Tienda de Barrio
 
-Sistema web de gestión para tienda de barrio desarrollado con **Svelte + Vite + Firebase** (Firestore) y desplegado en **Netlify**.
+Sistema web de gestión para tienda de barrio desarrollado con **Svelte + Vite + Firebase** (Firestore) y desplegado en **Vercel**.
 
 ---
 
