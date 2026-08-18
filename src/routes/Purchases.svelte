@@ -1,8 +1,8 @@
 <script>
   import { onMount } from 'svelte';
-  import { getAll, create } from '../services/firestoreService';
+  import { getAll } from '../services/firestoreService';
   import { notify } from '../stores/toast';
-  import { updateProductStock, updateProductPrice, getProductById } from '../services/productService';
+  import { createPurchase } from '../services/purchaseService';
   import { getOpenSession, addAutomaticMovement } from '../services/cashService';
   import { currentUser } from '../stores/auth';
   import { canCreate, canView } from '../utils/permissions';
@@ -82,19 +82,11 @@
         purchaseDate: new Date()
       };
 
-      const purchaseId = await create('purchases', purchaseData);
+      const purchaseId = await createPurchase(purchaseData);
 
       const openSession = await getOpenSession();
       if (openSession) {
         await addAutomaticMovement(openSession.id, 'egreso', 'compra', totals.total, purchaseId, 'purchase', `Compra a ${supplier?.name || 'proveedor'}`);
-      }
-
-      for (const item of validItems) {
-        const product = await getProductById(item.productId);
-        if (product) {
-          await updateProductStock(item.productId, product.currentStock + Number(item.quantity));
-          await updateProductPrice(item.productId, Number(item.unitPrice));
-        }
       }
 
       notify('success', 'Compra registrada exitosamente');
@@ -102,7 +94,11 @@
       items = [{ productId: '', quantity: 1, unitPrice: 0 }];
       purchases = await getAll('purchases');
     } catch (e) {
-      notify('error', 'Error al registrar compra');
+      if (e && e.message && e.message.startsWith('Producto no encontrado')) {
+        notify('error', e.message);
+      } else {
+        notify('error', 'Error al registrar compra');
+      }
     }
     loading = false;
   }

@@ -1,8 +1,8 @@
 <script>
   import { onMount } from 'svelte';
-  import { getAll, create } from '../services/firestoreService';
+  import { getAll } from '../services/firestoreService';
   import { notify } from '../stores/toast';
-  import { updateProductStock, getProductById } from '../services/productService';
+  import { createSale } from '../services/saleService';
   import { getOpenSession, addAutomaticMovement } from '../services/cashService';
   import { getAllClients } from '../services/clientService';
   import { createCredit } from '../services/creditService';
@@ -186,19 +186,12 @@
         saleData.status = 'pending';
       }
 
-      const saleId = await create('sales', saleData);
+      const saleId = await createSale(saleData);
 
       if (paymentMethod === 'efectivo') {
         const openSession = await getOpenSession();
         if (openSession) {
           await addAutomaticMovement(openSession.id, 'ingreso', 'venta', totals.total, saleId || '', 'sale', `Venta en efectivo: ${validItems.length} producto(s)`);
-        }
-      }
-
-      for (const item of validItems) {
-        const product = await getProductById(item.productId);
-        if (product) {
-          await updateProductStock(item.productId, product.currentStock - Number(item.quantity));
         }
       }
 
@@ -230,7 +223,11 @@ items = [{ productId: '', quantity: 1, unitPrice: '' }];
 
       openInvoice({ ...saleData, id: saleId }, credit);
     } catch (e) {
-      notify('error', 'Error al registrar venta');
+      if (e && e.message && (e.message.startsWith('Stock insuficiente') || e.message.startsWith('Producto no encontrado'))) {
+        notify('error', e.message);
+      } else {
+        notify('error', 'Error al registrar venta');
+      }
     }
     loading = false;
   }

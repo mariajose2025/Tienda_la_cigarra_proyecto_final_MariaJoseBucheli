@@ -303,6 +303,12 @@ Todos los módulos de listado/reportes tienen botón **Exportar** que genera un 
 - Los mensajes de permisos y la descripción del rol **Cajero** se actualizaron para usar el nuevo nombre.
 - **Archivos:** `src/components/common/Navbar.svelte`, páginas de `src/routes/` y `src/routes/Roles.svelte`.
 
+### ✅ Transacciones atómicas: el stock nunca queda mal
+- **Ventas** (`saleService.js`): registrar una venta ahora ocurre en **una transacción de Firestore** — la venta y el descuento de stock de todos sus productos se guardan juntos, o no se guarda nada. Si el stock real no alcanza, se muestra "Stock insuficiente" y **no se crea la venta**.
+- **Compras** (`purchaseService.js`): la compra, el aumento de stock y la actualización del precio de compra ocurren en una sola transacción. `deletePurchase` también es transaccional (resta el stock de los productos al eliminar la compra).
+- **Concurrencia**: si dos cajeros venden el mismo producto al mismo tiempo, Firestore reintenta la transacción automáticamente — las dos ventas descuentan su stock sin perderse (verificado con prueba de carrera en 2 pestañas: 2 ventas simultáneas → stock baja 2 veces).
+- **Archivos:** `src/services/saleService.js`, `src/services/purchaseService.js`, `src/routes/Sales.svelte`, `src/routes/Purchases.svelte`.
+
 ---
 
 ## 🔒 Seguridad: publicar las reglas de Firestore
