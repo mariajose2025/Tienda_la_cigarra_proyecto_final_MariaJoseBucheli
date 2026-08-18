@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { getAllMovements, getAllSessions } from '../services/cashService';
-  import { formatCurrency } from '../utils/iva';
+  import { formatCurrency, roundMoney } from '../utils/iva';
   import { currentUser } from '../stores/auth';
   import { canView } from '../utils/permissions';
   import { normalizeRows } from '../utils/exportUtils';
@@ -59,18 +59,18 @@
   }
 
   $: filtered = movements.filter(m => inRange(m.createdAt));
-  $: ingresos = filtered.filter(m => m.type === 'ingreso').reduce((s, m) => s + (m.amount || 0), 0);
-  $: egresos = filtered.filter(m => m.type === 'egreso').reduce((s, m) => s + (m.amount || 0), 0);
-  $: balance = ingresos - egresos;
+  $: ingresos = roundMoney(filtered.filter(m => m.type === 'ingreso').reduce((s, m) => s + (m.amount || 0), 0));
+  $: egresos = roundMoney(filtered.filter(m => m.type === 'egreso').reduce((s, m) => s + (m.amount || 0), 0));
+  $: balance = roundMoney(ingresos - egresos);
 
   $: sessionsFiltered = sessions.filter(s => inRange(s.openedAt || s.createdAt));
-  $: bases = sessionsFiltered.reduce((s, x) => s + (x.openingAmount || 0), 0);
+  $: bases = roundMoney(sessionsFiltered.reduce((s, x) => s + (x.openingAmount || 0), 0));
 
   $: byCategory = CATEGORIES.map(cat => {
     const items = filtered.filter(m => m.category === cat);
-    const ing = items.filter(m => m.type === 'ingreso').reduce((s, m) => s + (m.amount || 0), 0);
-    const egr = items.filter(m => m.type === 'egreso').reduce((s, m) => s + (m.amount || 0), 0);
-    return { cat, ing, egr, net: ing - egr };
+    const ing = roundMoney(items.filter(m => m.type === 'ingreso').reduce((s, m) => s + (m.amount || 0), 0));
+    const egr = roundMoney(items.filter(m => m.type === 'egreso').reduce((s, m) => s + (m.amount || 0), 0));
+    return { cat, ing, egr, net: roundMoney(ing - egr) };
   }).filter(x => x.ing !== 0 || x.egr !== 0);
 
   const CATEGORY_LABELS = {

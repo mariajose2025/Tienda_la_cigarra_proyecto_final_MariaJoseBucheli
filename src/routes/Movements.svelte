@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { getAllSessions, getAllMovements, getMovementsBySession } from '../services/cashService';
   import { notify } from '../stores/toast';
-  import { formatCurrency } from '../utils/iva';
+  import { formatCurrency, roundMoney } from '../utils/iva';
   import { currentUser } from '../stores/auth';
   import { canView } from '../utils/permissions';
   import { normalizeRows } from '../utils/exportUtils';
@@ -37,9 +37,9 @@
         if (movements.length === 0 && s.status === 'open') {
           movements = await getMovementsBySession(s.id);
         }
-        const income = movements.filter(m => m.type === 'ingreso').reduce((x, m) => x + (m.amount || 0), 0);
-        const expense = movements.filter(m => m.type === 'egreso').reduce((x, m) => x + (m.amount || 0), 0);
-        return { ...s, movements, income, expense, expected: (s.openingAmount || 0) + income - expense };
+        const income = roundMoney(movements.filter(m => m.type === 'ingreso').reduce((x, m) => x + (m.amount || 0), 0));
+        const expense = roundMoney(movements.filter(m => m.type === 'egreso').reduce((x, m) => x + (m.amount || 0), 0));
+        return { ...s, movements, income, expense, expected: roundMoney((s.openingAmount || 0) + income - expense) };
       }));
     } catch (e) {
       notify('error', 'Error al cargar movimientos');

@@ -4,7 +4,7 @@
   import { notify } from '../stores/toast';
   import { currentUser } from '../stores/auth';
   import { canCreate, canView } from '../utils/permissions';
-  import { formatCurrency } from '../utils/iva';
+  import { formatCurrency, roundMoney } from '../utils/iva';
   import { normalizeRows } from '../utils/exportUtils';
   import ExportButton from '../components/common/ExportButton.svelte';
   import Button from '../components/common/Button.svelte';
@@ -37,10 +37,10 @@
     egreso: 'fa-arrow-up'
   };
 
-  $: ingresoTotal = movements.filter(m => m.type === 'ingreso').reduce((s, m) => s + (m.amount || 0), 0);
-  $: egresoTotal = movements.filter(m => m.type === 'egreso').reduce((s, m) => s + (m.amount || 0), 0);
-  $: esperado = session ? (session.openingAmount || 0) + ingresoTotal - egresoTotal : 0;
-  $: diferencia = (Number(closingAmount) || 0) - esperado;
+  $: ingresoTotal = roundMoney(movements.filter(m => m.type === 'ingreso').reduce((s, m) => s + (m.amount || 0), 0));
+  $: egresoTotal = roundMoney(movements.filter(m => m.type === 'egreso').reduce((s, m) => s + (m.amount || 0), 0));
+  $: esperado = roundMoney((session ? (session.openingAmount || 0) + ingresoTotal - egresoTotal : 0));
+  $: diferencia = roundMoney((Number(closingAmount) || 0) - esperado);
 
   onMount(loadData);
 

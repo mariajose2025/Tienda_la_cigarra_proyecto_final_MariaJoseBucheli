@@ -6,7 +6,7 @@
   import { getOpenSession, addAutomaticMovement } from '../services/cashService';
   import { currentUser } from '../stores/auth';
   import { canEdit, canView } from '../utils/permissions';
-  import { formatCurrency } from '../utils/iva';
+  import { formatCurrency, roundMoney } from '../utils/iva';
   import { normalizeRows } from '../utils/exportUtils';
   import ExportButton from '../components/common/ExportButton.svelte';
   import Modal from '../components/common/Modal.svelte';
@@ -32,8 +32,8 @@
     return true;
   });
 
-  $: totalPending = credits.filter(c => c.status === 'pending').reduce((sum, c) => sum + (c.total || 0), 0);
-  $: totalPaid = credits.filter(c => c.status === 'paid').reduce((sum, c) => sum + (c.total || 0), 0);
+  $: totalPending = roundMoney(credits.filter(c => c.status === 'pending').reduce((sum, c) => sum + (c.total || 0), 0));
+  $: totalPaid = roundMoney(credits.filter(c => c.status === 'paid').reduce((sum, c) => sum + (c.total || 0), 0));
 
   onMount(async () => {
     [credits, clients] = await Promise.all([

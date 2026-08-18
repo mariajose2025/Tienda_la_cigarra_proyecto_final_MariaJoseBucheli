@@ -4,6 +4,7 @@
   import { currentUser } from '../stores/auth';
   import { isAdmin, canView } from '../utils/permissions';
   import { getAll } from '../services/firestoreService';
+  import { roundMoney } from '../utils/iva';
 
   let stats = {
     products: 0,
@@ -57,7 +58,7 @@
 
       const pendingCreditsList = credits.filter(c => c.status === 'pending');
       stats.pendingCredits = pendingCreditsList.length;
-      stats.totalPending = pendingCreditsList.reduce((sum, c) => sum + (c.total || 0), 0);
+      stats.totalPending = roundMoney(pendingCreditsList.reduce((sum, c) => sum + (c.total || 0), 0));
 
       recentPurchases = purchases.slice(0, 3);
       recentSales = sales.slice(0, 3);

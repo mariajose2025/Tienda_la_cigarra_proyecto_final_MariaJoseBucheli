@@ -309,6 +309,12 @@ Todos los módulos de listado/reportes tienen botón **Exportar** que genera un 
 - **Concurrencia**: si dos cajeros venden el mismo producto al mismo tiempo, Firestore reintenta la transacción automáticamente — las dos ventas descuentan su stock sin perderse (verificado con prueba de carrera en 2 pestañas: 2 ventas simultáneas → stock baja 2 veces).
 - **Archivos:** `src/services/saleService.js`, `src/services/purchaseService.js`, `src/routes/Sales.svelte`, `src/routes/Purchases.svelte`.
 
+### ✅ Dinero exacto: redondeo consistente en todos los montos
+- Nueva función `roundMoney()` en `src/utils/iva.js` que redondea a **2 decimales** de forma estable (evita errores de punto flotante como `0.1 + 0.2 = 0.30000000000000004`).
+- Se aplica en **todos los cálculos de dinero**: subtotales por producto, IVA, totales (ventas y compras), y en **todas las sumas** de caja, flujo de caja, movimientos, gastos, fiados, cuentas por cobrar, ganancias, ventas por período, valor del inventario y dashboard.
+- `formatCurrency()` también redondea: todo lo que se muestra en pantalla es exacto, y los montos que se guardan en Firestore quedan limpios (verificado: venta de 1.5 × $3.000 + IVA 19% se guarda exactamente como $5.355).
+- **Archivos:** `src/utils/iva.js` y todas las páginas de `src/routes/` con totales.
+
 ---
 
 ## 🔒 Seguridad: publicar las reglas de Firestore

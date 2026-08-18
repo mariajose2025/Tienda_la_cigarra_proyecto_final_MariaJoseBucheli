@@ -9,7 +9,7 @@
   import { currentUser } from '../stores/auth';
   import { canCreate, canView } from '../utils/permissions';
   import { ivaPercentage, storeInfo } from '../stores/app';
-  import { calculateTotalWithIVA, formatCurrency, calculateItemSubtotal } from '../utils/iva';
+  import { calculateTotalWithIVA, formatCurrency, calculateItemSubtotal, roundMoney } from '../utils/iva';
   import { normalizeRows } from '../utils/exportUtils';
   import Button from '../components/common/Button.svelte';
   import ExportButton from '../components/common/ExportButton.svelte';
@@ -52,13 +52,13 @@
 
   $: todaySales = sales.filter(s => isToday(s.saleDate));
   $: todayCount = todaySales.length;
-  $: todayTotal = todaySales.reduce((sum, s) => sum + (s.total || 0), 0);
+  $: todayTotal = roundMoney(todaySales.reduce((sum, s) => sum + (s.total || 0), 0));
   $: monthSales = sales.filter(s => isThisMonth(s.saleDate));
   $: monthCount = monthSales.length;
-  $: monthTotal = monthSales.reduce((sum, s) => sum + (s.total || 0), 0);
+  $: monthTotal = roundMoney(monthSales.reduce((sum, s) => sum + (s.total || 0), 0));
   $: creditSales = sales.filter(s => s.paymentMethod === 'fiado' && s.status === 'pending');
   $: creditCount = creditSales.length;
-  $: creditTotal = creditSales.reduce((sum, s) => sum + (s.total || 0), 0);
+  $: creditTotal = roundMoney(creditSales.reduce((sum, s) => sum + (s.total || 0), 0));
 
   function isToday(timestamp) {
     if (!timestamp) return false;

@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { getAll } from '../services/firestoreService';
-  import { formatCurrency } from '../utils/iva';
+  import { formatCurrency, roundMoney } from '../utils/iva';
   import { currentUser } from '../stores/auth';
   import { canView } from '../utils/permissions';
   import { normalizeRows } from '../utils/exportUtils';
@@ -64,15 +64,15 @@
   }
 
   $: filtered = sales.filter(s => inRange(s.saleDate || s.createdAt));
-  $: totalGeneral = filtered.reduce((s, x) => s + (x.total || 0), 0);
+  $: totalGeneral = roundMoney(filtered.reduce((s, x) => s + (x.total || 0), 0));
   $: count = filtered.length;
-  $: ticketPromedio = count > 0 ? totalGeneral / count : 0;
+  $: ticketPromedio = count > 0 ? roundMoney(totalGeneral / count) : 0;
 
   $: byMethod = PAYMENT_METHODS.map(m => {
     const items = filtered.filter(s => s.paymentMethod === m.id);
     return {
       ...m,
-      total: items.reduce((s, x) => s + (x.total || 0), 0),
+      total: roundMoney(items.reduce((s, x) => s + (x.total || 0), 0)),
       count: items.length
     };
   }).filter(x => x.count > 0);
@@ -84,7 +84,7 @@
       if (!d) return;
       const key = d.toISOString().slice(0, 10);
       if (!map[key]) map[key] = { day: d, total: 0, count: 0 };
-      map[key].total += s.total || 0;
+      map[key].total = roundMoney((map[key].total || 0) + (s.total || 0));
       map[key].count += 1;
     });
     return Object.values(map).sort((a, b) => b.day - a.day);

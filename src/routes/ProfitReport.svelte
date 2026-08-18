@@ -3,7 +3,7 @@
   import { getAll } from '../services/firestoreService';
   import { notify } from '../stores/toast';
   import { getAllExpenses } from '../services/expenseService';
-  import { formatCurrency } from '../utils/iva';
+  import { formatCurrency, roundMoney } from '../utils/iva';
   import { currentUser } from '../stores/auth';
   import { canView } from '../utils/permissions';
   import { normalizeRows } from '../utils/exportUtils';
@@ -94,15 +94,15 @@
   $: filteredPurchases = purchases.filter(p => inRange(p.purchaseDate || p.createdAt));
   $: filteredExpenses = expenses.filter(e => inRange(e.expenseDate || e.createdAt));
 
-  $: ventasTotales = filteredSales.reduce((s, x) => s + (x.total || 0), 0);
-  $: ivaVentas = filteredSales.reduce((s, x) => s + (x.iva || 0), 0);
-  $: ventasNetas = ventasTotales - ivaVentas;
+  $: ventasTotales = roundMoney(filteredSales.reduce((s, x) => s + (x.total || 0), 0));
+  $: ivaVentas = roundMoney(filteredSales.reduce((s, x) => s + (x.iva || 0), 0));
+  $: ventasNetas = roundMoney(ventasTotales - ivaVentas);
 
-  $: comprasTotales = filteredPurchases.reduce((s, x) => s + (x.total || 0), 0);
-  $: gastosTotales = filteredExpenses.reduce((s, x) => s + (x.amount || 0), 0);
+  $: comprasTotales = roundMoney(filteredPurchases.reduce((s, x) => s + (x.total || 0), 0));
+  $: gastosTotales = roundMoney(filteredExpenses.reduce((s, x) => s + (x.amount || 0), 0));
 
-  $: utilidadBruta = ventasNetas - comprasTotales;
-  $: utilidadNeta = utilidadBruta - gastosTotales;
+  $: utilidadBruta = roundMoney(ventasNetas - comprasTotales);
+  $: utilidadNeta = roundMoney(utilidadBruta - gastosTotales);
 
   $: itemsMerged = [
     ...filteredSales.flatMap(s => (s.items || []).map(i => ({ date: toDateKey(s.saleDate || s.createdAt), ...i }))),
@@ -116,10 +116,10 @@
       if (!map[name]) map[name] = { name, vendidos: 0, comprados: 0, venta: 0, compra: 0 };
       if (i.purchase) {
         map[name].comprados += i.quantity || 0;
-        map[name].compra += i.subtotal || 0;
+        map[name].compra = roundMoney((map[name].compra || 0) + (i.subtotal || 0));
       } else {
         map[name].vendidos += i.quantity || 0;
-        map[name].venta += i.subtotal || 0;
+        map[name].venta = roundMoney((map[name].venta || 0) + (i.subtotal || 0));
       }
     });
     return Object.values(map).sort((a, b) => b.venta - a.venta).slice(0, 8);

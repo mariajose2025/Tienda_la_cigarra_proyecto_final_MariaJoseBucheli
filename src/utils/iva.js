@@ -1,20 +1,26 @@
 const DEFAULT_IVA = 19;
 
+export function roundMoney(value) {
+  const num = Number(value) || 0;
+  return Math.round((num + Number.EPSILON) * 100) / 100;
+}
+
 export function calculateIVA(subtotal, ivaPercentage = DEFAULT_IVA) {
-  return subtotal * (ivaPercentage / 100);
+  return roundMoney(subtotal * (ivaPercentage / 100));
 }
 
 export function calculateTotalWithIVA(subtotal, ivaPercentage = DEFAULT_IVA) {
-  const iva = calculateIVA(subtotal, ivaPercentage);
+  const subtotalR = roundMoney(subtotal);
+  const iva = calculateIVA(subtotalR, ivaPercentage);
   return {
-    subtotal,
+    subtotal: subtotalR,
     iva,
-    total: subtotal + iva
+    total: roundMoney(subtotalR + iva)
   };
 }
 
 export function calculateItemSubtotal(quantity, unitPrice) {
-  return quantity * unitPrice;
+  return roundMoney(quantity * unitPrice);
 }
 
 export function formatCurrency(amount) {
@@ -22,5 +28,5 @@ export function formatCurrency(amount) {
     style: 'currency',
     currency: 'COP',
     minimumFractionDigits: 0
-  }).format(amount);
+  }).format(roundMoney(amount));
 }

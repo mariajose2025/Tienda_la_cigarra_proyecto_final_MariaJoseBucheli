@@ -3,7 +3,7 @@
   import { getAll } from '../services/firestoreService';
   import { getAllClients } from '../services/clientService';
   import { getAllCredits } from '../services/creditService';
-  import { formatCurrency } from '../utils/iva';
+  import { formatCurrency, roundMoney } from '../utils/iva';
   import { currentUser } from '../stores/auth';
   import { canView } from '../utils/permissions';
   import { normalizeRows } from '../utils/exportUtils';
@@ -35,7 +35,7 @@
   }
 
   $: pendingCredits = credits.filter(c => c.status === 'pending');
-  $: totalPendiente = pendingCredits.reduce((s, c) => s + (c.total || 0), 0);
+  $: totalPendiente = roundMoney(pendingCredits.reduce((s, c) => s + (c.total || 0), 0));
 
   $: rows = pendingCredits.map(c => {
     const client = getClient(c.clientId);
@@ -58,7 +58,7 @@
     return b.days - a.days;
   });
 
-  $: totalVencido = rows.filter(r => r.overdue).reduce((s, r) => s + (r.credit.total || 0), 0);
+  $: totalVencido = roundMoney(rows.filter(r => r.overdue).reduce((s, r) => s + (r.credit.total || 0), 0));
 
   function formatDate(timestamp) {
     if (!timestamp) return '—';

@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { getAllExpenses, createExpense, updateExpense, deleteExpense, EXPENSE_CATEGORIES } from '../services/expenseService';
   import { notify } from '../stores/toast';
-  import { formatCurrency } from '../utils/iva';
+  import { formatCurrency, roundMoney } from '../utils/iva';
   import { currentUser } from '../stores/auth';
   import { canView, canCreate, canEdit } from '../utils/permissions';
   import { normalizeRows } from '../utils/exportUtils';
@@ -114,9 +114,9 @@
       return (db ? (db.toDate ? db.toDate() : new Date(db)) : 0) - (da ? (da.toDate ? da.toDate() : new Date(da)) : 0);
     });
 
-  $: totalFijos = expenses.filter(e => e.type === 'fijo').reduce((s, e) => s + (e.amount || 0), 0);
-  $: totalVariables = expenses.filter(e => e.type === 'variable').reduce((s, e) => s + (e.amount || 0), 0);
-  $: totalGastos = totalFijos + totalVariables;
+  $: totalFijos = roundMoney(expenses.filter(e => e.type === 'fijo').reduce((s, e) => s + (e.amount || 0), 0));
+  $: totalVariables = roundMoney(expenses.filter(e => e.type === 'variable').reduce((s, e) => s + (e.amount || 0), 0));
+  $: totalGastos = roundMoney(totalFijos + totalVariables);
 </script>
 
 <div class="page">

@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { getAll } from '../services/firestoreService';
-  import { formatCurrency } from '../utils/iva';
+  import { formatCurrency, roundMoney } from '../utils/iva';
   import { currentUser } from '../stores/auth';
   import { canView } from '../utils/permissions';
   import { normalizeRows } from '../utils/exportUtils';
@@ -33,15 +33,15 @@
     .filter(p => !searchTerm.trim() || (p.name || '').toLowerCase().includes(searchTerm.trim().toLowerCase()));
 
   $: rows = filteredProducts.map(p => {
-    const costo = (p.currentStock || 0) * (p.purchasePrice || 0);
-    const venta = (p.currentStock || 0) * (p.salePrice || 0);
-    const margen = venta - costo;
+    const costo = roundMoney((p.currentStock || 0) * (p.purchasePrice || 0));
+    const venta = roundMoney((p.currentStock || 0) * (p.salePrice || 0));
+    const margen = roundMoney(venta - costo);
     return { product: p, costo, venta, margen, margenPct: venta > 0 ? (margen / venta) * 100 : 0 };
   }).sort((a, b) => b.costo - a.costo);
 
-  $: totalCosto = rows.reduce((s, r) => s + r.costo, 0);
-  $: totalVenta = rows.reduce((s, r) => s + r.venta, 0);
-  $: totalMargen = totalVenta - totalCosto;
+  $: totalCosto = roundMoney(rows.reduce((s, r) => s + r.costo, 0));
+  $: totalVenta = roundMoney(rows.reduce((s, r) => s + r.venta, 0));
+  $: totalMargen = roundMoney(totalVenta - totalCosto);
   $: unidades = filteredProducts.reduce((s, p) => s + (p.currentStock || 0), 0);
 </script>
 
