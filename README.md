@@ -342,8 +342,9 @@ Antes de publicar, verifica que ya exista el documento `settings/config` en Fire
 ##  Despliegue
 
 - Repositorio: `https://github.com/mariajose2025/Tienda_la_cigarra_proyecto_final_MariaJoseBucheli`
-- Sitio: `https://phenomenal-moxie-1a6ac0.netlify.app/#/`
+- Sitio (Vercel): `https://tienda-la-cigarra-proyecto-final-maria-jose-bucheli-jlmn3pek8.vercel.app/#/`
 - Rama de producción: `main`
+- Despliegue automático en **Vercel** (antes Netlify): cada push a `main` publica el sitio.
 - El proyecto usa SPA (`svelte-spa-router`), por lo que la URL de la tienda usa `/#/`.
 
 ---
