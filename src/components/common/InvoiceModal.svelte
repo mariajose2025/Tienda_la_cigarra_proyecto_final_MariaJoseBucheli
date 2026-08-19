@@ -27,8 +27,8 @@
 
   function invoiceNumber(sale) {
     if (sale.invoiceNumber) return sale.invoiceNumber;
-    if (sale.id) return 'FAC-' + String(sale.id).slice(-6).toUpperCase();
-    return 'FAC-000001';
+    if (sale.id) return 'PED-' + String(sale.id).slice(-6).toUpperCase();
+    return 'PED-000001';
   }
 
   $: items = (sale && (sale.items || [])) || (credit && (credit.items || [])) || [];

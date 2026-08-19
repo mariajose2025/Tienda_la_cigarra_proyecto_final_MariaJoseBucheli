@@ -37,7 +37,7 @@
   $: totals = calculateTotalWithIVA(subtotal, iva);
   $: isFiadoPayment = paymentMethod === 'fiado';
   $: previewItems = items.filter(i => i.productId);
-  $: previewInvoiceNumber = 'FAC-' + String(Date.now()).slice(-8);
+  $: previewInvoiceNumber = 'PED-' + String(Date.now()).slice(-8);
   $: previewDate = new Date().toLocaleDateString('es-CO');
 
   function productName(productId) {
@@ -155,7 +155,7 @@
     loading = true;
     try {
       const client = selectedClient;
-      const invoiceNumber = 'FAC-' + String(Date.now()).slice(-8);
+      const invoiceNumber = 'PED-' + String(Date.now()).slice(-8);
 
       const saleData = {
         items: validItems.map(item => {
