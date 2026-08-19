@@ -51,7 +51,7 @@
       const { default: html2pdf } = await import('html2pdf.js');
       await html2pdf().set({
         margin: [10, 10, 10, 10],
-        filename: `factura-${invoiceNumber(sale)}.pdf`,
+        filename: `pedido-${invoiceNumber(sale)}.pdf`,
         image: { type: 'jpeg', quality: 0.95 },
         html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
@@ -86,7 +86,7 @@
           </div>
         </div>
         <div class="invoice-title">
-          <h2>{isFiado ? 'RECIBO / FIADO' : 'FACTURA DE VENTA'}</h2>
+          <h2>{isFiado ? 'RECIBO / FIADO' : 'PEDIDO'}</h2>
           <p class="inv-number">N° {invoiceNumber(sale)}</p>
         </div>
       </div>

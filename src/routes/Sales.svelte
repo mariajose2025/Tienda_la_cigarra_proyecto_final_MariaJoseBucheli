@@ -395,7 +395,7 @@ items = [{ productId: '', quantity: 1, unitPrice: '' }];
           <p>Tel: {$storeInfo.phone} · NIT: {$storeInfo.nit}</p>
         </div>
         <div class="preview-meta">
-          <span class="preview-doc-title">{isFiadoPayment ? 'RECIBO / FIADO' : 'FACTURA DE VENTA'}</span>
+          <span class="preview-doc-title">{isFiadoPayment ? 'RECIBO / FIADO' : 'PEDIDO'}</span>
           <span>N° {previewInvoiceNumber}</span>
           <span>{previewDate}</span>
         </div>
@@ -429,7 +429,7 @@ items = [{ productId: '', quantity: 1, unitPrice: '' }];
             </tbody>
           </table>
         {:else}
-          <p class="pv-empty-items"><i class="fa-solid fa-box-open"></i> Agrega productos para ver la factura</p>
+          <p class="pv-empty-items"><i class="fa-solid fa-box-open"></i> Agrega productos para ver el pedido</p>
         {/if}
       </div>
 
@@ -462,8 +462,8 @@ items = [{ productId: '', quantity: 1, unitPrice: '' }];
           </div>
           <div class="history-right">
             <span class="history-amount">{formatCurrency(sale.total)}</span>
-            <button class="btn-invoice" on:click={() => openInvoice(sale)} title="Ver factura">
-              <i class="fa-solid fa-receipt"></i> Ver Factura
+            <button class="btn-invoice" on:click={() => openInvoice(sale)} title="Ver pedido">
+              <i class="fa-solid fa-receipt"></i> Ver Pedido
             </button>
           </div>
         </div>
@@ -472,7 +472,7 @@ items = [{ productId: '', quantity: 1, unitPrice: '' }];
   {/if}
 </div>
 
-<Modal show={showInvoiceModal} title="Factura" size="large" on:close={closeInvoiceModal}>
+<Modal show={showInvoiceModal} title="Pedido" size="large" on:close={closeInvoiceModal}>
   <InvoiceModal sale={lastSale} credit={lastCredit} />
 </Modal>
 

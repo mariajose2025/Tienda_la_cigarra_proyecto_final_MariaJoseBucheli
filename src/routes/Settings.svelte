@@ -102,7 +102,7 @@
   {#if isAdmin($currentUser)}
   <div class="settings-card">
     <h2>Datos de la Tienda</h2>
-    <p class="section-desc">Estos datos aparecen en la factura que se genera al registrar una venta.</p>
+    <p class="section-desc">Estos datos aparecen en el pedido que se genera al registrar una venta.</p>
 
     <div class="form-group">
       <label for="storeName">Nombre del negocio</label>
