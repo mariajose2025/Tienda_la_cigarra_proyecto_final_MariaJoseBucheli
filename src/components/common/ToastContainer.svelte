@@ -46,10 +46,10 @@
     font-weight: 500;
   }
 
-  .toast.success { background: #dcfce7; color: #166534; border-color: #86efac; }
-  .toast.error { background: #FFF7ED; color: #B45309; border-color: #FDBA74; }
-  .toast.warning { background: #fef9c3; color: #854d0e; border-color: #fde047; }
-  .toast.info { background: #e0f2fe; color: #075985; border-color: #7dd3fc; }
+  .toast-success { background: #dcfce7; color: #166534; border-color: #86efac; }
+  .toast-error { background: #fee2e2; color: #b91c1c; border-color: #fca5a5; }
+  .toast-warning { background: #fef9c3; color: #854d0e; border-color: #fde047; }
+  .toast-info { background: #e0f2fe; color: #075985; border-color: #7dd3fc; }
 
   .toast-message { flex: 1; }
   .toast-close {
