@@ -140,8 +140,16 @@
     }
 
     if (!selectedClient) {
-      notify('warning', 'Selecciona el cliente para la venta');
-      return;
+      const match = clients.find(c =>
+        (c.name || '').toLowerCase() === clientSearch.trim().toLowerCase() ||
+        (c.cedula || '').trim() === clientSearch.trim()
+      );
+      if (match) {
+        selectedClient = match;
+      } else {
+        notify('warning', 'Selecciona el cliente para la venta');
+        return;
+      }
     }
 
     for (const item of validItems) {
@@ -339,7 +347,7 @@ items = [{ productId: '', quantity: 1, unitPrice: '' }];
       {#if showClientList && filteredClients.length > 0}
         <ul class="client-list">
           {#each filteredClients as client}
-            <li on:click={() => selectClient(client)} on:keydown={(e) => { if (e.key === 'Enter') selectClient(client); }} tabindex="0" role="button">
+            <li on:mousedown|preventDefault={() => selectClient(client)} on:keydown={(e) => { if (e.key === 'Enter') { e.preventDefault(); selectClient(client); } }} tabindex="0" role="button">
               <span class="client-list-name">{client.name}</span>
               <span class="client-list-cedula">CC {client.cedula}</span>
             </li>
