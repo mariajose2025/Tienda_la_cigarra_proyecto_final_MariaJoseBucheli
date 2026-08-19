@@ -19,9 +19,9 @@
   let searchQuery = '';
 
   $: filteredClients = clients.filter(c =>
-    c.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.cedula?.includes(searchQuery) ||
-    c.phone?.includes(searchQuery)
+    (c.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (c.cedula || '').includes(searchQuery) ||
+    (c.phone || '').includes(searchQuery)
   );
 
   onMount(loadClients);
@@ -34,13 +34,23 @@
     }
   }
 
+  function toDateInput(value) {
+    if (!value) return '';
+    try {
+      const d = value.toDate ? value.toDate() : new Date(value);
+      return isNaN(d.getTime()) ? '' : d.toISOString().split('T')[0];
+    } catch {
+      return '';
+    }
+  }
+
   function openModal(client = null) {
     editingClient = client;
     formData = client
       ? {
           cedula: client.cedula,
           name: client.name,
-          birthDate: client.birthDate ? new Date(client.birthDate).toISOString().split('T')[0] : '',
+          birthDate: toDateInput(client.birthDate),
           address: client.address || '',
           phone: client.phone || '',
           maxDaysToPay: client.maxDaysToPay || 30
